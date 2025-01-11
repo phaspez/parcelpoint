@@ -23,11 +23,6 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRESQL_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRESQL_PASSWORD }}
           POSTGRES_DB: ${{ secrets.DB_NAME }}
-        options: >-
-          --health-cmd="pg_isready -U ${{ secrets.POSTGRESQL_USER }}"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
       - name: Check out the repository
@@ -52,6 +47,13 @@ jobs:
           - echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
           - echo "ENV=${{ secrets.ENV }}" >> $GITHUB_ENV
           - echo "DB_NAME=${{ secrets.DB_NAME }}" >> $GITHUB_ENV
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -U ${{ secrets.POSTGRESQL_USER }}; do
+            echo "Waiting for PostgreSQL to be ready..."
+            sleep 1
+          done
 
       - name: Run tests with pytest
         run: |
