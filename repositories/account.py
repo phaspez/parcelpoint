@@ -1,18 +1,15 @@
-from multiprocessing.managers import Value
 from typing import Type
 from uuid import uuid4, UUID
 
-import psycopg2.errors
+import bcrypt
 from psycopg.errors import UniqueViolation
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from models.account import AccountCreate, AccountUpdate
 from repositories.base import BaseRepository
 from schemas.account import AccountSchema
-from models.account import AccountCreate, AccountUpdate
-import bcrypt
-
 from schemas.merchant import MerchantSchema
 
 
