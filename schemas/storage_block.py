@@ -1,11 +1,7 @@
 from uuid import UUID
 from sqlalchemy import Column, String, ForeignKey, Float
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
-from sqlalchemy.ext.declarative import declarative_base
-
-from schemas.account import AccountSchema
-
-Base = declarative_base()
+from . import Base
 
 
 class StorageBlockSchema(Base):

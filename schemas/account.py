@@ -3,10 +3,8 @@ from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from sqlalchemy.orm import foreign, relationship, declarative_base
 from sqlalchemy.testing.schema import mapped_column
-
 from schemas.address import AddressSchema
-
-Base = declarative_base()
+from . import Base
 
 
 class AccountSchema(Base):

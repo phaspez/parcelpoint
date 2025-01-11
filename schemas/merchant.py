@@ -1,11 +1,8 @@
 from uuid import UUID
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
-from sqlalchemy.orm import declarative_base
-
 from schemas.account import AccountSchema
-
-Base = declarative_base()
+from . import Base
 
 
 class MerchantSchema(Base):

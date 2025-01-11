@@ -1,9 +1,7 @@
 from uuid import UUID
 from sqlalchemy import Column, String
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
-from sqlalchemy.orm import relationship, declarative_base
-
-Base = declarative_base()
+from . import Base
 
 
 class AddressSchema(Base):
