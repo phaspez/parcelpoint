@@ -1,5 +1,9 @@
+from multiprocessing.managers import Value
 from typing import Type
 from uuid import uuid4, UUID
+
+import psycopg2.errors
+from psycopg.errors import UniqueViolation
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -8,6 +12,8 @@ from repositories.base import BaseRepository
 from schemas.account import AccountSchema
 from models.account import AccountCreate, AccountUpdate
 import bcrypt
+
+from schemas.merchant import MerchantSchema
 
 
 def hash_password(password: str) -> str:
@@ -28,7 +34,7 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
             account["hashed_password"] = hash_password(schema.password)
             account["id"] = uuid4()
             account.pop("password")
-            print(account)
+
             model = AccountSchema(**account)
             self.db.add(model)
             self.db.commit()
@@ -36,17 +42,30 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
             return model
         except IntegrityError as e:
             self.db.rollback()
-            print(e.orig)
+            if isinstance(e.orig, UniqueViolation):
+                raise ValueError("Phone or Email already exists")
             raise ValueError(e.orig)
 
     def update(self, id: UUID, updated_values: AccountUpdate) -> AccountSchema | None:
         try:
             if updated_values.password is not None:
                 updated_values.hashed_password = hash_password(updated_values.password)
-            return super().update(id, updated_values)
+
+            result = super().update(id, updated_values)
+            self.db.commit()
+            self.db.refresh(result)
+            return result
+        except IntegrityError as e:
+            self.db.rollback()
+            if isinstance(e.orig, UniqueViolation):
+                raise ValueError("Phone or Email already exists")
+            raise e
         except Exception as e:
             self.db.rollback()
             raise e
+
+    def refresh(self, instance):
+        self.db.refresh(instance)
 
     def check_user_password(
         self, password: str, phone: str | None, email: str | None = None
@@ -68,3 +87,16 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
             raise ValueError("Phone or Password is incorrect")
 
         return user
+
+    def get_user_id_type(self, id: UUID):
+        user = self.get_by_id(id)
+        if not user:
+            raise ValueError(f"User with {id} does not exist")
+
+        is_in_merchant = self.db.query(MerchantSchema).filter(
+            and_(MerchantSchema.account_id == user.id)
+        )
+        if is_in_merchant:
+            return "MERCHANT"
+
+        return ValueError("Internal Server Error")

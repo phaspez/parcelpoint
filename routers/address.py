@@ -27,7 +27,7 @@ async def get_address(
 
 
 @router.get("/{id}")
-async def get_address(
+async def get_address_by_id(
     id: UUID, address_repo: AddressRepository = Depends(get_address_repository)
 ):
     address = address_repo.get_by_id(id)
@@ -50,10 +50,11 @@ async def create_address(
 
 
 @router.delete("/{id}")
-async def delete_address(id: UUID, db: AddressRepository = Depends(get_db)):
+async def delete_address(
+    id: UUID, address_repo: AddressRepository = Depends(get_address_repository)
+):
     try:
-        address_repo = AddressRepository(db)
-        return address_repo.delete_by_id(id)
+        return address_repo.delete(id)
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
 
@@ -65,6 +66,6 @@ async def patch_address(
     address_repo: AddressRepository = Depends(get_address_repository),
 ):
     try:
-        return address_repo.patch_address_by_id(id, updated)
+        return address_repo.update(id, updated)
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))

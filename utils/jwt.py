@@ -11,8 +11,11 @@ jwt_secret = os.getenv("JWT_SECRET")
 expire_in_minutes = 60 * 24 * 7
 
 
-def create_access_token(user: Account):
+def create_access_token(user: Account) -> str:
+    print("creating token account")
     to_encode = user.model_dump()
+    to_encode["id"] = str(to_encode["id"])
+    to_encode["address_id"] = str(to_encode["address_id"])
     expire = datetime.now() + timedelta(minutes=expire_in_minutes)
     to_encode.update({"exp": expire})
 
@@ -27,5 +30,5 @@ def verify_token(token: str) -> Account:
         return Account(**payload)
     except jwt.ExpiredSignatureError:
         raise ValueError("Token has expired")
-    except jwt.JWTError:
+    except jwt.PyJWTError:
         raise ValueError("Invalid token")

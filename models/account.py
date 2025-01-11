@@ -20,6 +20,14 @@ class Account(BaseModel):
     street: str
 
 
+class AccountWithType(Account):
+    type: str
+
+
+class Token(BaseModel):
+    token: str
+
+
 class AccountCreate(BaseModel):
     name: str
     password: str

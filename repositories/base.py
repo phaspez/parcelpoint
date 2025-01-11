@@ -46,6 +46,9 @@ class BaseRepository(Generic[SchemaType, CreateSchemaType, UpdateSchemaType]):
                 if value is None:
                     continue
                 setattr(db_object, key, value)
-            self.db.commit()
-            self.db.refresh(db_object)
+        self.db.commit()
+        self.db.refresh(db_object)
         return db_object
+
+    def refresh(self, instance):
+        self.db.refresh(instance)

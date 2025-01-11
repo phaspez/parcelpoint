@@ -1,37 +1,42 @@
-from datetime import datetime
+from uuid import UUID
+from sqlalchemy import Column, String, ForeignKey, Float, Boolean
+from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
+from sqlalchemy.ext.declarative import declarative_base
 
-from fastapi.params import Body
-from pydantic import BaseModel, Field
-from typing_extensions import Literal
+from schemas.account import AccountSchema
+from schemas.merchant import MerchantSchema
 
-from schemas.PackageReceiver import PackageReceiver
-from schemas.dimension import Dimension
-from typing import Annotated
+Base = declarative_base()
 
-class PackageIn(BaseModel):
-    id: Annotated[str, Body(description="Unique identifier")]
-    dimension: Annotated[Dimension, Body(description="Dimension measurements in centimeters")]
-    receiver: PackageReceiver | None = None
-    weight: Annotated[float, Body(description="Weight in kilogram", lt=0)]
-    contents: str
-    fragile: bool = False
 
-class Package(BaseModel):
-    id: str
-    dimension: Dimension
-    weight: float
-    contents: str
-    status: Literal['CREATED', 'IN STOCK', 'DELIVERING', 'RETURNING', 'DAMAGED'] = 'CREATED'
-    receiver: PackageReceiver | None = None
-    created_at: datetime = Field(default_factory=datetime.now)
-    fragile: bool = False
+class PackageSchema(Base):
+    __tablename__ = "package"
 
-class PackageOut(BaseModel):
-    id: str
-    dimension: Dimension
-    weight: float
-    contents: str
-    status: Literal['CREATED', 'DELIVERING', 'RETURNING']
-    created_at: datetime = Field(default_factory=datetime.now)
-    receiver: PackageReceiver | None = None
-    fragile: bool = False
+    id = Column(PostgresUUID(as_uuid=True), primary_key=True)
+
+    merchant_id = Column(
+        PostgresUUID(as_uuid=True),
+        ForeignKey(MerchantSchema.account_id),
+        nullable=False,
+        primary_key=True,
+    )
+    block_id = Column(PostgresUUID(as_uuid=True), nullable=True)
+    address_id = Column(PostgresUUID(as_uuid=True), nullable=False)
+
+    description = Column(String)
+    street = Column(String)
+    name = Column(String)
+    phone = Column(String)
+
+    width = Column(Float)
+    height = Column(Float)
+    length = Column(Float)
+    weight = Column(Float)
+
+    is_fragile = Column(Boolean)
+    is_urgent = Column(Boolean)
+
+    status = Column(String)
+
+    shipping_cost = Column(Float)
+    cod_cost = Column(Float)
