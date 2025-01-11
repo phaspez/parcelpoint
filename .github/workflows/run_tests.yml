@@ -62,6 +62,10 @@ jobs:
           echo "ENV=${ENV}" >> $GITHUB_ENV
           echo "DB_NAME=${DB_NAME}" >> $GITHUB_ENV
 
+      - name: Setup test database
+        run: |
+          alembic upgrade head
+
       - name: Run tests with pytest
         run: |
           pytest
