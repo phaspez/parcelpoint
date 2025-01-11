@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
 
-from Lib.test.test_robotparser import UserAgentGoogleMobileTest
-
 import jwt
 import os
 
