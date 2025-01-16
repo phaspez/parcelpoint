@@ -2,7 +2,8 @@ from main import app
 from fastapi.testclient import TestClient
 import pytest
 import random
-from models.account import AccountCreate, Account, AccountUpdate, AccountLogin
+from models.account import AccountCreate, Account, AccountUpdate, AccountLogin, Token
+from seedings.seeding_account import email
 
 # cookie cred for phone 0000000002 password "password"
 token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhjYjhjNGE1LWM1YjMtNDRmYS05MDc5LWM5OWY5ZDZlMjkxNiIsIm5hbWUiOiJ0ZXN0X3VzZXJuYW1lXzIiLCJoYXNoZWRfcGFzc3dvcmQiOiIkMmIkMTIkZlFQanQ4UlZhQjA1dDA3Z2UwZkRIT1BxTFBUMTk4LndyWGR4VXFqeFVGeThaQ3l5RVk5Yi4iLCJwaG9uZSI6IjAwMDAwMDAwMDIiLCJlbWFpbCI6InRlc3RfdXNlcm5hbWVfMkBleGFtcGxlLmNvbSIsImFkZHJlc3NfaWQiOiI2YTdlZTQzYy1iY2M0LTQ2YzItYjQ4Ny1lYjNmYjMzODI5OWYiLCJzdHJlZXQiOiJzdHJlZXQgbmFtZSAyIiwiZXhwIjoxNzM2ODg3MDc4fQ.ne-D7_QW3t-bCL0UHiNDXfbn7KDwF48PkOdC7VqO8Vk"
@@ -23,12 +24,6 @@ def random_address_id(client):
 def test_get_accounts_not_logged_in(client):
     response = client.get("/account")
     assert response.status_code == 401
-
-
-def test_get_accounts(client):
-    client.cookies = {"token": token}
-    response = client.get("/account")
-    assert response.status_code == 200
 
 
 def test_create_account(client, random_address_id):
@@ -65,6 +60,26 @@ def test_login_email(client, created_account):
     account_id, data = created_account
     login = AccountLogin(email="em@gmail.com", password="password")
     response = client.post("/account/login", json=login.model_dump())
+    assert response.status_code == 200
+    assert response.json()
+
+    token = Token(**response.json())
+    test_login_email.created_data = token.model_dump()
+
+
+test_login_email.created_data = None
+
+
+@pytest.fixture
+def created_token():
+    if not test_login_email.created_data:
+        raise ValueError("test_login must be run before using this fixture")
+    return test_login_email.created_data["token"]
+
+
+def test_get_accounts_logged_in(client, created_token):
+    client.cookies = {"token": created_token}
+    response = client.get("/account")
     assert response.status_code == 200
     assert response.json()
 

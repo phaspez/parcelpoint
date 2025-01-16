@@ -2,6 +2,10 @@ from sqlalchemy import Column, String, ForeignKey, Float, Boolean
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from schemas.merchant import MerchantSchema
 from . import Base
+from .address import AddressSchema
+from .order import OrderSchema
+from .package_rate import PackageRateSchema
+from .storage_block import StorageBlockSchema
 
 
 class PackageSchema(Base):
@@ -13,10 +17,16 @@ class PackageSchema(Base):
         PostgresUUID(as_uuid=True),
         ForeignKey(MerchantSchema.account_id),
         nullable=False,
-        primary_key=True,
     )
-    block_id = Column(PostgresUUID(as_uuid=True), nullable=True)
-    address_id = Column(PostgresUUID(as_uuid=True), nullable=False)
+    block_id = Column(
+        PostgresUUID(as_uuid=True), ForeignKey(StorageBlockSchema.id), nullable=True
+    )
+    order_id = Column(
+        PostgresUUID(as_uuid=True), ForeignKey(OrderSchema.id), nullable=True
+    )
+    address_id = Column(
+        PostgresUUID(as_uuid=True), ForeignKey(AddressSchema.id), nullable=False
+    )
 
     description = Column(String)
     street = Column(String)
@@ -33,5 +43,8 @@ class PackageSchema(Base):
 
     status = Column(String)
 
+    package_rate_id = Column(
+        PostgresUUID(as_uuid=True), ForeignKey(PackageRateSchema.id), nullable=False
+    )
     shipping_cost = Column(Float)
     cod_cost = Column(Float)

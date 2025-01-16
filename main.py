@@ -1,10 +1,9 @@
-from typing import Annotated
-
-from fastapi import FastAPI, Body
-from routers import address, account, merchant
+from fastapi import FastAPI
+from routers import address, account, merchant, storage_block
 
 app = FastAPI()
 
 app.include_router(address.router)
 app.include_router(account.router)
 app.include_router(merchant.router)
+app.include_router(storage_block.router)

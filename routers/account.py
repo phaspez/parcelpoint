@@ -101,10 +101,10 @@ async def login_account(
         account_instance = account_repo.check_user_password(
             login.password, login.phone, login.email
         )
-
-        account_type = account_repo.get_user_id_type(str(account_instance.id))
-        account = AccountWithType(**account_instance.__dict__, type=account_type)
-        account_token = create_access_token(account)
+        account = Account(**account_instance.__dict__)
+        account_type = account_repo.get_user_id_type(account.id)
+        account_with_type = AccountWithType(**account.model_dump(), type=account_type)
+        account_token = create_access_token(account_with_type)
         return Token(token=account_token)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

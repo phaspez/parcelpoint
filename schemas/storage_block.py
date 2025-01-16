@@ -1,6 +1,6 @@
-from uuid import UUID
-from sqlalchemy import Column, String, ForeignKey, Float
+from sqlalchemy import Column, String, Float, Integer
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
+
 from . import Base
 
 
@@ -14,3 +14,4 @@ class StorageBlockSchema(Base):
     name = Column(String)
     max_weight = Column(Float)
     max_size = Column(Float)
+    max_package = Column(Integer)

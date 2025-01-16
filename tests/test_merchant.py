@@ -13,9 +13,6 @@ from models.merchant import (
     MerchantCreateNoID,
 )
 
-# cookie cred for phone 0000000002 password "password"
-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjhjYjhjNGE1LWM1YjMtNDRmYS05MDc5LWM5OWY5ZDZlMjkxNiIsIm5hbWUiOiJ0ZXN0X3VzZXJuYW1lXzIiLCJoYXNoZWRfcGFzc3dvcmQiOiIkMmIkMTIkZlFQanQ4UlZhQjA1dDA3Z2UwZkRIT1BxTFBUMTk4LndyWGR4VXFqeFVGeThaQ3l5RVk5Yi4iLCJwaG9uZSI6IjAwMDAwMDAwMDIiLCJlbWFpbCI6InRlc3RfdXNlcm5hbWVfMkBleGFtcGxlLmNvbSIsImFkZHJlc3NfaWQiOiI2YTdlZTQzYy1iY2M0LTQ2YzItYjQ4Ny1lYjNmYjMzODI5OWYiLCJzdHJlZXQiOiJzdHJlZXQgbmFtZSAyIiwiZXhwIjoxNzM2ODg3MDc4fQ.ne-D7_QW3t-bCL0UHiNDXfbn7KDwF48PkOdC7VqO8Vk"
-
 
 @pytest.fixture
 def client():
@@ -33,7 +30,17 @@ def test_get_merchant(client):
     response = client.get("/merchant")
     assert response.status_code == 200
 
-    print(response.json())
+    test_get_merchant.data = response.json()
+
+
+test_get_merchant.data = None
+
+
+@pytest.fixture
+def get_list_of_merchants():
+    if not test_get_merchant.data:
+        raise ValueError("test_get_merchant must be run before using this fixture")
+    return test_get_merchant.data
 
 
 def test_get_invalid_format(client):
@@ -43,8 +50,10 @@ def test_get_invalid_format(client):
     assert response.json()["detail"]
 
 
-def test_get_merchant_by_id(client):
-    existing_id = "8cb8c4a5-c5b3-44fa-9079-c99f9d6e2916"
+def test_get_merchant_by_id(client, get_list_of_merchants):
+    merchants = get_list_of_merchants
+    choice = random.choice(merchants)
+    existing_id = choice["account_id"]
     response = client.get(f"/merchant/{existing_id}")
     print(response.json())
     assert response.status_code == 200
@@ -60,10 +69,12 @@ def test_get_merchant_by_id(client):
     )
 
 
-def test_update_merchant(client):
-    existing_id = "8cb8c4a5-c5b3-44fa-9079-c99f9d6e2916"
+def test_update_merchant(client, get_list_of_merchants):
+    merchants = get_list_of_merchants
+    choice = random.choice(merchants)
+    existing_id = choice["account_id"]
     merchant_updated = MerchantUpdate(
-        company_name="test_username_2_company updated",
+        merchant_description=f"Desc Updated at {datetime.datetime.now()}",
         registration_date=datetime.date.today(),
     )
     account_updated = AccountUpdate(street="Updated street")
