@@ -7,7 +7,14 @@ def truncate():
     try:
         cur.execute(
             """
-            TRUNCATE TABLE account, address, merchant, order, package, packagerate, staff, storageblock CASCADE;
+            TRUNCATE TABLE account CASCADE;
+            TRUNCATE TABLE address CASCADE;
+            TRUNCATE TABLE merchant CASCADE;
+            TRUNCATE TABLE "order" CASCADE;
+            TRUNCATE TABLE package CASCADE;
+            TRUNCATE TABLE packagerate CASCADE;
+            TRUNCATE TABLE staff CASCADE;
+            TRUNCATE TABLE storageblock CASCADE;
         """
         )
         connection.commit()
