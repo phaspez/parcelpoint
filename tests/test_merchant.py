@@ -12,11 +12,7 @@ from models.merchant import (
     MerchantDetails,
     MerchantCreateNoID,
 )
-
-
-@pytest.fixture
-def client():
-    return TestClient(app)
+from conftest import client
 
 
 @pytest.fixture
@@ -26,70 +22,11 @@ def random_address_id(client):
     return choice["id"]
 
 
-def test_get_merchant(client):
-    response = client.get("/merchant")
-    assert response.status_code == 200
-
-    test_get_merchant.data = response.json()
-
-
-test_get_merchant.data = None
-
-
-@pytest.fixture
-def get_list_of_merchants():
-    if not test_get_merchant.data:
-        raise ValueError("test_get_merchant must be run before using this fixture")
-    return test_get_merchant.data
-
-
 def test_get_invalid_format(client):
     response = client.get(f"/merchant/{uuid4()}")
     print(response.json())
     assert response.status_code == 404
     assert response.json()["detail"]
-
-
-def test_get_merchant_by_id(client, get_list_of_merchants):
-    merchants = get_list_of_merchants
-    choice = random.choice(merchants)
-    existing_id = choice["account_id"]
-    response = client.get(f"/merchant/{existing_id}")
-    print(response.json())
-    assert response.status_code == 200
-    assert response.json()["account_id"] == existing_id
-
-    response_detailed = client.get(f"/merchant/{existing_id}?is_detailed=true")
-    print(response_detailed.json())
-    assert response_detailed.status_code == 200
-    assert (
-        response_detailed.json()["account_id"]
-        == response_detailed.json()["account"]["id"]
-        == existing_id
-    )
-
-
-def test_update_merchant(client, get_list_of_merchants):
-    merchants = get_list_of_merchants
-    choice = random.choice(merchants)
-    existing_id = choice["account_id"]
-    merchant_updated = MerchantUpdate(
-        merchant_description=f"Desc Updated at {datetime.datetime.now()}",
-        registration_date=datetime.date.today(),
-    )
-    account_updated = AccountUpdate(street="Updated street")
-    jsoned = {
-        "merchant_updated": merchant_updated.model_dump(),
-        "account_updated": account_updated.model_dump(),
-    }
-    jsoned["merchant_updated"]["registration_date"] = str(datetime.date.today())
-
-    print(jsoned)
-
-    response = client.patch(f"/merchant/{existing_id}", json=jsoned)
-    print(response.json())
-    assert response.status_code == 200
-    assert MerchantDetails(**response.json())
 
 
 def test_create_merchant(client, random_address_id):
@@ -136,6 +73,65 @@ def created_merchant():
         test_create_merchant.created_data["account_id"],
         test_create_merchant.created_data,
     )
+
+
+def test_get_merchant(client):
+    response = client.get("/merchant")
+    assert response.status_code == 200
+
+    test_get_merchant.data = response.json()
+
+
+test_get_merchant.data = None
+
+
+@pytest.fixture
+def get_list_of_merchants():
+    if not test_get_merchant.data:
+        raise ValueError("test_get_merchant must be run before using this fixture")
+    return test_get_merchant.data
+
+
+def test_get_merchant_by_id(client, get_list_of_merchants):
+    merchants = get_list_of_merchants
+    choice = random.choice(merchants)
+    existing_id = choice["account_id"]
+    response = client.get(f"/merchant/{existing_id}")
+    print(response.json())
+    assert response.status_code == 200
+    assert response.json()["account_id"] == existing_id
+
+    response_detailed = client.get(f"/merchant/{existing_id}?is_detailed=true")
+    print(response_detailed.json())
+    assert response_detailed.status_code == 200
+    assert (
+        response_detailed.json()["account_id"]
+        == response_detailed.json()["account"]["id"]
+        == existing_id
+    )
+
+
+def test_update_merchant(client, get_list_of_merchants):
+    merchants = get_list_of_merchants
+    choice = random.choice(merchants)
+    existing_id = choice["account_id"]
+    merchant_updated = MerchantUpdate(
+        merchant_description=f"Desc Updated at {datetime.datetime.now()}",
+        registration_date=datetime.date.today(),
+    )
+    account_updated = AccountUpdate(street="Updated street")
+    jsoned = {
+        "merchant_updated": merchant_updated.model_dump(),
+        "account_updated": account_updated.model_dump(),
+    }
+    jsoned["merchant_updated"]["registration_date"] = str(datetime.date.today())
+
+    print(jsoned)
+
+    response = client.patch(f"/merchant/{existing_id}", json=jsoned)
+    print(response.json())
+    assert response.status_code == 200
+    assert MerchantDetails(**response.json())
 
 
 def test_delete_merchant(client, created_merchant):

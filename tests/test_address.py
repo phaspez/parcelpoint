@@ -4,11 +4,7 @@ from fastapi.testclient import TestClient
 import pytest
 
 from models.address import Address, AddressCreate
-
-
-@pytest.fixture
-def client():
-    return TestClient(app)
+from conftest import client
 
 
 def test_get_address(client):

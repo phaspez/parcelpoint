@@ -31,6 +31,9 @@ def get_account_repository(db: Session = Depends(get_db)) -> AccountRepository:
     return AccountRepository(db)
 
 
+MerchantRepoDep = Annotated[MerchantRepository, Depends(get_merchant_repository)]
+AccountRepoDep = Annotated[AccountRepository, Depends(get_account_repository)]
+
 router = APIRouter(
     prefix="/merchant",
     tags=["merchant"],
@@ -38,9 +41,7 @@ router = APIRouter(
 
 
 @router.get("/")
-async def get_merchants(
-    merchant_repo: MerchantRepository = Depends(get_merchant_repository),
-):
+async def get_merchants(merchant_repo: MerchantRepoDep):
     return merchant_repo.get_all()
 
 
@@ -48,8 +49,8 @@ async def get_merchants(
 async def register_merchant(
     merchant_create: MerchantCreateNoID,
     account_create: AccountCreate,
-    merchant_repo: MerchantRepository = Depends(get_merchant_repository),
-    account_repo: AccountRepository = Depends(get_account_repository),
+    merchant_repo: MerchantRepoDep,
+    account_repo: AccountRepoDep,
 ) -> MerchantDetails:
     try:
         account = account_repo.create(account_create)
@@ -68,8 +69,8 @@ async def register_merchant(
 @router.get("/{id}")
 async def get_merchant_by_id(
     id: UUID,
-    merchant_repo: MerchantRepository = Depends(get_merchant_repository),
-    account_repo: AccountRepository = Depends(get_account_repository),
+    merchant_repo: MerchantRepoDep,
+    account_repo: AccountRepoDep,
     is_detailed: bool = False,
 ):
     merchant = merchant_repo.get_by_id(id)
@@ -94,8 +95,8 @@ async def update_merchant(
     id: UUID,
     merchant_updated: MerchantUpdate,
     account_updated: AccountUpdate,
-    merchant_repo: MerchantRepository = Depends(get_merchant_repository),
-    account_repo: AccountRepository = Depends(get_account_repository),
+    merchant_repo: MerchantRepoDep,
+    account_repo: AccountRepoDep,
 ):
     merchant = merchant_updated.model_dump()
     account = account_updated.model_dump()
@@ -125,8 +126,8 @@ async def update_merchant(
 @router.delete("/{id}")
 async def delete_merchant(
     id: UUID,
-    merchant_repo: MerchantRepository = Depends(get_merchant_repository),
-    account_repo: AccountRepository = Depends(get_account_repository),
+    merchant_repo: MerchantRepoDep,
+    account_repo: AccountRepoDep,
 ):
     account = account_repo.get_by_id(id)
     merchant = merchant_repo.get_by_id(id)

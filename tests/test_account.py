@@ -3,11 +3,7 @@ from fastapi.testclient import TestClient
 import pytest
 import random
 from models.account import AccountCreate, Account, AccountUpdate, AccountLogin, Token
-
-
-@pytest.fixture
-def client():
-    return TestClient(app)
+from conftest import client
 
 
 @pytest.fixture

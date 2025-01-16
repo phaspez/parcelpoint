@@ -8,6 +8,7 @@ class BaseStorageBlock(BaseModel):
     name: str
     max_weight: float
     max_size: float
+    max_package: int
 
 
 class StorageBlock(BaseStorageBlock):
@@ -22,3 +23,4 @@ class StorageBlockUpdate(BaseModel):
     name: str | None = None
     max_weight: float | None = None
     max_size: float | None = None
+    max_int: float | None = None

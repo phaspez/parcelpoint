@@ -1,3 +1,4 @@
+from .staff import seed_staff
 from .truncate import truncate
 from .account import seed_account
 from .address import seed_address
@@ -9,6 +10,7 @@ def global_setup():
     seed_address()
     seed_account()
     seed_merchant()
+    seed_staff()
 
 
 def global_teardown():
