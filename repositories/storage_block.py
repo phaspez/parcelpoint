@@ -15,18 +15,3 @@ class StorageBlockRepository(
 ):
     def __init__(self, db: Session):
         super().__init__(db, StorageBlockSchema)
-
-        trigger_exists = db.execute(
-            text(
-                """
-            SELECT EXISTS (
-                SELECT 1 
-                FROM information_schema.triggers 
-                WHERE trigger_name = 'enforce_block_capacity'
-            );
-        """
-            )
-        ).scalar()
-        if not trigger_exists:
-            db.execute(block_constrain)
-            db.commit()
