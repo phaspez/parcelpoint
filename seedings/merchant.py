@@ -5,6 +5,7 @@ from connect import connection
 
 cur = connection.cursor()
 
+
 def get_accounts():
     cur.execute("SELECT * FROM parcelpoint.public.account")
     accounts = cur.fetchall()
@@ -24,25 +25,32 @@ def random_datetime_last_month():
     random_hour = random.randint(0, 23)
     random_minute = random.randint(0, 59)
     random_second = random.randint(0, 59)
-    random_datetime = random_date.replace(hour=random_hour, minute=random_minute, second=random_second)
+    random_datetime = random_date.replace(
+        hour=random_hour, minute=random_minute, second=random_second
+    )
 
     return random_datetime
 
-try:
-    for idx, user in enumerate(get_accounts()):
-        if idx % 2 == 0:
-            continue
 
-        id = user[0]
-        company_name = user[1]+ "_company"
-        merchant_desc = user[1] + "_desc"
-        registered = random_datetime_last_month()
-        cur.execute("""
-            INSERT INTO parcelpoint.public.merchant VALUES
-            (%s, %s, %s, %s)
-        """, (id, company_name, merchant_desc, registered))
-    connection.commit()
-    print('finished!')
-except Exception as e:
-    print(e)
-    connection.rollback()
+def seed_merchant():
+    try:
+        for idx, user in enumerate(get_accounts()):
+            if idx % 2 == 0:
+                continue
+
+            id = user[0]
+            company_name = user[1] + "_company"
+            merchant_desc = user[1] + "_desc"
+            registered = random_datetime_last_month()
+            cur.execute(
+                """
+                INSERT INTO parcelpoint.public.merchant VALUES
+                (%s, %s, %s, %s)
+            """,
+                (id, company_name, merchant_desc, registered),
+            )
+        connection.commit()
+        print("finished!")
+    except Exception as e:
+        print(e)
+        connection.rollback()
