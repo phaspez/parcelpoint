@@ -66,6 +66,9 @@ jobs:
         run: |
           alembic upgrade head
 
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+
       - name: Run tests with pytest
         run: |
           pytest
