@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from models.storage_block import StorageBlockCreate, StorageBlockUpdate
 from repositories.base import BaseRepository
 from schemas.storage_block import StorageBlockSchema
+from scripts.block_constrain import block_constrain
 
 
 class StorageBlockRepository(
@@ -27,6 +28,5 @@ class StorageBlockRepository(
             )
         ).scalar()
         if not trigger_exists:
-            with open("../scripts/storage_block_constrain.sql", "r") as f:
-                db.execute(text(f.read()))
+            db.execute(block_constrain)
             db.commit()
