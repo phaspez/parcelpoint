@@ -23,4 +23,4 @@ class StorageBlockUpdate(BaseModel):
     name: str | None = None
     max_weight: float | None = None
     max_size: float | None = None
-    max_int: float | None = None
+    max_package: float | None = None

@@ -22,10 +22,13 @@ class BasePackage(BaseModel):
     weight: float
 
     is_fragile: bool
+    is_urgent: bool
+
     status: Literal["ORDERED", "DELIVERING", "DELIVERED", "CANCELLED", "MISSING"] = (
         "ORDERED"
     )
 
+    package_rate_id: UUID | None = None
     shipping_cost: float = 0.0
     cod_cost: float = 0.0
 
@@ -38,7 +41,7 @@ class PackageCreate(BasePackage):
     pass
 
 
-class PackageUpdate:
+class PackageUpdate(BasePackage):
     block_id: UUID | None = None
     merchant_id: UUID | None = None
     description: str | None = None
@@ -54,8 +57,11 @@ class PackageUpdate:
     weight: float | None = None
 
     is_fragile: bool | None = None
+    is_urgent: bool | None = None
     status: (
         Literal["ORDERED", "DELIVERING", "DELIVERED", "CANCELLED", "MISSING"] | None
     ) = None
+
+    package_rate_id: UUID | None = None
     shipping_cost: float | None = None
     cod_cost: float | None = None

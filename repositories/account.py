@@ -47,11 +47,7 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
         try:
             if updated_values.password is not None:
                 updated_values.hashed_password = hash_password(updated_values.password)
-
-            result = super().update(id, updated_values)
-            self.db.commit()
-            self.db.refresh(result)
-            return result
+            return super().update(id, updated_values)
         except IntegrityError as e:
             self.db.rollback()
             if isinstance(e.orig, UniqueViolation):
