@@ -1,29 +1,12 @@
-from typing import Annotated
-
 from fastapi import APIRouter, HTTPException
-from fastapi.params import Depends, Body, Cookie
-from sqlalchemy.orm import Session
 from uuid import UUID
-
-from connection import get_db
 from models.storage_block import StorageBlockCreate, StorageBlockUpdate, StorageBlock
-from repositories.storage_block import StorageBlockRepository
-
-
-def get_storage_block_repository(
-    db: Session = Depends(get_db),
-) -> StorageBlockRepository:
-    return StorageBlockRepository(db)
-
+from dependencies import StorageBlockDeps
 
 router = APIRouter(
     prefix="/storage_block",
     tags=["storage_block"],
 )
-
-StorageBlockDeps = Annotated[
-    StorageBlockRepository, Depends(get_storage_block_repository)
-]
 
 
 @router.get("/")

@@ -2,7 +2,7 @@ import random
 
 import bcrypt
 
-from connect import connection
+from seedings.connect import connection
 
 cur = connection.cursor()
 

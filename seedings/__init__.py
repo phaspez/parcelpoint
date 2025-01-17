@@ -1,9 +1,9 @@
-from .staff import seed_staff
-from .storage_block import seed_storage_block
-from .truncate import truncate
-from .account import seed_account
-from .address import seed_address
-from .merchant import seed_merchant
+from seedings.storage_block import seed_storage_block
+from seedings.truncate import truncate
+from seedings.account import seed_account
+from seedings.address import seed_address
+from seedings.merchant import seed_merchant
+from seedings.staff import seed_staff
 
 
 def global_setup():
@@ -17,3 +17,7 @@ def global_setup():
 
 def global_teardown():
     truncate()
+
+
+if __name__ == "__main__":
+    global_setup()

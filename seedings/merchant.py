@@ -1,7 +1,6 @@
 import random
-import random
 from datetime import datetime, timedelta
-from connect import connection
+from seedings.connect import connection
 
 cur = connection.cursor()
 

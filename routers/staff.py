@@ -1,28 +1,8 @@
-from typing import Annotated
 from uuid import UUID
-
 from fastapi import APIRouter, HTTPException
-from fastapi.params import Depends
-from sqlalchemy.orm import Session
-
-from connection import get_db
 from models.account import Account, AccountCreate, AccountUpdate
 from models.staff import Staff, StaffDetails, StaffCreate, StaffCreateNoID, StaffUpdate
-from repositories.account import AccountRepository
-from repositories.merchant import MerchantRepository
-from repositories.staff import StaffRepository
-
-
-def get_staff_repository(db: Session = Depends(get_db)) -> StaffRepository:
-    return StaffRepository(db)
-
-
-def get_account_repository(db: Session = Depends(get_db)) -> AccountRepository:
-    return AccountRepository(db)
-
-
-StaffRepoDep = Annotated[StaffRepository, Depends(get_staff_repository)]
-AccountRepoDep = Annotated[AccountRepository, Depends(get_account_repository)]
+from dependencies import StaffRepoDep, AccountRepoDep
 
 router = APIRouter(
     prefix="/staff",
@@ -117,7 +97,7 @@ async def update_staff(
 async def delete_staff(
     id: UUID,
     staff_repo: StaffRepoDep,
-    account_repo: AccountRepository = Depends(get_account_repository),
+    account_repo: AccountRepoDep,
 ):
     account = account_repo.get_by_id(id)
     staff = staff_repo.get_by_id(id)

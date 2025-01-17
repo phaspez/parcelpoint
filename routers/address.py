@@ -7,6 +7,7 @@ from uuid import UUID
 from connection import get_db
 from repositories.address import AddressRepository
 from models.address import AddressCreate, AddressUpdate
+from dependencies import AddressRepoDep
 
 router = APIRouter(
     prefix="/address",
@@ -14,22 +15,13 @@ router = APIRouter(
 )
 
 
-def get_address_repository(db: Session = Depends(get_db)) -> AddressRepository:
-    return AddressRepository(db)
-
-
 @router.get("/")
-async def get_address(
-    address_repo: AddressRepository = Depends(get_address_repository),
-):
-    addresses = address_repo.get_all()
-    return addresses
+async def get_address(address_repo: AddressRepoDep):
+    return address_repo.get_all()
 
 
 @router.get("/{id}")
-async def get_address_by_id(
-    id: UUID, address_repo: AddressRepository = Depends(get_address_repository)
-):
+async def get_address_by_id(id: UUID, address_repo: AddressRepoDep):
     address = address_repo.get_by_id(id)
     if not address:
         raise HTTPException(status_code=404, detail="Address not found")
@@ -40,7 +32,7 @@ async def get_address_by_id(
 @router.post("/")
 async def create_address(
     address: Annotated[AddressCreate, Body],
-    address_repo: AddressRepository = Depends(get_address_repository),
+    address_repo: AddressRepoDep,
 ):
     try:
         res = address_repo.create(address)
@@ -50,9 +42,7 @@ async def create_address(
 
 
 @router.delete("/{id}")
-async def delete_address(
-    id: UUID, address_repo: AddressRepository = Depends(get_address_repository)
-):
+async def delete_address(id: UUID, address_repo: AddressRepoDep):
     try:
         return address_repo.delete(id)
     except ValueError as ve:
@@ -63,7 +53,7 @@ async def delete_address(
 async def patch_address(
     id: UUID,
     updated: Annotated[AddressUpdate, Body()],
-    address_repo: AddressRepository = Depends(get_address_repository),
+    address_repo: AddressRepoDep,
 ):
     try:
         return address_repo.update(id, updated)

@@ -1,13 +1,5 @@
-import datetime
-from typing import Annotated
 from uuid import UUID
-
 from fastapi import APIRouter, HTTPException
-from fastapi.params import Depends, Body, Cookie
-from sqlalchemy import inspect
-from sqlalchemy.orm import Session
-
-from connection import get_db
 from models.account import Account, AccountCreate, AccountUpdate
 from models.merchant import (
     MerchantDetails,
@@ -16,23 +8,7 @@ from models.merchant import (
     MerchantCreateNoID,
     MerchantUpdate,
 )
-from repositories.account import AccountRepository
-from repositories.merchant import MerchantRepository
-
-# from routers.account import get_account_repository
-from schemas.account import AccountSchema
-
-
-def get_merchant_repository(db: Session = Depends(get_db)) -> MerchantRepository:
-    return MerchantRepository(db)
-
-
-def get_account_repository(db: Session = Depends(get_db)) -> AccountRepository:
-    return AccountRepository(db)
-
-
-MerchantRepoDep = Annotated[MerchantRepository, Depends(get_merchant_repository)]
-AccountRepoDep = Annotated[AccountRepository, Depends(get_account_repository)]
+from dependencies import MerchantRepoDep, AccountRepoDep
 
 router = APIRouter(
     prefix="/merchant",

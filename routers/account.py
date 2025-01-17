@@ -18,10 +18,7 @@ from models.account import (
 )
 from repositories.account import AccountRepository
 from utils.jwt import create_access_token, verify_token
-
-
-def get_account_repository(db: Session = Depends(get_db)) -> AccountRepository:
-    return AccountRepository(db)
+from dependencies import AccountRepoDep
 
 
 def require_logged_in_user(token: Annotated[str | None, Cookie()] = None):
@@ -44,18 +41,14 @@ router = APIRouter(
 
 @router.get("/")
 async def get_account(
-    account_repo: AccountRepository = Depends(get_account_repository),
-    user=Depends(require_logged_in_user),
+    account_repo: AccountRepoDep, user=Depends(require_logged_in_user)
 ):
     accounts = account_repo.get_all()
     return accounts
 
 
 @router.post("/")
-async def create_account(
-    account: Annotated[AccountCreate, Body()],
-    account_repo: AccountRepository = Depends(get_account_repository),
-):
+async def create_account(account: AccountCreate, account_repo: AccountRepoDep):
     try:
         return account_repo.create(account)
     except ValueError as e:
@@ -66,9 +59,7 @@ async def create_account(
 
 @router.patch("/{id}")
 async def patch_account(
-    id: UUID,
-    account: Annotated[AccountUpdate, Body()],
-    account_repo: AccountRepository = Depends(get_account_repository),
+    id: UUID, account: AccountUpdate, account_repo: AccountRepoDep
 ) -> Account:
     try:
         updated = account_repo.update(id, account)
@@ -80,9 +71,7 @@ async def patch_account(
 
 
 @router.delete("/{id}")
-async def delete_account(
-    id: UUID, account_repo: AccountRepository = Depends(get_account_repository)
-) -> Account:
+async def delete_account(id: UUID, account_repo: AccountRepoDep) -> Account:
     try:
         deleted = account_repo.delete(id)
         return Account(**deleted.__dict__)
@@ -94,8 +83,7 @@ async def delete_account(
 
 @router.post("/login")
 async def login_account(
-    login: Annotated[AccountLogin, Body()],
-    account_repo: AccountRepository = Depends(get_account_repository),
+    login: Annotated[AccountLogin, Body()], account_repo: AccountRepoDep
 ) -> Token:
     try:
         account_instance = account_repo.check_user_password(
@@ -121,10 +109,7 @@ async def test_post_jwt(token: Annotated[str | None, Cookie()] = None) -> Accoun
 
 
 @router.get("/{id}")
-async def get_account_by_id(
-    id: UUID,
-    account_repo: AccountRepository = Depends(get_account_repository),
-) -> AccountWithType:
+async def get_account_by_id(id: UUID, account_repo: AccountRepoDep) -> AccountWithType:
     account = account_repo.get_by_id(id)
     account_type = account_repo.get_user_id_type(id)
 
