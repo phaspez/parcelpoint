@@ -1,8 +1,12 @@
-from main import app
-from fastapi.testclient import TestClient
 import pytest
 import random
-from models.account import AccountCreate, Account, AccountUpdate, AccountLogin, Token
+from models.users.account import (
+    AccountCreate,
+    Account,
+    AccountUpdate,
+    AccountLogin,
+    Token,
+)
 from conftest import client
 
 

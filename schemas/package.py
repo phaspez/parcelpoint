@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, ForeignKey, Float, Boolean
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
-from schemas.merchant import MerchantSchema
+from schemas.users.merchant import MerchantSchema
 from . import Base
 from .address import AddressSchema
 from .order import OrderSchema

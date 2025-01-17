@@ -1,12 +1,11 @@
-from typing import List, Type
-from uuid import uuid4, UUID
+from uuid import UUID
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from repositories.base import BaseRepository
-from schemas.merchant import MerchantSchema
-from models.merchant import Merchant, MerchantCreate, MerchantUpdate
+from schemas.users.merchant import MerchantSchema
+from models.users.merchant import MerchantCreate, MerchantUpdate
 
 
 class MerchantRepository(

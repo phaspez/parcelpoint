@@ -1,7 +1,7 @@
 from uuid import UUID
 from fastapi import APIRouter, HTTPException
-from models.account import Account, AccountCreate, AccountUpdate
-from models.merchant import (
+from models.users.account import Account, AccountCreate, AccountUpdate
+from models.users.merchant import (
     MerchantDetails,
     Merchant,
     MerchantCreate,

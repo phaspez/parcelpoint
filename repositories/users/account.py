@@ -7,10 +7,10 @@ from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from models.account import AccountCreate, AccountUpdate
+from models.users.account import AccountCreate, AccountUpdate
 from repositories.base import BaseRepository
-from schemas.account import AccountSchema
-from schemas.merchant import MerchantSchema
+from schemas.users.account import AccountSchema
+from schemas.users.merchant import MerchantSchema
 
 
 def hash_password(password: str) -> str:

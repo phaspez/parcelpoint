@@ -4,17 +4,6 @@ import os
 from schemas import Base
 from sqlalchemy.orm import sessionmaker
 
-from schemas import (
-    order,
-    account,
-    staff,
-    package_rate,
-    package,
-    address,
-    storage_block,
-    merchant,
-)
-
 load_dotenv()
 
 db_name = os.getenv("DB_NAME")

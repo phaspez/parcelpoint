@@ -1,7 +1,13 @@
 from uuid import UUID
 from fastapi import APIRouter, HTTPException
-from models.account import Account, AccountCreate, AccountUpdate
-from models.staff import Staff, StaffDetails, StaffCreate, StaffCreateNoID, StaffUpdate
+from models.users.account import Account, AccountCreate, AccountUpdate
+from models.users.staff import (
+    Staff,
+    StaffDetails,
+    StaffCreate,
+    StaffCreateNoID,
+    StaffUpdate,
+)
 from dependencies import StaffRepoDep, AccountRepoDep
 
 router = APIRouter(

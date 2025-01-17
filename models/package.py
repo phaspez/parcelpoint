@@ -1,7 +1,5 @@
-from datetime import datetime
 from typing import Literal
 
-from models.account import Account
 from pydantic import BaseModel
 from uuid import UUID
 

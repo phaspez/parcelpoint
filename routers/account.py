@@ -2,13 +2,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends, Body, Cookie
-from sqlalchemy.orm import Session
 from uuid import UUID
 
-from sqlalchemy.testing.pickleable import User
-
-from connection import get_db
-from models.account import (
+from models.users.account import (
     AccountCreate,
     AccountUpdate,
     AccountLogin,
@@ -16,7 +12,6 @@ from models.account import (
     AccountWithType,
     Token,
 )
-from repositories.account import AccountRepository
 from utils.jwt import create_access_token, verify_token
 from dependencies import AccountRepoDep
 

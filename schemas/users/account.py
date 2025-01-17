@@ -2,7 +2,7 @@ from uuid import UUID
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from schemas.address import AddressSchema
-from . import Base
+from schemas import Base
 
 
 class AccountSchema(Base):

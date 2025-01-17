@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import jwt
 import os
 
-from models.account import Account
+from models.users.account import Account
 
 jwt_secret = os.getenv("JWT_SECRET")
 expire_in_minutes = 60 * 24 * 7

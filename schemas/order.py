@@ -1,6 +1,6 @@
-from sqlalchemy import Column, String, ForeignKey, Float, Boolean, DateTime, Text
+from sqlalchemy import Column, ForeignKey, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
-from schemas.merchant import MerchantSchema
+from schemas.users.merchant import MerchantSchema
 from . import Base
 
 

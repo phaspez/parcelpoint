@@ -3,11 +3,9 @@ import random
 from uuid import uuid4
 
 import pytest
-from fastapi.testclient import TestClient
 
-from main import app
-from models.account import AccountCreate, AccountUpdate
-from models.merchant import (
+from models.users.account import AccountCreate, AccountUpdate
+from models.users.merchant import (
     MerchantUpdate,
     MerchantDetails,
     MerchantCreateNoID,

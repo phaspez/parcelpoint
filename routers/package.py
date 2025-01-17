@@ -5,8 +5,8 @@ from dependencies import PackageRepoDep
 
 
 router = APIRouter(
-    prefix="/storage_block",
-    tags=["storage_block"],
+    prefix="/package",
+    tags=["package"],
 )
 
 

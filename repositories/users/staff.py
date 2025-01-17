@@ -1,13 +1,11 @@
-from typing import List, Type
-from uuid import uuid4, UUID
+from uuid import UUID
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
-from models.staff import StaffCreate, StaffUpdate, Staff
+from models.users.staff import StaffCreate, StaffUpdate
 from repositories.base import BaseRepository
-from schemas.merchant import MerchantSchema
-from schemas.staff import StaffSchema
+from schemas.users.staff import StaffSchema
 
 
 class StaffRepository(BaseRepository[StaffSchema, StaffCreate, StaffUpdate]):

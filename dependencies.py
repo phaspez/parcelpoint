@@ -4,11 +4,11 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from connection import get_db
-from repositories.account import AccountRepository
+from repositories.users.account import AccountRepository
 from repositories.address import AddressRepository
-from repositories.merchant import MerchantRepository
+from repositories.users.merchant import MerchantRepository
 from repositories.package import PackageRepository
-from repositories.staff import StaffRepository
+from repositories.users.staff import StaffRepository
 from repositories.storage_block import StorageBlockRepository
 
 

@@ -1,5 +1,3 @@
-from datetime import datetime
-from models.account import Account
 from pydantic import BaseModel
 from uuid import UUID
 
