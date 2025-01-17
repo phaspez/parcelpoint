@@ -1,11 +1,11 @@
 from sqlalchemy import Column, String, ForeignKey, Float, Boolean
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from schemas.users.merchant import MerchantSchema
-from . import Base
-from .address import AddressSchema
-from .order import OrderSchema
-from .package_rate import PackageRateSchema
-from .storage_block import StorageBlockSchema
+from schemas import Base
+from schemas.address import AddressSchema
+from schemas.order import OrderSchema
+from schemas.package_rate import PackageRateSchema
+from schemas.storage_block import StorageBlockSchema
 
 
 class PackageSchema(Base):

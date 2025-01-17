@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Float, Integer
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 
-from . import Base
+from schemas import Base
 
 
 class StorageBlockSchema(Base):

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, ForeignKey, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from schemas.users.merchant import MerchantSchema
-from . import Base
+from schemas import Base
 
 
 class OrderSchema(Base):
