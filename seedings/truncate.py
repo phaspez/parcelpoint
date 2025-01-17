@@ -18,7 +18,7 @@ def truncate():
         """
         )
         connection.commit()
-        print("finished!")
+        print("finished truncating!")
     except Exception as e:
         print(e)
         connection.rollback()

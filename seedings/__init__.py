@@ -1,3 +1,4 @@
+from seedings.order import seed_order
 from seedings.storage_block import seed_storage_block
 from seedings.truncate import truncate
 from seedings.account import seed_account
@@ -13,6 +14,7 @@ def global_setup():
     seed_account()
     seed_merchant()
     seed_staff()
+    seed_order()
 
 
 def global_teardown():

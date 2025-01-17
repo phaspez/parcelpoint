@@ -22,7 +22,7 @@ def seed_storage_block():
                         (f"storage_block_{count}", weight, size, package),
                     )
         connection.commit()
-        print("finished!")
+        print("finished seeding storage blocks!")
     except Exception as e:
         print(e)
         connection.rollback()

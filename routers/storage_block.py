@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from uuid import UUID
 from models.storage_block import StorageBlockCreate, StorageBlockUpdate, StorageBlock
-from dependencies import StorageBlockDeps
+from dependencies import StorageBlockRepoDep
 
 router = APIRouter(
     prefix="/storage_block",
@@ -11,7 +11,7 @@ router = APIRouter(
 
 @router.get("/")
 async def get_storage_blocks(
-    storage_block_repo: StorageBlockDeps,
+    storage_block_repo: StorageBlockRepoDep,
 ):
     blocks = storage_block_repo.get_all()
     return blocks
@@ -19,7 +19,7 @@ async def get_storage_blocks(
 
 @router.post("/")
 async def create_block(
-    block_create: StorageBlockCreate, storage_block_repo: StorageBlockDeps
+    block_create: StorageBlockCreate, storage_block_repo: StorageBlockRepoDep
 ):
     try:
         return storage_block_repo.create(block_create)
@@ -32,7 +32,7 @@ async def create_block(
 
 @router.patch("/{id}")
 async def patch_block(
-    id: UUID, block_patched: StorageBlockUpdate, storage_block_repo: StorageBlockDeps
+    id: UUID, block_patched: StorageBlockUpdate, storage_block_repo: StorageBlockRepoDep
 ) -> StorageBlock:
     try:
         updated = storage_block_repo.update(id, block_patched)
@@ -44,7 +44,9 @@ async def patch_block(
 
 
 @router.delete("/{id}")
-async def delete_block(id: UUID, storage_block_repo: StorageBlockDeps) -> StorageBlock:
+async def delete_block(
+    id: UUID, storage_block_repo: StorageBlockRepoDep
+) -> StorageBlock:
     try:
         deleted = storage_block_repo.delete(id)
         return StorageBlock(**deleted.__dict__)
@@ -55,7 +57,7 @@ async def delete_block(id: UUID, storage_block_repo: StorageBlockDeps) -> Storag
 
 
 @router.get("/{id}")
-async def get_block(id: UUID, storage_block_repo: StorageBlockDeps) -> StorageBlock:
+async def get_block(id: UUID, storage_block_repo: StorageBlockRepoDep) -> StorageBlock:
     block = storage_block_repo.get_by_id(id)
     if not block:
         raise HTTPException(status_code=404, detail="Account not found")

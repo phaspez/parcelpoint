@@ -28,7 +28,7 @@ def seed_address():
                         (province, district, commune),
                     )
         connection.commit()
-        print("finished!")
+        print("finished seeding addresses!")
     except Exception as e:
         print(e)
         connection.rollback()

@@ -3,10 +3,10 @@ import random
 import bcrypt
 
 from seedings.connect import connection
+from .utils import cur
 
-cur = connection.cursor()
+# cur = connection.cursor()
 
-test_name = "test_username"
 test_users = 10
 
 
@@ -38,7 +38,7 @@ def seed_account():
                 (name, hashed_password, phone, email, address_id, street),
             )
         connection.commit()
-        print("finished!")
+        print("finished seeding accounts!")
     except Exception as e:
         print(e)
         connection.rollback()
