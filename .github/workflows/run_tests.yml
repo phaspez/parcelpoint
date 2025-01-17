@@ -30,9 +30,10 @@ jobs:
           --health-retries 5
 
     env:
-      PORT: 5432
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      # from the .env file
+      PORT: ${{ secrets.PORT }}
+      POSTGRESQL_USER: postgres
+      POSTGRESQL_PASSWORD: postgres
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/${{ secrets.DB_NAME }}
       DB_NAME: ${{ secrets.DB_NAME }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
