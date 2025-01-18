@@ -11,13 +11,13 @@ from conftest import client
 
 @pytest.fixture
 def random_address_id(client):
-    response = client.get("/address")
+    response = client.get("/api/v1/address")
     choice = random.choice(response.json())
     return choice["id"]
 
 
 def test_get_invalid_format(client):
-    response = client.get(f"/staff/{uuid4()}")
+    response = client.get(f"/api/v1/staff/{uuid4()}")
     print(response.json())
     assert response.status_code == 404
     assert response.json()["detail"]
@@ -48,7 +48,7 @@ def test_create_staff(client, random_address_id):
     jsoned["staff_create"]["hire_date"] = str(datetime.date.today())
     jsoned["account_create"]["address_id"] = str(random_address_id)
     print(jsoned)
-    response = client.post("/staff/register", json=jsoned)
+    response = client.post("/api/v1/staff/register", json=jsoned)
     print(response.json())
     assert response.status_code == 200 or response.status_code == 201
 
@@ -71,7 +71,7 @@ def created_staff():
 
 
 def test_get_staff(client):
-    response = client.get("/staff")
+    response = client.get("/api/v1/staff")
     assert response.status_code == 200
 
     test_get_staff.data = response.json()
@@ -91,12 +91,12 @@ def test_get_staff_by_id(client, get_list_of_staffs):
     staffs = get_list_of_staffs
     choice = random.choice(staffs)
     existing_id = choice["account_id"]
-    response = client.get(f"/staff/{existing_id}")
+    response = client.get(f"/api/v1/staff/{existing_id}")
     print(response.json())
     assert response.status_code == 200
     assert response.json()["account_id"] == existing_id
 
-    response_detailed = client.get(f"/staff/{existing_id}?is_detailed=true")
+    response_detailed = client.get(f"/api/v1/staff/{existing_id}?is_detailed=true")
     print(response_detailed.json())
     assert response_detailed.status_code == 200
     assert (
@@ -120,19 +120,19 @@ def test_update_staff(client, get_list_of_staffs):
         "account_updated": account_updated.model_dump(),
     }
 
-    response = client.patch(f"/staff/{existing_id}", json=jsoned)
+    response = client.patch(f"/api/v1/staff/{existing_id}", json=jsoned)
     assert response.status_code == 200
     assert StaffDetails(**response.json())
 
 
 def test_delete_staff(client, created_staff):
     account_id, model = created_staff
-    response = client.delete(f"/staff/{account_id}")
+    response = client.delete(f"/api/v1/staff/{account_id}")
     assert response.status_code == 200
     assert StaffDetails(**response.json())
 
 
 def test_delete_invalid(client):
-    response = client.delete(f"/staff/{uuid4()}")
+    response = client.delete(f"/api/v1/staff/{uuid4()}")
     print(response.json())
     assert response.status_code == 404

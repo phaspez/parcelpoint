@@ -15,13 +15,13 @@ from conftest import client
 
 @pytest.fixture
 def random_address_id(client):
-    response = client.get("/address")
+    response = client.get("/api/v1/address")
     choice = random.choice(response.json())
     return choice["id"]
 
 
 def test_get_invalid_format(client):
-    response = client.get(f"/merchant/{uuid4()}")
+    response = client.get(f"/api/v1/merchant/{uuid4()}")
     print(response.json())
     assert response.status_code == 404
     assert response.json()["detail"]
@@ -51,7 +51,7 @@ def test_create_merchant(client, random_address_id):
     jsoned["merchant_create"]["registration_date"] = str(datetime.date.today())
     jsoned["account_create"]["address_id"] = str(random_address_id)
     print(jsoned)
-    response = client.post("/merchant/register", json=jsoned)
+    response = client.post("/api/v1/merchant/register", json=jsoned)
     print(response.json())
     assert response.status_code == 200 or response.status_code == 201
 
@@ -74,7 +74,7 @@ def created_merchant():
 
 
 def test_get_merchant(client):
-    response = client.get("/merchant")
+    response = client.get("/api/v1/merchant")
     assert response.status_code == 200
 
     test_get_merchant.data = response.json()
@@ -94,12 +94,12 @@ def test_get_merchant_by_id(client, get_list_of_merchants):
     merchants = get_list_of_merchants
     choice = random.choice(merchants)
     existing_id = choice["account_id"]
-    response = client.get(f"/merchant/{existing_id}")
+    response = client.get(f"/api/v1/merchant/{existing_id}")
     print(response.json())
     assert response.status_code == 200
     assert response.json()["account_id"] == existing_id
 
-    response_detailed = client.get(f"/merchant/{existing_id}?is_detailed=true")
+    response_detailed = client.get(f"/api/v1/merchant/{existing_id}?is_detailed=true")
     print(response_detailed.json())
     assert response_detailed.status_code == 200
     assert (
@@ -126,7 +126,7 @@ def test_update_merchant(client, get_list_of_merchants):
 
     print(jsoned)
 
-    response = client.patch(f"/merchant/{existing_id}", json=jsoned)
+    response = client.patch(f"/api/v1/merchant/{existing_id}", json=jsoned)
     print(response.json())
     assert response.status_code == 200
     assert MerchantDetails(**response.json())
@@ -134,12 +134,12 @@ def test_update_merchant(client, get_list_of_merchants):
 
 def test_delete_merchant(client, created_merchant):
     account_id, model = created_merchant
-    response = client.delete(f"/merchant/{account_id}")
+    response = client.delete(f"/api/v1/merchant/{account_id}")
     assert response.status_code == 200
     assert MerchantDetails(**response.json())
 
 
 def test_delete_invalid(client):
-    response = client.delete(f"/merchant/{uuid4()}")
+    response = client.delete(f"/api/v1/merchant/{uuid4()}")
     print(response.json())
     assert response.status_code == 404

@@ -1,12 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from uuid import UUID
 
 
 class BaseStorageBlock(BaseModel):
     name: str
-    max_weight: float
-    max_size: float
-    max_package: int
+    max_weight: float = Field(gt=0)
+    max_size: float = Field(gt=0)
+    max_package: int = Field(gt=0)
 
 
 class StorageBlock(BaseStorageBlock):

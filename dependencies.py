@@ -1,9 +1,10 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, Cookie
 from sqlalchemy.orm import Session
 
 from connection import get_db
+from models.users.account import Account
 from repositories.order import OrderRepository
 from repositories.package_rate import PackageRateRepository
 from repositories.users.account import AccountRepository
@@ -12,6 +13,7 @@ from repositories.users.merchant import MerchantRepository
 from repositories.package import PackageRepository
 from repositories.users.staff import StaffRepository
 from repositories.storage_block import StorageBlockRepository
+from utils.jwt import verify_token
 
 DBSession = Annotated[Session, Depends(get_db)]
 
@@ -72,3 +74,37 @@ def get_package_rate_repository(db: DBSession) -> PackageRateRepository:
 
 
 PackageRateRepoDep = Annotated[OrderRepository, Depends(get_package_rate_repository)]
+
+
+def require_logged_in_user(token: Annotated[str | None, Cookie()] = None):
+    if not token:
+        raise HTTPException(status_code=401, detail="Token is empty")
+    try:
+        user = verify_token(token)
+        return user
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def require_logged_in_merchant(
+    user: Account = Depends(require_logged_in_user), account_repo=AccountRepoDep
+):
+    type = account_repo.get_user_id_type(user)
+    if type != "MERCHANT":
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized access, you must be a merchant to perform this action",
+        )
+
+
+def require_logged_in_staff(
+    staff: Account = Depends(require_logged_in_user), account_repo=AccountRepoDep
+):
+    type = account_repo.get_user_id_type(staff)
+    if type != "STAFF":
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized access, you must be a staff to perform this action",
+        )

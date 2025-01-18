@@ -60,12 +60,28 @@ def get_storage_block_within_limits(vol, weight, num_package=1):
             AND (sb.max_weight >= (COALESCE(SUM(p.weight), 0) + %s))
             AND (sb.max_size >= (COALESCE(SUM(p.width * p.length * p.height), 0) + %s))
         ORDER BY 
-            (sb.max_weight - COALESCE(SUM(p.weight), 0)) DESC;
+            (sb.max_weight - COALESCE(SUM(p.weight), 0)) DESC,
+            (sb.max_size - COALESCE(SUM(p.width * p.length * p.height), 0)) DESC 
+            
         """,
-        (num_package, vol, weight),
+        (num_package, weight, vol),
     )
     results = cur.fetchall()
     return results
+
+
+def get_storage_block_under_capacity(volume: float, weight: float, num_package: int):
+    cur.execute(
+        """
+        SELECT sb.*
+        FROM parcelpoint.public.storageblock sb
+        LEFT JOIN parcelpoint.public.package p ON sb.id = p.block_id
+        WHERE (sb.max_package < %s) AND (sb.max_weight < %s) AND (sb.max_size < %s)
+        GROUP BY sb.id, sb.max_package, sb.max_weight, sb.max_size
+    """,
+        (num_package, weight, volume),
+    )
+    return cur.fetchall()
 
 
 def random_float(a, b, n):

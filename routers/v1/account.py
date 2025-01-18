@@ -13,19 +13,7 @@ from models.users.account import (
     Token,
 )
 from utils.jwt import create_access_token, verify_token
-from dependencies import AccountRepoDep
-
-
-def require_logged_in_user(token: Annotated[str | None, Cookie()] = None):
-    if not token:
-        raise HTTPException(status_code=401, detail="Token is empty")
-    try:
-        user = verify_token(token)
-        return user
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+from dependencies import AccountRepoDep, require_logged_in_user
 
 
 router = APIRouter(

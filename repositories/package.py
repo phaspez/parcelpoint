@@ -59,6 +59,7 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
                 volume, weight, block_id
             )
             if is_exceed_limit:
+                self.db.rollback()
                 raise ValueError(
                     "Either volume, weight or max count exceeded the limit of the block"
                 )
@@ -72,22 +73,30 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         package = self.get_by_id(id)
 
         if not package:
+            self.db.rollback()
             raise ValueError(f"Package {id} not found")
 
+        if (
+            package_updated.package_rate_id
+            and package_updated.package_rate_id != package.package_rate_id
+        ):
+            cod_cost = self.calculate_package_pricing(PackageCreate(**package.__dict__))
+            package_updated.cod_cost = cod_cost
+
         volume = (
-            (package.width or package_updated.width)
-            * (package.height or package_updated.height)
-            * (package.length or package_updated.length)
+            (package_updated.width if package_updated.width else package.width)
+            * (package_updated.height if package_updated.height else package.height)
+            * (package_updated.length if package_updated.length else package.length)
         )
 
-        weight = package.weight or package_updated.weight
+        weight = package_updated.weight if package_updated.weight else package.weight
 
-        satisfy_metric(volume, weight)
         is_exceed_limit = self.storage_block.check_if_exceed_limit(
-            volume, weight, package_updated.block_id
+            volume, weight, package_updated.block_id, exclude_package=id
         )
 
         if is_exceed_limit:
+            self.db.rollback()
             raise ValueError(
                 "Either volume, weight or max count exceeded the limit of the block"
             )

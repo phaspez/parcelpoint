@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import BaseModel, EmailStr, AfterValidator
+from pydantic import BaseModel, EmailStr, AfterValidator, Field
 from uuid import UUID
 
 
@@ -14,7 +14,7 @@ class Account(BaseModel):
     id: UUID
     name: str
     hashed_password: str
-    phone: Annotated[str, AfterValidator(check_phone_length)]
+    phone: str = Field(pattern=r"^[0-9]*$", min_length=9)
     email: EmailStr | None = None
     address_id: UUID
     street: str
@@ -31,7 +31,7 @@ class Token(BaseModel):
 class AccountCreate(BaseModel):
     name: str
     password: str
-    phone: Annotated[str, AfterValidator(check_phone_length)]
+    phone: str = Field(pattern=r"^[0-9]*$", min_length=9)
     email: EmailStr
     address_id: UUID
     street: str

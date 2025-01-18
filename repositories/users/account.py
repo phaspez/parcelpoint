@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from models.users.account import AccountCreate, AccountUpdate
 from repositories.base import BaseRepository
+from schemas.users import StaffSchema
 from schemas.users.account import AccountSchema
 from schemas.users.merchant import MerchantSchema
 
@@ -89,7 +90,15 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
         is_in_merchant = self.db.query(MerchantSchema).filter(
             and_(MerchantSchema.account_id == user.id)
         )
+
         if is_in_merchant:
             return "MERCHANT"
 
-        return ValueError("Internal Server Error")
+        is_in_staff = self.db.query(StaffSchema).filter(
+            and_(StaffSchema.account_id == user.id)
+        )
+
+        if is_in_staff:
+            return "STAFF"
+
+        return ValueError("Validation Error: Can't get id account type")

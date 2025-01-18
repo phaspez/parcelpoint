@@ -11,7 +11,7 @@ def global_setup_teardown():
 
     yield
 
-    global_teardown()
+    # global_teardown()
     print("\n[Teardown] Global teardown")
 
 

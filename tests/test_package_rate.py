@@ -12,7 +12,7 @@ from seedings.package_rate import oversize_rate, overweight_rate_per_kg
 
 
 def test_get_package_rates(client):
-    response = client.get("/package_rate")
+    response = client.get("/api/v1/package_rate")
     assert response.status_code == 200
 
 
@@ -27,7 +27,7 @@ def test_create_package_rate(client):
         urgent_rate=20000,
     )
 
-    response = client.post("/package_rate", json=package_rate.model_dump())
+    response = client.post("/api/v1/package_rate", json=package_rate.model_dump())
     assert response.status_code == 200 or response.status_code == 201
 
     test_create_package_rate.created_data = response.json()
@@ -49,14 +49,14 @@ def created_package_rate():
 
 
 def test_get_invalid_format(client):
-    response = client.get(f"/package_rate/{uuid4()}")
+    response = client.get(f"/api/v1/package_rate/{uuid4()}")
     assert response.status_code == 404
     assert response.json()["detail"]
 
 
 def test_get_package_rate_by_id(client, created_package_rate):
     id, data = created_package_rate
-    response = client.get(f"/package_rate/{id}")
+    response = client.get(f"/api/v1/package_rate/{id}")
     assert response.status_code == 200
     assert data == response.json()
 
@@ -65,7 +65,7 @@ def test_patch_package_rate(client, created_package_rate):
     id, json = created_package_rate
     json["name"] = "Updated Package Rate"
     json["urgent_rate"] = 25000
-    response = client.patch(f"/package_rate/{id}", json=json)
+    response = client.patch(f"/api/v1/package_rate/{id}", json=json)
     assert response.status_code == 200
     assert response.json()["id"] == id
     assert response.json() == json
@@ -73,8 +73,8 @@ def test_patch_package_rate(client, created_package_rate):
 
 def test_delete_address(client, created_package_rate):
     id, _ = created_package_rate
-    response = client.delete(f"/package_rate/{id}")
+    response = client.delete(f"/api/v1/package_rate/{id}")
     assert response.status_code == 200
 
-    get_response = client.get(f"/package_rate/{id}")
+    get_response = client.get(f"/api/v1/package_rate/{id}")
     assert get_response.status_code == 404

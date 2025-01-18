@@ -16,7 +16,6 @@ class StorageBlockRepository(
         super().__init__(db, StorageBlockSchema)
 
     def update(self, id: UUID, schema: StorageBlockUpdate) -> StorageBlockSchema | None:
-        print("checking valid storage block")
         try:
             curr_size = self.get_sum_size(id)
             if schema.max_size and curr_size > schema.max_size:
@@ -56,7 +55,6 @@ class StorageBlockRepository(
             .filter(PackageSchema.block_id == block_id)
             .scalar()
         )
-
         return 0 if total_count is None else int(total_count)
 
     def get_sum_weight(self, block_id: UUID | None) -> float:
@@ -67,36 +65,83 @@ class StorageBlockRepository(
         )
         return 0.0 if total_weight is None else float(total_weight)
 
-    def check_if_exceed_limit(self, volume, weight, block_id: UUID | None) -> bool:
-        result = self.db.execute(
-            select(
-                StorageBlock.max_weight, StorageBlock.max_size, StorageBlock.max_package
-            ).where(and_(StorageBlock.id == block_id))
-        ).fetchone()
+    def check_if_exceed_limit(
+        self, volume, weight, block_id: UUID | None, exclude_package: UUID | None = None
+    ) -> bool:
+        # sometimes you might need to check a package already in a block if modify it exceed limit, in that case
+        # pass its id to exclude
+
+        sql = text(
+            """
+            SELECT max_weight, max_size, max_package 
+            FROM parcelpoint.public.storageblock
+            WHERE storageblock.id = :id
+        """
+        )
+        result = self.db.execute(sql, {"id": block_id}).fetchone()
         max_weight, max_size, max_package = result
+
+        if exclude_package:
+            sql_package = text(
+                """SELECT width, height, length, weight FROM parcelpoint.public.package WHERE id = :id"""
+            )
+            result_package = self.db.execute(
+                sql_package, {"id": exclude_package}
+            ).fetchone()
+            exclude_vol = result_package[0] * result_package[1] * result_package[2]
+            exclude_weight = result_package[3]
+            max_weight += exclude_weight
+            max_size += exclude_vol
+            max_package += 1
+
         if self.get_sum_weight(block_id) + weight > max_weight:
             return True
         if self.get_sum_size(block_id) + volume > max_size:
             return True
-        return self.get_sum_count(block_id) + 1 <= max_package
+        return self.get_sum_count(block_id) + 1 > max_package
 
     def get_storage_block_within_limits(
-        self, vol: float, weight: float, num_package: int = 1
+        self, package: UUID, vol: float, weight: float, num_package: int = 1
     ):
         sql = text(
             """
             SELECT sb.*
             FROM parcelpoint.public.storageblock sb
             LEFT JOIN parcelpoint.public.package p ON sb.id = p.block_id
+            WHERE sb.id != :package_id
             GROUP BY sb.id, sb.max_package, sb.max_weight, sb.max_size
             HAVING 
                 (sb.max_package >= (COUNT(p.id) + :num_package))
                 AND (sb.max_weight >= (COALESCE(SUM(p.weight), 0) + :weight))
                 AND (sb.max_size >= (COALESCE(SUM(p.width * p.length * p.height), 0) + :vol))
             ORDER BY 
-                (sb.max_weight - COALESCE(SUM(p.weight), 0)) DESC;
+                (sb.max_weight - COALESCE(SUM(p.weight), 0)) DESC,
+                (sb.max_size - COALESCE(SUM(p.width * p.length * p.height), 0)) DESC;
             """,
         )
         return self.db.execute(
-            sql, {"num_package": num_package, "weight": weight, "vol": vol}
+            sql,
+            {
+                "package_id": package,
+                "num_package": num_package,
+                "weight": weight,
+                "vol": vol,
+            },
+        )
+
+    def get_storage_block_under_capacity(
+        self, volume: float, weight: float, num_package: int
+    ):
+        sql = text(
+            """
+            SELECT sb.*
+            FROM parcelpoint.public.storageblock sb
+            LEFT JOIN parcelpoint.public.package p ON sb.id = p.block_id
+            WHERE (sb.max_package < :num) AND (sb.max_weight < :weight) AND (sb.max_size < :vol)
+            GROUP BY sb.id, sb.max_package, sb.max_weight, sb.max_size
+        """
+        )
+
+        return self.db.execute(
+            sql, {"num": num_package, "weight": weight, "vol": volume}
         )

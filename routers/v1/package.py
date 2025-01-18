@@ -36,6 +36,7 @@ async def patch_package(
         updated = package_repo.update(id, package_patched)
         return Package(**updated.__dict__)
     except ValueError as e:
+        print(e)
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
