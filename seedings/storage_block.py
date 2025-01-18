@@ -21,6 +21,7 @@ def seed_storage_block():
                     """,
                         (f"storage_block_{count}", weight, size, package),
                     )
+                    count += 1
         connection.commit()
         print("finished seeding storage blocks!")
     except Exception as e:

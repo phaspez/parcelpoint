@@ -28,6 +28,59 @@ def get_orders():
     return _feed_table("order")
 
 
+def get_random_address_id():
+    return random.choice(_feed_table("address"))[0]
+
+
+def get_random_merchant_id():
+    return random.choice(_feed_table("merchant"))[0]
+
+
+def get_random_staff_id():
+    return random.choice(_feed_table("staff"))[0]
+
+
+def get_random_order_id():
+    return random.choice(_feed_table("order"))[0]
+
+
+def get_random_package_rate_id():
+    return random.choice(_feed_table("packagerate"))[0]
+
+
+def get_storage_block_within_limits(vol, weight, num_package=1):
+    cur.execute(
+        """
+        SELECT sb.*
+        FROM parcelpoint.public.storageblock sb
+        LEFT JOIN parcelpoint.public.package p ON sb.id = p.block_id
+        GROUP BY sb.id, sb.max_package, sb.max_weight, sb.max_size
+        HAVING 
+            (sb.max_package >= (COUNT(p.id) + %s))
+            AND (sb.max_weight >= (COALESCE(SUM(p.weight), 0) + %s))
+            AND (sb.max_size >= (COALESCE(SUM(p.width * p.length * p.height), 0) + %s))
+        ORDER BY 
+            (sb.max_weight - COALESCE(SUM(p.weight), 0)) DESC;
+        """,
+        (num_package, vol, weight),
+    )
+    results = cur.fetchall()
+    return results
+
+
+def random_float(a, b, n):
+    return round(random.uniform(a, b), n)
+
+
+def random_bool():
+    return random.choice([True, False])
+
+
+def random_package_status():
+    status = ["ORDERED", "DELIVERING", "DELIVERED", "CANCELLED", "MISSING"]
+    return random.choice(status)
+
+
 def random_datetime_last_month():
     today = datetime.today()
 

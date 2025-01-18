@@ -7,6 +7,7 @@ from uuid import UUID
 class BasePackage(BaseModel):
     block_id: UUID | None = None
     merchant_id: UUID
+    order_id: UUID
     description: str
 
     address_id: UUID
@@ -19,8 +20,8 @@ class BasePackage(BaseModel):
     length: float
     weight: float
 
-    is_fragile: bool
-    is_urgent: bool
+    is_fragile: bool = False
+    is_urgent: bool = False
 
     status: Literal["ORDERED", "DELIVERING", "DELIVERED", "CANCELLED", "MISSING"] = (
         "ORDERED"

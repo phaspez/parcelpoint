@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from connection import get_db
 from repositories.order import OrderRepository
+from repositories.package_rate import PackageRateRepository
 from repositories.users.account import AccountRepository
 from repositories.address import AddressRepository
 from repositories.users.merchant import MerchantRepository
@@ -64,3 +65,10 @@ def get_order_repository(db: DBSession) -> OrderRepository:
 
 
 OrderRepoDep = Annotated[OrderRepository, Depends(get_order_repository)]
+
+
+def get_package_rate_repository(db: DBSession) -> PackageRateRepository:
+    return PackageRateRepository(db)
+
+
+PackageRateRepoDep = Annotated[OrderRepository, Depends(get_package_rate_repository)]

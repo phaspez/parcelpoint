@@ -1,15 +1,12 @@
-from typing import List, Type
-from uuid import uuid4, UUID
+from uuid import UUID
 
-from markdown_it.rules_core import block
 from sqlalchemy import and_, text, func, select
 from sqlalchemy.orm import Session
 
 from models.storage_block import StorageBlockCreate, StorageBlockUpdate, StorageBlock
-from repositories.base import BaseRepository, UpdateSchemaType, SchemaType
+from repositories.base import BaseRepository
 from schemas.package import PackageSchema
 from schemas.storage_block import StorageBlockSchema
-from scripts.block_constrain import block_constrain
 
 
 class StorageBlockRepository(
@@ -82,3 +79,24 @@ class StorageBlockRepository(
         if self.get_sum_size(block_id) + volume > max_size:
             return True
         return self.get_sum_count(block_id) + 1 <= max_package
+
+    def get_storage_block_within_limits(
+        self, vol: float, weight: float, num_package: int = 1
+    ):
+        sql = text(
+            """
+            SELECT sb.*
+            FROM parcelpoint.public.storageblock sb
+            LEFT JOIN parcelpoint.public.package p ON sb.id = p.block_id
+            GROUP BY sb.id, sb.max_package, sb.max_weight, sb.max_size
+            HAVING 
+                (sb.max_package >= (COUNT(p.id) + :num_package))
+                AND (sb.max_weight >= (COALESCE(SUM(p.weight), 0) + :weight))
+                AND (sb.max_size >= (COALESCE(SUM(p.width * p.length * p.height), 0) + :vol))
+            ORDER BY 
+                (sb.max_weight - COALESCE(SUM(p.weight), 0)) DESC;
+            """,
+        )
+        return self.db.execute(
+            sql, {"num_package": num_package, "weight": weight, "vol": vol}
+        )

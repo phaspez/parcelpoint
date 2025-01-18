@@ -1,18 +1,14 @@
 import random
-from datetime import datetime, timedelta
 from uuid import uuid4
-
 from seedings.connect import connection
 from .utils import cur, get_merchants, get_staffs, random_datetime_last_month
 
-orders = 5
 
-
-def seed_order():
+def seed_order(num_order=5):
     merchants = get_merchants()
     staffs = get_staffs()
     try:
-        for i in range(orders):
+        for i in range(num_order):
             merchant_id = random.choice(merchants)[0]
             staff_id = random.choice(staffs)[0]
             date = random_datetime_last_month()
