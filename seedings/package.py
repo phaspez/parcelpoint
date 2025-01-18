@@ -2,7 +2,7 @@ import random
 from uuid import uuid4
 
 import bcrypt
-from Lib.concurrent.futures.thread import ThreadPoolExecutor
+from concurrent.futures.thread import ThreadPoolExecutor
 from seedings.connect import connection
 from .utils import (
     cur,
