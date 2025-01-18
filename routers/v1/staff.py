@@ -1,5 +1,8 @@
 from uuid import UUID
+
 from fastapi import APIRouter, HTTPException
+
+from dependencies import StaffRepoDep, AccountRepoDep
 from models.users.account import Account, AccountCreate, AccountUpdate
 from models.users.staff import (
     Staff,
@@ -8,7 +11,6 @@ from models.users.staff import (
     StaffCreateNoID,
     StaffUpdate,
 )
-from dependencies import StaffRepoDep, AccountRepoDep
 
 router = APIRouter(
     prefix="/staff",

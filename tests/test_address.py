@@ -1,10 +1,7 @@
-from connection import get_db
-from main import app
-from fastapi.testclient import TestClient
 import pytest
 
-from models.address import Address, AddressCreate
 from conftest import client
+from models.address import AddressCreate
 
 
 def test_get_address(client):

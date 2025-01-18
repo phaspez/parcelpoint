@@ -1,5 +1,8 @@
 from uuid import UUID
+
 from fastapi import APIRouter, HTTPException
+
+from dependencies import MerchantRepoDep, AccountRepoDep
 from models.users.account import Account, AccountCreate, AccountUpdate
 from models.users.merchant import (
     MerchantDetails,
@@ -8,7 +11,6 @@ from models.users.merchant import (
     MerchantCreateNoID,
     MerchantUpdate,
 )
-from dependencies import MerchantRepoDep, AccountRepoDep
 
 router = APIRouter(
     prefix="/merchant",

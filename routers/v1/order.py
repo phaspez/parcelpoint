@@ -1,14 +1,9 @@
-from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
-from fastapi.params import Depends, Body
-from sqlalchemy.orm import Session
-from uuid import UUID
-from connection import get_db
-from models.order import OrderCreate, OrderUpdate
-from repositories.address import AddressRepository
-from models.address import AddressCreate, AddressUpdate
+
 from dependencies import OrderRepoDep
+from models.order import OrderCreate, OrderUpdate
 
 router = APIRouter(
     prefix="/order",

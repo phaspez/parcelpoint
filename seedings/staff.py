@@ -1,7 +1,7 @@
 import random
+
 from seedings.connect import connection
 from .utils import cur, get_accounts, random_datetime_last_month
-
 
 access_levels = [0, 1, 2]
 positions = ["Pickup", "Delivery", "Manager"]

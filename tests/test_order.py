@@ -4,8 +4,8 @@ from uuid import uuid4
 
 import pytest
 
-from models.order import OrderCreate, Order, OrderUpdate
 from conftest import client
+from models.order import OrderCreate, Order, OrderUpdate
 
 
 @pytest.fixture

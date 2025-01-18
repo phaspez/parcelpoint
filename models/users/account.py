@@ -1,7 +1,7 @@
 from typing import Annotated
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, AfterValidator, Field
-from uuid import UUID
 
 
 def check_phone_length(phone_number: str) -> str:

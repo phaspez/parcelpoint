@@ -4,13 +4,13 @@ from uuid import uuid4
 
 import pytest
 
+from conftest import client
 from models.users.account import AccountCreate, AccountUpdate
 from models.users.merchant import (
     MerchantUpdate,
     MerchantDetails,
     MerchantCreateNoID,
 )
-from conftest import client
 
 
 @pytest.fixture

@@ -1,5 +1,6 @@
 import random
 from uuid import uuid4
+
 from seedings.connect import connection
 from .utils import cur, get_merchants, get_staffs, random_datetime_last_month
 

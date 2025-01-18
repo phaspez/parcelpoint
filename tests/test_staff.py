@@ -4,9 +4,9 @@ from uuid import uuid4
 
 import pytest
 
+from conftest import client
 from models.users.account import AccountCreate, AccountUpdate
 from models.users.staff import StaffCreateNoID, StaffUpdate, StaffDetails
-from conftest import client
 
 
 @pytest.fixture

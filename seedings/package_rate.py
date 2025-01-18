@@ -1,4 +1,3 @@
-import random
 from uuid import uuid4
 
 from seedings.connect import connection

@@ -1,7 +1,9 @@
 from datetime import datetime
-from models.users.account import Account
-from pydantic import BaseModel
 from uuid import UUID
+
+from pydantic import BaseModel
+
+from models.users.account import Account
 
 
 class Staff(BaseModel):

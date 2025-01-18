@@ -1,8 +1,9 @@
 from uuid import UUID
-from fastapi import APIRouter, HTTPException
-from models.package import PackageCreate, PackageUpdate, Package
-from dependencies import PackageRepoDep
 
+from fastapi import APIRouter, HTTPException
+
+from dependencies import PackageRepoDep
+from models.package import PackageCreate, PackageUpdate, Package
 
 router = APIRouter(
     prefix="/package",

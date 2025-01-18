@@ -1,9 +1,10 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends, Body, Cookie
-from uuid import UUID
 
+from dependencies import AccountRepoDep, require_logged_in_user
 from models.users.account import (
     AccountCreate,
     AccountUpdate,
@@ -13,8 +14,6 @@ from models.users.account import (
     Token,
 )
 from utils.jwt import create_access_token, verify_token
-from dependencies import AccountRepoDep, require_logged_in_user
-
 
 router = APIRouter(
     prefix="/account",

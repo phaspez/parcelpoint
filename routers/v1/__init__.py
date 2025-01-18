@@ -1,3 +1,5 @@
+from fastapi import APIRouter
+
 from routers.v1 import (
     account,
     address,
@@ -8,8 +10,6 @@ from routers.v1 import (
     staff,
     storage_block,
 )
-
-from fastapi import APIRouter
 
 router = APIRouter(
     prefix="/api/v1",

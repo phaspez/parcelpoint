@@ -1,11 +1,8 @@
-import random
+from concurrent.futures.thread import ThreadPoolExecutor
 from uuid import uuid4
 
-import bcrypt
-from concurrent.futures.thread import ThreadPoolExecutor
 from seedings.connect import connection
 from .utils import (
-    cur,
     get_random_address_id,
     get_random_merchant_id,
     get_random_order_id,

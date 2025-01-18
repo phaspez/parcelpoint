@@ -1,8 +1,9 @@
-import random
-import bcrypt
 from concurrent.futures.thread import ThreadPoolExecutor
+
+import bcrypt
+
 from seedings.connect import connection
-from .utils import cur, get_random_address_id
+from .utils import get_random_address_id
 
 
 def hash_password(password: str) -> str:

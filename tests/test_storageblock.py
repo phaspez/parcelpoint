@@ -1,8 +1,7 @@
 from uuid import uuid4
 
-from main import app
-from fastapi.testclient import TestClient
 import pytest
+
 from conftest import client
 from models.storage_block import StorageBlockCreate, StorageBlock, StorageBlockUpdate
 

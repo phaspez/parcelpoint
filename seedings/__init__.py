@@ -1,12 +1,12 @@
-from seedings.order import seed_order
-from seedings.package_rate import seed_package_rate
-from seedings.storage_block import seed_storage_block
-from seedings.truncate import truncate
 from seedings.account import seed_account
 from seedings.address import seed_address
 from seedings.merchant import seed_merchant
-from seedings.staff import seed_staff
+from seedings.order import seed_order
 from seedings.package import seed_package
+from seedings.package_rate import seed_package_rate
+from seedings.staff import seed_staff
+from seedings.storage_block import seed_storage_block
+from seedings.truncate import truncate
 from seedings.utils import get_storage_block_within_limits
 
 

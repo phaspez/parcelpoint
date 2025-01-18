@@ -1,5 +1,8 @@
-import pytest
 import random
+
+import pytest
+
+from conftest import client
 from models.users.account import (
     AccountCreate,
     Account,
@@ -7,7 +10,6 @@ from models.users.account import (
     AccountLogin,
     Token,
 )
-from conftest import client
 
 
 @pytest.fixture

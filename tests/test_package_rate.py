@@ -1,14 +1,9 @@
 from uuid import uuid4
 
-from connection import get_db
-from main import app
-from fastapi.testclient import TestClient
 import pytest
 
-from models.address import Address, AddressCreate
 from conftest import client
 from models.package_rate import PackageRateCreate
-from seedings.package_rate import oversize_rate, overweight_rate_per_kg
 
 
 def test_get_package_rates(client):
