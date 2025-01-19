@@ -21,6 +21,25 @@ def create_access_token(user: Account) -> str:
     return result
 
 
+def create_access_token_dict(data: dict):
+    to_encode = data.copy()
+
+    expire = datetime.now() + timedelta(minutes=expire_in_minutes)
+
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, jwt_secret, algorithm="HS256")
+    return encoded_jwt
+
+
+def verify_token_dict(token: str) -> dict:
+    try:
+        return jwt.decode(token, jwt_secret, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        raise ValueError("Token has expired")
+    except jwt.PyJWTError:
+        raise ValueError("Invalid token")
+
+
 def verify_token(token: str) -> Account:
     """Verifies the JWT token."""
     try:

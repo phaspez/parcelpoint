@@ -29,6 +29,19 @@ async def get_account(
     return accounts
 
 
+@router.get("/me")
+async def get_account_with_cookie(
+    account_repo: AccountRepoDep, user: Account = Depends(require_logged_in_user)
+):
+    try:
+        type = account_repo.get_user_id_type(user.id)
+        return {**user.model_dump(), "type": type}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/")
 async def create_account(account: AccountCreate, account_repo: AccountRepoDep):
     try:

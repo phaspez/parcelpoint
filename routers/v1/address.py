@@ -18,6 +18,36 @@ async def get_address(address_repo: AddressRepoDep):
     return address_repo.get_all()
 
 
+@router.get("/search")
+async def search_address(q: str, address_repo: AddressRepoDep):
+    if not q:
+        return address_repo.get_all()
+
+    # Split on any whitespace and clean up terms
+    terms = [term.strip().lower() for term in q.split() if term.strip()]
+
+    if not terms:
+        return address_repo.get_all()
+
+    results = address_repo.search(terms)
+
+    # Convert SQL results to dict and add matching info
+    return [
+        {
+            "id": str(row.id),
+            "province": row.province,
+            "district": row.district,
+            "commune": row.commune,
+            "matched_fields": [
+                field
+                for field in ["province", "district", "commune"]
+                if any(term in getattr(row, field).lower() for term in terms)
+            ],
+        }
+        for row in results
+    ]
+
+
 @router.get("/{id}")
 async def get_address_by_id(id: UUID, address_repo: AddressRepoDep):
     address = address_repo.get_by_id(id)

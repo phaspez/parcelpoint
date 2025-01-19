@@ -9,6 +9,13 @@ def test_get_address(client):
     assert response.status_code == 200
 
 
+def test_search_address(client):
+    response = client.get("/api/v1/address/search?q=ninh%20kiều%20cần%20thơ")
+    print(response.json())
+    assert response.status_code == 200
+    assert len(response.json()) >= 1
+
+
 def test_create_address(client):
     """Test creating an address and return the created data for other tests"""
     address = AddressCreate(
