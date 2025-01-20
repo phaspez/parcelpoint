@@ -1,8 +1,8 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
-from dependencies import PackageRepoDep
+from dependencies import PackageRepoDep, LoggedInDep
 from models.package import PackageCreate, PackageUpdate, Package
 
 router = APIRouter(
@@ -27,6 +27,39 @@ async def create_package(package_create: PackageCreate, package_repo: PackageRep
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/my_packages")
+async def get_merchant_packages(
+    package_repo: PackageRepoDep,
+    user: LoggedInDep,
+    merchant_id: UUID | None = None,
+    block_id: UUID | None = None,
+    order_id: UUID | None = None,
+    is_urgent: bool | None = None,
+    is_fragile: bool | None = None,
+    min_weight: float | None = None,
+    max_weight: float | None = None,
+    days_ago: int = Query(7, gt=0),
+    limit: int = Query(0, le=50),
+    offset: int = Query(0, ge=0),
+):
+    try:
+        results = package_repo.query_packages(
+            merchant_id=user.id,
+            block_id=block_id,
+            order_id=order_id,
+            is_urgent=is_urgent,
+            is_fragile=is_fragile,
+            min_weight=min_weight,
+            max_weight=max_weight,
+            days_ago=days_ago,
+            limit=limit,
+            offset=offset,
+        )
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.patch("/{id}")

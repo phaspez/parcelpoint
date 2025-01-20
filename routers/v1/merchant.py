@@ -1,7 +1,7 @@
+import routers.v1.dashboards.merchant as dashboard
+
 from uuid import UUID
-
 from fastapi import APIRouter, HTTPException
-
 from dependencies import MerchantRepoDep, AccountRepoDep
 from models.users.account import Account, AccountCreate, AccountUpdate
 from models.users.merchant import (
@@ -16,6 +16,8 @@ router = APIRouter(
     prefix="/merchant",
     tags=["merchant"],
 )
+
+router.include_router(dashboard.router)
 
 
 @router.get("/")

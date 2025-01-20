@@ -28,6 +28,8 @@ import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
+import { useUserStore } from "@/stores/userStore";
+import { AccountWithType } from "@/types/account";
 
 const emailSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -47,6 +49,8 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [usePhone, setUsePhone] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const setUser = useUserStore((state) => state.setUser);
+
   const cookie = useCookies();
   const schema = usePhone ? phoneSchema : emailSchema;
 
@@ -60,37 +64,56 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof schema>) {
+    const user = { username: "", password: values.password };
+    if ("phone" in values) {
+      user.username = values.phone;
+    } else if ("email" in values) {
+      user.username = values.email;
+    }
+    console.log(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/account/login");
+
     await axios
       .post(
         process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/account/login",
-        values,
+        user,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        },
       )
       .then(async (res) => {
-        cookie.set("token", res.data.token, { expires: 14 });
-        toast({
-          title: "Successfully logged in!",
-        });
+        const access_token = res.data.access_token;
+        cookie.set("token", access_token, { expires: 14 });
+        console.log(access_token);
 
-        const test = cookie.get("token");
-        console.log(test);
-        const res_2 = await axios.get(
-          process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/account/me",
-          {
+        await axios
+          .get(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/account/me", {
             withCredentials: true,
             headers: {
-              Authorization: `Bearer ${test}`, // or whatever format your backend expects
+              "Content-Type": "application/x-www-form-urlencoded",
+              Authorization: `Bearer ${access_token}`,
             },
-          },
-        );
-        console.log(res_2);
+          })
+          .then((res) => {
+            const data = res.data as AccountWithType;
+            console.log(data);
+            setUser(data);
+            toast({
+              title: `Hello, ${data.type.toLowerCase()} ${data.name}!`,
+            });
+            console.log("done");
+          });
       })
       .catch((error: unknown) => {
         if (axios.isAxiosError(error) && error.response) {
           const message = error.response.data.detail || error.message;
+          console.error(message);
           toast({
             title: "Failed to login",
             variant: "destructive",
-            description: <div>{message || error.message}</div>,
+            description: <div>{error.message}</div>,
           });
         } else {
           toast({
@@ -103,7 +126,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+    <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Login</CardTitle>
@@ -155,6 +178,7 @@ export default function LoginPage() {
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="Enter your password"
+                          autoComplete="current-password"
                           {...field}
                         />
                       </FormControl>

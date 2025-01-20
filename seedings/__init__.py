@@ -15,11 +15,11 @@ def global_setup():
     seed_address()
     seed_package_rate()
     seed_storage_block()
-    seed_account(num_users=20)
+    seed_account(num_users=7)
     seed_merchant()
     seed_staff()
-    seed_order(num_order=7)
-    seed_package(num_packages=20)
+    seed_order(num_order=100)
+    seed_package(num_packages=1000)
 
 
 def global_teardown():

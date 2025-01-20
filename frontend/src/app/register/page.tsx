@@ -24,6 +24,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AddressSearch } from "@/components/AddressSearch";
+import axios from "axios";
+import { useToast } from "@/hooks/use-toast";
+import { AccountCreate, MerchantCreate } from "@/types/account";
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
 
 const personalInfoSchema = z.object({
   name: z
@@ -34,17 +48,17 @@ const personalInfoSchema = z.object({
     .min(8, { message: "Password must be at least 8 characters long" }),
   phone: z.string().regex(/^0\d{9,10}$/, { message: "Invalid phone number" }),
   email: z.string().email({ message: "Invalid email address" }),
-  addressId: z.string().min(1, { message: "Please select an address" }),
-  streetName: z
+  address_id: z.string().min(1, { message: "Please select an address" }),
+  street: z
     .string()
     .min(2, { message: "Street name must be at least 2 characters long" }),
 });
 
 const companyInfoSchema = z.object({
-  companyName: z
+  company_name: z
     .string()
     .min(2, { message: "Company name must be at least 2 characters long" }),
-  companyDescription: z
+  merchant_description: z
     .string()
     .min(10, {
       message: "Company description must be at least 10 characters long",
@@ -63,6 +77,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const [step, setStep] = useState<1 | 2>(1);
+  const { toast } = useToast();
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -71,17 +86,35 @@ export default function RegisterPage() {
       password: "",
       phone: "",
       email: "",
-      addressId: "",
-      streetName: "",
-      companyName: "",
-      companyDescription: "",
+      address_id: "",
+      street: "",
+      company_name: "",
+      merchant_description: "",
     },
     mode: "onChange",
   });
 
   function onSubmit(values: RegisterForm) {
-    // Here you would typically send the registration request to your backend
-    console.log(values);
+    const merchant_create: MerchantCreate = {
+      ...values,
+      registration_date: formatDate(new Date()),
+    };
+    const account_create = values as AccountCreate;
+
+    console.log({ account_create, merchant_create });
+
+    axios
+      .post(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/merchant/register", {
+        account_create,
+        merchant_create,
+      })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => {
+        console.error(error);
+        toast({ title: error.message });
+      });
   }
 
   return (
@@ -161,7 +194,7 @@ export default function RegisterPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="addressId"
+                    name="address_id"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Address</FormLabel>
@@ -179,7 +212,7 @@ export default function RegisterPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="streetName"
+                    name="street"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Street Name</FormLabel>
@@ -196,7 +229,7 @@ export default function RegisterPage() {
                 <>
                   <FormField
                     control={form.control}
-                    name="companyName"
+                    name="company_name"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Company Name</FormLabel>
@@ -209,7 +242,7 @@ export default function RegisterPage() {
                   />
                   <FormField
                     control={form.control}
-                    name="companyDescription"
+                    name="merchant_description"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Company Description</FormLabel>

@@ -5,7 +5,7 @@ from seedings.connect import connection
 from .utils import cur, get_merchants, get_staffs, random_datetime_last_month
 
 
-def seed_order(num_order=5):
+def seed_order(num_order=100):
     merchants = get_merchants()
     staffs = get_staffs()
     try:

@@ -1,10 +1,12 @@
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, Cookie
+from fastapi.params import Depends
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from connection import get_db
-from models.users.account import Account
+from models.users.account import Account, AccountWithType
 from repositories.order import OrderRepository
 from repositories.package_rate import PackageRateRepository
 from repositories.users.account import AccountRepository
@@ -13,7 +15,7 @@ from repositories.users.merchant import MerchantRepository
 from repositories.package import PackageRepository
 from repositories.users.staff import StaffRepository
 from repositories.storage_block import StorageBlockRepository
-from utils.jwt import verify_token
+from utils.jwt import verify_token, verify_token_dict
 
 DBSession = Annotated[Session, Depends(get_db)]
 
@@ -108,3 +110,19 @@ def require_logged_in_staff(
             status_code=401,
             detail="Unauthorized access, you must be a staff to perform this action",
         )
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/account/login")
+
+
+async def get_current_user(
+    account_repo: AccountRepoDep, token: Annotated[str, Depends(oauth2_scheme)]
+) -> AccountWithType:
+    user = verify_token_dict(token)
+    user_id = user["user_id"]
+    user = account_repo.get_by_id(user_id)
+    user_type = account_repo.get_user_id_type(user_id)
+    return AccountWithType(type=user_type, **user.__dict__)
+
+
+LoggedInDep = Annotated[AccountWithType, Depends(get_current_user)]
