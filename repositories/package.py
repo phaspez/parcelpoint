@@ -1,11 +1,14 @@
 from datetime import timedelta, datetime
+from turtledemo.penrose import start
 from uuid import UUID
 
-from sqlalchemy import and_, desc, cast, Date, func, Integer, text
+from sqlalchemy import and_, desc, cast, Date, func, Integer, text, select
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.functions import count
 
-from models.package import PackageCreate, PackageUpdate
+from models.order import Order
+from models.package import PackageCreate, PackageUpdate, Package
 from repositories.base import BaseRepository
 from repositories.package_rate import PackageRateRepository
 from repositories.storage_block import StorageBlockRepository
@@ -64,11 +67,11 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
             print(filters)
             query = query.filter(and_(*filters))
 
-        print(
-            query.statement.compile(
-                dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
-            )
-        )
+        # print(
+        #     query.statement.compile(
+        #         dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
+        #     )
+        # )
         query = query.order_by(desc(OrderSchema.date))
         packages = query.offset(offset).limit(limit).all()
         return packages
@@ -77,45 +80,48 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         end_date = datetime.now().date()
         start_date = end_date - timedelta(days=days_ago - 1)
 
-        # Generate series of dates
-        date_series = self.db.query(
-            func.generate_series(
-                cast(start_date, Date),
-                cast(end_date, Date),
-                text("interval '1 day'"),  # Fixed: proper interval syntax
-            ).label("date")
-        ).subquery()
+        date_series = select(
+            func.generate_series(start_date, end_date, text("interval '1 day'"))
+            .cast(Date)
+            .label("date")
+        ).cte("date_series")
 
-        # Count packages per day
-        package_counts = (
-            self.db.query(
+        packages_count = (
+            select(
                 cast(OrderSchema.date, Date).label("date"),
                 func.count(PackageSchema.id).label("count"),
+                func.sum(PackageSchema.shipping_cost).label("shipping"),
+                func.sum(PackageSchema.cod_cost).label("cod"),
             )
-            .join(PackageSchema, PackageSchema.id == PackageSchema.id)
-            .where(PackageSchema.merchant_id == id)
+            .join(OrderSchema, PackageSchema.order_id == OrderSchema.id)
+            .filter(
+                cast(OrderSchema.date, Date) >= start_date,
+                OrderSchema.merchant_id == id,
+            )
             .group_by(cast(OrderSchema.date, Date))
-            .filter(OrderSchema.date >= start_date, OrderSchema.date <= end_date)
-            .subquery()
-        )
+        ).subquery()
 
-        # Join dates with counts, using COALESCE to convert NULL to 0
-        final_query = (
-            self.db.query(
+        query = (
+            select(
                 date_series.c.date,
-                func.coalesce(package_counts.c.count, 0).label("count"),
+                func.coalesce(packages_count.c.count, 0).label("count"),
+                func.coalesce(packages_count.c.shipping, 0).label("shipping"),
+                func.coalesce(packages_count.c.cod, 0).label("cod"),
             )
-            .outerjoin(package_counts, date_series.c.date == package_counts.c.date)
+            .select_from(date_series)
+            .join(
+                packages_count,
+                date_series.c.date == packages_count.c.date,
+                isouter=True,
+            )
             .order_by(date_series.c.date)
         )
 
+        result = self.db.execute(query)
         daily_counts = [
-            {"date": result.date, "count": result.count} for result in final_query.all()
+            {"date": q.date, "count": q.count, "shipping": q.shipping, "cod": q.cod}
+            for q in result.all()
         ]
-        # daily = [date[0] for date in daily_counts]
-        # counts = [count[1] for count in daily_counts]
-
-        # return {"dates": daily, "counts": counts}
         return daily_counts
 
     def calculate_package_pricing(self, package: PackageCreate) -> float:

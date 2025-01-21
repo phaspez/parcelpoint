@@ -17,18 +17,20 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { AccountWithType } from "@/types/account";
 
 export default function Header() {
-  const { user, setUser, clearUser } = useUserStore();
+  const { user, setUser, clearUser, clearToken, setToken } = useUserStore();
   const cookie = useCookies();
 
   const handleLogout = () => {
     cookie.remove("token");
     clearUser();
+    clearToken();
   };
 
   useEffect(() => {
     const fetchData = async () => {
       const access_token = cookie.get("token");
       if (!access_token) return;
+      setToken(access_token);
       await axios
         .get(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/account/me", {
           withCredentials: true,

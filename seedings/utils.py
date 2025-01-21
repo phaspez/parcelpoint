@@ -100,12 +100,15 @@ def random_package_status():
 def random_datetime_last_month():
     today = datetime.today()
 
-    first_day_of_this_month = today.replace(day=1)
-    last_day_of_last_month = first_day_of_this_month - timedelta(days=1)
-    first_day_of_last_month = last_day_of_last_month.replace(day=1)
-    random_date = first_day_of_last_month + timedelta(
-        days=random.randint(0, (last_day_of_last_month - first_day_of_last_month).days)
-    )
+    start_date = today - timedelta(days=30)
+    random_date = start_date + timedelta(days=random.randint(0, 30))
+
+    # first_day_of_this_month = today.replace(day=1)
+    # last_day_of_last_month = first_day_of_this_month - timedelta(days=1)
+    # first_day_of_last_month = last_day_of_last_month.replace(day=1)
+    # random_date = first_day_of_last_month + timedelta(
+    #     days=random.randint(0, (last_day_of_last_month - first_day_of_last_month).days)
+    # )
 
     random_hour = random.randint(0, 23)
     random_minute = random.randint(0, 59)

@@ -1,91 +1,166 @@
 "use client";
 
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useCookies } from "next-client-cookies";
-import { BarChart, Bar, CartesianGrid, XAxis } from "recharts";
+import {
+  BarChart,
+  Bar,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  LineChart,
+  Line,
+  Brush,
+} from "recharts";
 import {
   ChartContainer,
   ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { type ChartConfig } from "@/components/ui/chart";
+import { Input } from "@/components/ui/input";
+import { fetchPackageDaysAgo } from "@/lib/data";
+import { Label } from "@/components/ui/label";
+import { AppSidebar } from "@/components/app-sidebar";
+import { DashboardMerchant } from "@/types/dashboard";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
-async function getPackageDaysAgo(daysAgo: number = 20, access_token: string) {
-  try {
-    const response = await axios.get(
-      process.env.NEXT_PUBLIC_BACKEND_URL +
-        `/api/v1/merchant/dashboard/package_per_day?days_ago=${daysAgo}`,
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      },
-    );
-    return response.data; // Return the actual data
-  } catch (error) {
-    console.error(error);
-    throw error; // Rethrow the error to handle it in the component
-  }
+const chartConfig = {
+  count: {
+    label: "Packages",
+    color: "#2563eb",
+  },
+  cod: {
+    label: "COD revenue",
+    color: "#f66d9b",
+  },
+} satisfies ChartConfig;
+
+interface SumHighlight {
+  sumPackage: number;
+  sumCod: number;
+  sumShipping: number;
+}
+
+function numberWithDots(x: number) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
 export default function MerchantDashboardPage() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<DashboardMerchant[]>([]);
   const [loading, setLoading] = useState(true);
-  const chartConfig = {
-    count: {
-      label: "Packages",
-      color: "#2563eb",
-    },
-  } satisfies ChartConfig;
-
-  const cookie = useCookies();
+  const [days_ago, set_days_ago] = useState<number>(30);
+  const [sumHighlight, setSumHighlight] = useState<SumHighlight>({
+    sumPackage: 0,
+    sumCod: 0,
+    sumShipping: 0,
+  });
+  const cookies = useCookies();
+  const token = cookies.get("token");
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const access_token = cookie.get("token");
-        if (!access_token) return;
-        const result = await getPackageDaysAgo(30, access_token);
-        setData(result);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+    async function fetchData() {
+      if (token && days_ago > 0 && days_ago < 40) {
+        const data: DashboardMerchant[] = await fetchPackageDaysAgo(
+          days_ago,
+          token,
+        );
+
+        const sumPackage = data.reduce((acc, item) => acc + item.count, 0);
+        const sumCod = data.reduce((acc, item) => acc + item.cod, 0);
+        const sumShipping = data.reduce((acc, item) => acc + item.shipping, 0);
+        setSumHighlight({ sumPackage, sumCod, sumShipping });
+        setData(data);
       }
-    };
+    }
 
     fetchData();
-  }, []); // Empty dependency array means this runs once on mount
+  }, [days_ago]);
 
-  if (loading || !data) return <div>Loading...</div>;
+  if (!token) return <div>You're not logged in...</div>;
+  if (!data) return <div>Error</div>;
 
   return (
     <div>
-      <h3>This is a dashboard page</h3>
-      <div>
-        {/* Use your data here */}
-        {JSON.stringify(data)}
-      </div>
-      <div>
-        <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={data}>
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <ChartLegend content={<ChartLegendContent />} />
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <Bar dataKey="count" fill="var(--color-count)" radius={4} />
-          </BarChart>
-        </ChartContainer>
+      <span className="flex items-center gap-2">
+        <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
+        <h1>Dashboard</h1>
+      </span>
+      <div className="">
+        <Card>
+          <CardHeader>
+            <span className="flex items-center gap-2">
+              <span className="material-symbols-outlined">filter_list</span>
+              <Label htmlFor="days_ago">Days</Label>
+              <Input
+                type="number"
+                // min={1}
+                // max={39}
+                className="w-[128px]"
+                name="days_ago"
+                onChange={(event) =>
+                  event.target.value && set_days_ago(Number(event.target.value))
+                }
+                value={days_ago}
+              />
+            </span>
+          </CardHeader>
+          <div className="flex">
+            <CardContent>
+              <h1>{numberWithDots(sumHighlight.sumPackage)}</h1>
+              <span>packages</span>
+            </CardContent>
+            <CardContent>
+              <h1>{numberWithDots(sumHighlight.sumCod)}</h1>
+              <span>COD revenue</span>
+            </CardContent>
+            <CardContent>
+              <h1>{numberWithDots(sumHighlight.sumShipping)}</h1>
+              <span>Shipping fee</span>
+            </CardContent>
+          </div>
+        </Card>
+
+        <h3>Overview within {days_ago} days</h3>
+
+        <div className="flex flex-wrap gap-y-10 py-10">
+          <ChartContainer
+            config={chartConfig}
+            className="min-h-200px w-full md:w-1/2"
+          >
+            <BarChart
+              className="p-4"
+              accessibilityLayer
+              data={data}
+              syncId="barChart"
+            >
+              <ChartLegend />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey="date" tickMargin={10} />
+              <YAxis dataKey="count" />
+              <Brush height={15} travellerWidth={15} />
+              <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+            </BarChart>
+          </ChartContainer>
+
+          <ChartContainer
+            config={chartConfig}
+            className="min-h-200px w-full md:w-1/2"
+          >
+            <LineChart accessibilityLayer data={data} syncId="barChart">
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey="date" tickMargin={10} />
+              <ChartLegend />
+              <YAxis dataKey="cod" />
+              <Line dataKey="cod" />
+              <Line dataKey="shipping" stroke="#f66d9b" />
+            </LineChart>
+          </ChartContainer>
+        </div>
       </div>
     </div>
   );

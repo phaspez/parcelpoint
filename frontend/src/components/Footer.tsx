@@ -19,7 +19,16 @@ export default function Footer() {
               rel="noreferrer"
               className="font-medium underline underline-offset-4"
             >
-              ParcelPoint
+              phaspez
+            </a>{" "}
+            aka{" "}
+            <a
+              href="#"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium underline underline-offset-4"
+            >
+              Tri-Min Tram
             </a>
             . The source code is available on{" "}
             <a

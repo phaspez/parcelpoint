@@ -6,7 +6,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] py-12 px-4 sm:px-6 lg:px-8">
       <div className="text-center">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-          Welcome to <span className="text-primary">ParcelPoint</span>
+          Logistics. Streamlined.
         </h1>
         <p className="mt-3 text-xl text-gray-500 sm:mt-5 sm:text-2xl max-w-md mx-auto">
           Manage your parcels with ease and efficiency.

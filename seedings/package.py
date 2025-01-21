@@ -32,8 +32,8 @@ def create_package_data(package_id: int) -> tuple:
         random_bool(),
         random_package_status(),
         get_random_package_rate_id(),
-        random_float(1000, 100000, 1),
-        0,
+        random_float(1000, 40000, 0),
+        random_float(1000, 1000000, 0),
     )
 
 

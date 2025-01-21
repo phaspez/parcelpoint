@@ -49,7 +49,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [usePhone, setUsePhone] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const setUser = useUserStore((state) => state.setUser);
+  const { setUser, setToken } = useUserStore();
 
   const cookie = useCookies();
   const schema = usePhone ? phoneSchema : emailSchema;
@@ -86,6 +86,7 @@ export default function LoginPage() {
       .then(async (res) => {
         const access_token = res.data.access_token;
         cookie.set("token", access_token, { expires: 14 });
+        setToken(access_token);
         console.log(access_token);
 
         await axios
