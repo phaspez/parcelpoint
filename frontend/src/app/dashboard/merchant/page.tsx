@@ -60,6 +60,11 @@ export default function MerchantDashboardPage() {
   const cookies = useCookies();
   const token = cookies.get("token");
 
+  let VNDong = new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  });
+
   useEffect(() => {
     async function fetchData() {
       if (token && days_ago > 0 && days_ago < 40) {
@@ -96,8 +101,6 @@ export default function MerchantDashboardPage() {
               <Label htmlFor="days_ago">Days</Label>
               <Input
                 type="number"
-                // min={1}
-                // max={39}
                 className="w-[128px]"
                 name="days_ago"
                 onChange={(event) =>
@@ -107,17 +110,27 @@ export default function MerchantDashboardPage() {
               />
             </span>
           </CardHeader>
-          <div className="flex">
+          <div className="grid grid-cols-2 lg:flex">
             <CardContent>
               <h1>{numberWithDots(sumHighlight.sumPackage)}</h1>
-              <span>packages</span>
+              <span>Packages</span>
             </CardContent>
             <CardContent>
-              <h1>{numberWithDots(sumHighlight.sumCod)}</h1>
-              <span>COD revenue</span>
+              <h1>
+                {VNDong.format(sumHighlight.sumCod - sumHighlight.sumShipping)}
+              </h1>
+              <span>Net revenue</span>
             </CardContent>
             <CardContent>
-              <h1>{numberWithDots(sumHighlight.sumShipping)}</h1>
+              <h1 className="text-green-500">
+                {VNDong.format(sumHighlight.sumCod)}
+              </h1>
+              <span>Gross revenue</span>
+            </CardContent>
+            <CardContent>
+              <h1 className="text-red-500">
+                {VNDong.format(sumHighlight.sumShipping)}
+              </h1>
               <span>Shipping fee</span>
             </CardContent>
           </div>
