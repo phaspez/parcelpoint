@@ -31,10 +31,9 @@ jobs:
 
     env:
       # from the .env file
-      PORT: ${{ secrets.PORT }}
-      POSTGRESQL_USER: postgres
-      POSTGRESQL_PASSWORD: postgres
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/${{ secrets.DB_NAME }}
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
       DB_NAME: ${{ secrets.DB_NAME }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
