@@ -29,6 +29,11 @@ async def create_package(package_create: PackageCreate, package_repo: PackageRep
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/api/v1/package/my_packages")
+async def create_merchant_packages(user: LoggedInDep, package_repo: PackageRepoDep):
+    pass
+
+
 @router.get("/my_packages")
 async def get_merchant_packages(
     package_repo: PackageRepoDep,

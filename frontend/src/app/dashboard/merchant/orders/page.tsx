@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { type Package, generateFakePackages } from "@/lib/fake-data";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,8 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchPackages } from "@/lib/data";
-import { Check, Filter, Plus, Search, X } from "lucide-react";
+import { fetchOrders, fetchPackages } from "@/lib/data";
+import { useUserStore } from "@/stores/userStore";
+import { Check, Filter, Search, X } from "lucide-react";
 import { useCookies } from "next-client-cookies";
 import {
   Pagination,
@@ -41,16 +43,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import PackageBadge from "@/components/PackageBadge";
-import { Package } from "@/types/packages";
+import { Order } from "@/types/order";
 
-export default function PackagesPage() {
+export default function OrdersPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const cookies = useCookies();
 
-  const [packages, setPackages] = useState<Package[]>([]);
-  const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [idSearchTerm, setIdSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
@@ -94,21 +95,12 @@ export default function PackagesPage() {
       const access_token = cookies.get("token");
       if (!access_token) return;
 
-      const order_id = isUUIDv4(idSearchTerm) ? idSearchTerm : undefined;
-      const data = await fetchPackages(
-        {
-          name: searchTerm,
-          limit: ITEMS_PER_PAGE,
-          offset: (currentPage - 1) * ITEMS_PER_PAGE,
-          is_fragile: fragileFilter,
-          is_urgency: urgentFilter,
-          order_id: order_id,
-          // status: statusFilter,
-        },
-        access_token,
-      );
-      setPackages(data);
-      setFilteredPackages(data);
+      //const order_id = isUUIDv4(idSearchTerm) ? idSearchTerm : undefined;
+
+      const data = await fetchOrders(access_token);
+      console.log(data);
+      setOrders(data);
+      setFilteredOrders(data);
     }
 
     fetchAllPackages();
@@ -123,34 +115,20 @@ export default function PackagesPage() {
   ]);
 
   useEffect(() => {
-    let result = packages;
+    let result = orders;
 
     if (currentPage <= 0 || !currentPage) setCurrentPage(1);
     if (ITEMS_PER_PAGE <= 0 || !ITEMS_PER_PAGE) setItemsPerPage(30);
 
     if (searchTerm) {
-      result = result.filter(
-        (pkg) =>
-          pkg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          pkg.id.toLowerCase().includes(searchTerm.toLowerCase()),
+      result = result.filter((pkg) =>
+        pkg.id.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
-    if (statusFilter && statusFilter != "ALL") {
-      result = result.filter((pkg) => pkg.status === statusFilter);
-    }
-
-    if (urgentFilter !== undefined) {
-      result = result.filter((pkg) => pkg.is_urgent === urgentFilter);
-    }
-
-    if (fragileFilter !== undefined) {
-      result = result.filter((pkg) => pkg.is_fragile === fragileFilter);
-    }
-
-    setFilteredPackages(result);
+    setFilteredOrders(result);
   }, [
-    packages,
+    orders,
     searchTerm,
     idSearchTerm,
     statusFilter,
@@ -173,25 +151,17 @@ export default function PackagesPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Packages</BreadcrumbPage>
+            <BreadcrumbPage>Orders</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
-        <h1>Packages</h1>
-        <span className="grow" />
-
-        <Link href="/dashboard/merchant/new">
-          <Button>
-            {" "}
-            <Plus /> Create new package
-          </Button>
-        </Link>
+        <h1>Orders</h1>
       </span>
 
-      <div className="flex flex-wrap gap-4 mb-4 items-center">
+      <div className="hidden flex-wrap gap-4 mb-4 items-center">
         <Search />
         <Input
           placeholder="Search by receiver name"
@@ -206,7 +176,7 @@ export default function PackagesPage() {
           className="max-w-sm"
         />
       </div>
-      <div className="flex flex-wrap gap-4 mb-4 items-center">
+      <div className="hidden flex-wrap gap-4 mb-4 items-center">
         <Filter />
         <Select onValueChange={(value) => setStatusFilter(value || undefined)}>
           <SelectTrigger className="w-[180px]">
@@ -258,33 +228,26 @@ export default function PackagesPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Receiver Name</TableHead>
+            <TableHead>Order ID</TableHead>
+            <TableHead>Order Details</TableHead>
             <TableHead>Order Date</TableHead>
-            <TableHead className="w-[100px]">Receiver Phone</TableHead>
-            <TableHead className="w-[100px]">Status</TableHead>
-            <TableHead className="w-[50px]">Weight</TableHead>
-            <TableHead className="w-[50px]">Urgent</TableHead>
-            <TableHead className="w-[50px]">Fragile</TableHead>
-            <TableHead className="w-[100px]"></TableHead>
+            <TableHead className="w-[100px]">Packages Count</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredPackages.map((pkg) => (
-            <TableRow key={pkg.id}>
-              <TableCell>{pkg.name}</TableCell>
-              <TableCell>{pkg.order_date}</TableCell>
-              <TableCell>{pkg.phone}</TableCell>
-              <TableCell>{<PackageBadge badge_name={pkg.status} />}</TableCell>
-              <TableCell>{pkg.weight} kg</TableCell>
-              <TableCell>{pkg.is_urgent ? <Check /> : <X />}</TableCell>
-              <TableCell>{pkg.is_fragile ? <Check /> : <X />}</TableCell>
-              <TableCell>
-                <Link href={`/dashboard/merchant/packages/${pkg.id}`} passHref>
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
-                </Link>
-              </TableCell>
+          {filteredOrders.map((ord) => (
+            <TableRow key={ord.id} className="h-12">
+              <TableCell>{ord.id}</TableCell>
+              <TableCell>{ord.details}</TableCell>
+              <TableCell>{ord.date}</TableCell>
+              <TableCell>{ord.count}</TableCell>
+              {/*<TableCell>*/}
+              {/*  <Link href={`/dashboard/merchant/packages/${pkg.id}`} passHref>*/}
+              {/*    <Button variant="outline" size="sm">*/}
+              {/*      View Details*/}
+              {/*    </Button>*/}
+              {/*  </Link>*/}
+              {/*</TableCell>*/}
             </TableRow>
           ))}
         </TableBody>

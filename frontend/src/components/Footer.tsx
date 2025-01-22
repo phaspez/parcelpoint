@@ -5,8 +5,8 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t">
-      <div className="container place-self-center w-full flex items-center justify-between gap-4 py-10">
+    <footer className="border-t z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container z-50 place-self-center w-full flex items-center justify-between gap-4 py-10">
         <div className="flex items-center grow gap-4 px-2">
           <div>
             <Package className="h-6 w-6" />

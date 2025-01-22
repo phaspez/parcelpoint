@@ -21,7 +21,6 @@ export interface AccountCreate {
 }
 
 export interface MerchantCreate {
-  account_id: string;
   company_name: string;
   merchant_description: string;
   registration_date: string;

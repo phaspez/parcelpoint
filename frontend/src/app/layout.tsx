@@ -54,7 +54,9 @@ export default function RootLayout({
           <CookiesProvider>
             <div className="relative flex min-h-screen flex-col dark:bg-black">
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 px-4 md:px-20 lg:px-40 py-10 pb-10">
+                {children}
+              </main>
               <Footer />
             </div>
             <Toaster />

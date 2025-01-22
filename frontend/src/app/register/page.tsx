@@ -28,7 +28,7 @@ import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { AccountCreate, MerchantCreate } from "@/types/account";
 
-function formatDate(date) {
+function formatDate(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
   const day = String(date.getDate()).padStart(2, "0");
@@ -118,7 +118,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
+    <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <div className="flex items-center">

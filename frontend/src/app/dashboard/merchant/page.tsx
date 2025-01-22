@@ -26,6 +26,14 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardMerchant } from "@/types/dashboard";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const chartConfig = {
   count: {
@@ -48,6 +56,11 @@ function numberWithDots(x: number) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
+const VNDong = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
+});
+
 export default function MerchantDashboardPage() {
   const [data, setData] = useState<DashboardMerchant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,11 +72,6 @@ export default function MerchantDashboardPage() {
   });
   const cookies = useCookies();
   const token = cookies.get("token");
-
-  let VNDong = new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  });
 
   useEffect(() => {
     async function fetchData() {
@@ -89,6 +97,18 @@ export default function MerchantDashboardPage() {
 
   return (
     <div>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
         <h1>Dashboard</h1>
@@ -110,25 +130,27 @@ export default function MerchantDashboardPage() {
               />
             </span>
           </CardHeader>
-          <div className="grid grid-cols-2 lg:flex">
+          <div className="grid lg:grid-cols-2 xl:flex">
             <CardContent>
-              <h1>{numberWithDots(sumHighlight.sumPackage)}</h1>
+              <h1 className="text-lg md:text-2xl lg:text-4xl">
+                {numberWithDots(sumHighlight.sumPackage)}
+              </h1>
               <span>Packages</span>
             </CardContent>
             <CardContent>
-              <h1>
+              <h1 className="text-lg md:text-2xl lg:text-4xl">
                 {VNDong.format(sumHighlight.sumCod - sumHighlight.sumShipping)}
               </h1>
               <span>Net revenue</span>
             </CardContent>
             <CardContent>
-              <h1 className="text-green-500">
+              <h1 className="text-green-800 text-lg md:text-2xl lg:text-4xl">
                 {VNDong.format(sumHighlight.sumCod)}
               </h1>
               <span>Gross revenue</span>
             </CardContent>
             <CardContent>
-              <h1 className="text-red-500">
+              <h1 className="text-red-800 text-lg md:text-2xl lg:text-4xl">
                 {VNDong.format(sumHighlight.sumShipping)}
               </h1>
               <span>Shipping fee</span>
@@ -136,43 +158,40 @@ export default function MerchantDashboardPage() {
           </div>
         </Card>
 
-        <h3>Overview within {days_ago} days</h3>
-
         <div className="flex flex-wrap gap-y-10 py-10">
-          <ChartContainer
-            config={chartConfig}
-            className="min-h-200px w-full md:w-1/2"
-          >
-            <BarChart
-              className="p-4"
-              accessibilityLayer
-              data={data}
-              syncId="barChart"
-            >
-              <ChartLegend />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <CartesianGrid vertical={false} />
-              <XAxis dataKey="date" tickMargin={10} />
-              <YAxis dataKey="count" />
-              <Brush height={15} travellerWidth={15} />
-              <Bar dataKey="count" fill="var(--color-count)" radius={4} />
-            </BarChart>
-          </ChartContainer>
-
-          <ChartContainer
-            config={chartConfig}
-            className="min-h-200px w-full md:w-1/2"
-          >
-            <LineChart accessibilityLayer data={data} syncId="barChart">
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <CartesianGrid vertical={false} />
-              <XAxis dataKey="date" tickMargin={10} />
-              <ChartLegend />
-              <YAxis dataKey="cod" />
-              <Line dataKey="cod" />
-              <Line dataKey="shipping" stroke="#f66d9b" />
-            </LineChart>
-          </ChartContainer>
+          <div className="w-full lg:w-1/2">
+            <h3>Total packages</h3>
+            <ChartContainer config={chartConfig} className="min-h-200px">
+              <BarChart
+                className="p-4"
+                accessibilityLayer
+                data={data}
+                syncId="barChart"
+              >
+                <ChartLegend />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="date" tickMargin={10} />
+                <YAxis dataKey="count" />
+                <Brush height={15} travellerWidth={15} />
+                <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+              </BarChart>
+            </ChartContainer>
+          </div>
+          <div className="w-full lg:w-1/2">
+            <h3>Revenue and fees</h3>
+            <ChartContainer config={chartConfig} className="min-h-200px">
+              <LineChart accessibilityLayer data={data} syncId="barChart">
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="date" tickMargin={10} />
+                <ChartLegend />
+                <YAxis dataKey="cod" />
+                <Line dataKey="cod" />
+                <Line dataKey="shipping" stroke="#f66d9b" />
+              </LineChart>
+            </ChartContainer>
+          </div>
         </div>
       </div>
     </div>

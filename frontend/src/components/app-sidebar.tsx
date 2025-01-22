@@ -5,6 +5,7 @@ import {
   Search,
   Settings,
   Package2,
+  ReceiptText,
 } from "lucide-react";
 
 import {
@@ -42,6 +43,12 @@ export function AppSidebar() {
                   <Link href="/dashboard/merchant/packages">
                     <Package2 />
                     <span>Package</span>
+                  </Link>
+                </SidebarMenuButton>
+                <SidebarMenuButton asChild>
+                  <Link href="/dashboard/merchant/orders">
+                    <ReceiptText />
+                    <span>Orders</span>
                   </Link>
                 </SidebarMenuButton>
                 <SidebarMenuButton asChild>

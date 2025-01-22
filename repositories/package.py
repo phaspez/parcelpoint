@@ -2,7 +2,7 @@ from datetime import timedelta, datetime
 from turtledemo.penrose import start
 from uuid import UUID
 
-from sqlalchemy import and_, desc, cast, Date, func, Integer, text, select
+from sqlalchemy import and_, desc, cast, Date, func, Integer, text, select, String
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.functions import count
@@ -41,7 +41,11 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         limit: int = 20,
         offset: int = 0,
     ):
-        query = self.db.query(PackageSchema).join(OrderSchema)
+        query = (
+            self.db.query(PackageSchema)
+            .add_column(OrderSchema.date)
+            .join(OrderSchema, PackageSchema.order_id == OrderSchema.id)
+        )
 
         filters = []
         if merchant_id:
@@ -73,7 +77,12 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         #     )
         # )
         query = query.order_by(desc(OrderSchema.date))
-        packages = query.offset(offset).limit(limit).all()
+        results = query.offset(offset).limit(limit).all()
+        packages = []
+        for package, date in results:
+            package_dict = package.__dict__
+            package_dict["order_date"] = date
+            packages.append(package_dict)
         return packages
 
     def query_package_days_ago(self, id: UUID, days_ago: int = 5):

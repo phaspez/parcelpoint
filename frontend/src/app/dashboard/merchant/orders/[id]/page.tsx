@@ -15,14 +15,6 @@ import Link from "next/link";
 import { fetchPackageById } from "@/lib/data";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Package } from "@/types/packages";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 
 const VNDong = new Intl.NumberFormat("vi-VN", {
   style: "currency",
@@ -49,30 +41,6 @@ export default function PackageDetailPage() {
 
   return (
     <div className="container">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/merchant/">
-              Dashboard
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/merchant/packages">
-              Packages
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{id}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
         <h1>Package Details</h1>
@@ -82,7 +50,7 @@ export default function PackageDetailPage() {
         className="flex items-center"
         passHref
       >
-        <Button variant="default" className="mb-4 flex items-center h-full">
+        <Button variant="outline" className="mb-4 flex items-center h-full">
           Back to Packages
         </Button>
       </Link>

@@ -28,4 +28,5 @@ export interface Package {
   street: string;
   name: string;
   status: string;
+  order_date: string;
 }

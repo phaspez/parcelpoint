@@ -60,8 +60,14 @@ export default function Header() {
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
-            <Link href="/dashboard">Dashboard</Link>
-            <Link href="/me">Personal Info</Link>
+            <Link href="/pricing">Pricing</Link>
+            <div
+              className={`flex items-center space-x-6 text-sm font-medium ${user ? "" : "hidden"}`}
+            >
+              <Link href="/dashboard/merchant">Dashboard</Link>
+              <Link href="/dashboard/merchant/packages">Packages</Link>
+              <Link href="/dashboard/merchant/orders">Orders</Link>
+            </div>
           </nav>
         </div>
         <div className="flex items-center gap-2">
@@ -75,10 +81,7 @@ export default function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard">Dashboard</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/me">Personal Info</Link>
+                    <Link href="/dashboard/merchant">Dashboard</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     Log out
