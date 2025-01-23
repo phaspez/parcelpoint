@@ -2,7 +2,7 @@ import re
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body
 from fastapi.params import Depends, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -31,9 +31,7 @@ router = APIRouter(
 
 
 @router.get("/")
-async def get_account(
-    account_repo: AccountRepoDep, user=Depends(require_logged_in_user)
-):
+async def get_account(account_repo: AccountRepoDep):
     accounts = account_repo.get_all()
     return accounts
 
@@ -69,6 +67,10 @@ async def login_user(
     account_repo: AccountRepoDep,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ):
+    # arbitrary number for testing invalid fields
+    if len(form_data.password) < 6 or len(form_data.username) < 5:
+        raise HTTPException(status_code=400, detail="Invalid field input")
+
     identifier_type, normalized_username = validate_login_identifier(form_data.username)
 
     user = account_repo.check_user_password(
@@ -104,9 +106,17 @@ async def create_account(account: AccountCreate, account_repo: AccountRepoDep):
 
 @router.patch("/{id}")
 async def patch_account(
-    id: UUID, account: AccountUpdate, account_repo: AccountRepoDep
+    id: UUID,
+    account: Annotated[AccountUpdate, Body()],
+    account_repo: AccountRepoDep,
+    user: LoggedInDep,
 ) -> Account:
     try:
+        if user.id != id:
+            raise HTTPException(
+                status_code=400, detail="You are not authorized to modify this resource"
+            )
+
         updated = account_repo.update(id, account)
         return Account(**updated.__dict__)
     except ValueError as e:
@@ -116,8 +126,15 @@ async def patch_account(
 
 
 @router.delete("/{id}")
-async def delete_account(id: UUID, account_repo: AccountRepoDep) -> Account:
+async def delete_account(
+    id: UUID, account_repo: AccountRepoDep, user: LoggedInDep
+) -> Account:
     try:
+        if user.id != id:
+            raise HTTPException(
+                status_code=400, detail="You are not authorized to modify this resource"
+            )
+
         deleted = account_repo.delete(id)
         return Account(**deleted.__dict__)
     except ValueError as e:
@@ -143,14 +160,6 @@ async def delete_account(id: UUID, account_repo: AccountRepoDep) -> Account:
 #         raise HTTPException(status_code=400, detail=str(e))
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/test_jwt")
-async def test_post_jwt(token: Annotated[str | None, Cookie()] = None) -> Account:
-    if not token:
-        raise HTTPException(status_code=400, detail="Token is empty")
-    user = verify_token(token)
-    return user
 
 
 @router.get("/{id}")

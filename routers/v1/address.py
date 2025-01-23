@@ -23,7 +23,6 @@ async def search_address(q: str, address_repo: AddressRepoDep):
     if not q:
         return address_repo.get_all()
 
-    # Split on any whitespace and clean up terms
     terms = [term.strip().lower() for term in q.split() if term.strip()]
 
     if not terms:
@@ -31,7 +30,6 @@ async def search_address(q: str, address_repo: AddressRepoDep):
 
     results = address_repo.search(terms)
 
-    # Convert SQL results to dict and add matching info
     return [
         {
             "id": str(row.id),
