@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import PackageBadge from "@/components/PackageBadge";
 import { Package } from "@/types/packages";
+import { formatTimestamp } from "@/lib/regionFormat";
 
 export default function PackagesPage() {
   const router = useRouter();
@@ -50,7 +51,6 @@ export default function PackagesPage() {
   const cookies = useCookies();
 
   const [packages, setPackages] = useState<Package[]>([]);
-  const [filteredPackages, setFilteredPackages] = useState<Package[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [idSearchTerm, setIdSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
@@ -62,7 +62,6 @@ export default function PackagesPage() {
   const [currentPage, setCurrentPage] = useState(queryPage);
   const [ITEMS_PER_PAGE, setItemsPerPage] = useState(queryLimit);
 
-  // Update URL when pagination changes
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
     updateQuery(newPage, ITEMS_PER_PAGE);
@@ -101,14 +100,13 @@ export default function PackagesPage() {
           limit: ITEMS_PER_PAGE,
           offset: (currentPage - 1) * ITEMS_PER_PAGE,
           is_fragile: fragileFilter,
-          is_urgency: urgentFilter,
+          is_urgent: urgentFilter,
           order_id: order_id,
-          // status: statusFilter,
+          status: statusFilter == "ALL" ? undefined : statusFilter,
         },
         access_token,
       );
       setPackages(data);
-      setFilteredPackages(data);
     }
 
     fetchAllPackages();
@@ -135,20 +133,6 @@ export default function PackagesPage() {
           pkg.id.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
-
-    if (statusFilter && statusFilter != "ALL") {
-      result = result.filter((pkg) => pkg.status === statusFilter);
-    }
-
-    if (urgentFilter !== undefined) {
-      result = result.filter((pkg) => pkg.is_urgent === urgentFilter);
-    }
-
-    if (fragileFilter !== undefined) {
-      result = result.filter((pkg) => pkg.is_fragile === fragileFilter);
-    }
-
-    setFilteredPackages(result);
   }, [
     packages,
     searchTerm,
@@ -193,14 +177,14 @@ export default function PackagesPage() {
 
       <div className="flex flex-wrap gap-4 mb-4 items-center">
         <Search />
+        {/*<Input*/}
+        {/*  placeholder="Search by receiver name"*/}
+        {/*  value={searchTerm}*/}
+        {/*  onChange={(e) => setSearchTerm(e.target.value)}*/}
+        {/*  className="max-w-sm"*/}
+        {/*/>*/}
         <Input
-          placeholder="Search by receiver name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
-        <Input
-          placeholder="Search by package ID"
+          placeholder="Search by Order ID"
           value={idSearchTerm}
           onChange={(e) => setIdSearchTerm(e.target.value)}
           className="max-w-sm"
@@ -269,10 +253,10 @@ export default function PackagesPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredPackages.map((pkg) => (
+          {packages.map((pkg) => (
             <TableRow key={pkg.id}>
               <TableCell>{pkg.name}</TableCell>
-              <TableCell>{pkg.order_date}</TableCell>
+              <TableCell>{formatTimestamp(pkg.order_date)}</TableCell>
               <TableCell>{pkg.phone}</TableCell>
               <TableCell>{<PackageBadge badge_name={pkg.status} />}</TableCell>
               <TableCell>{pkg.weight} kg</TableCell>

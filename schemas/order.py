@@ -16,6 +16,7 @@ class OrderSchema(Base):
     )
     staff_id = Column(
         PostgresUUID(as_uuid=True),
+        nullable=True,
     )
     date = Column(DateTime, nullable=False)
     details = Column(Text, nullable=True)

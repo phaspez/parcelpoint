@@ -1,9 +1,13 @@
+from datetime import datetime
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Body
+from requests.packages import package
 
-from dependencies import PackageRepoDep, LoggedInDep
-from models.package import PackageCreate, PackageUpdate, Package
+from dependencies import PackageRepoDep, LoggedInDep, OrderRepoDep, MerchantRepoDep
+from models.order import OrderCreate
+from models.package import PackageCreate, PackageUpdate, Package, PackageCreateNoOrder
 import routers.v1.package_history as package_history
 
 router = APIRouter(
@@ -32,9 +36,36 @@ async def create_package(package_create: PackageCreate, package_repo: PackageRep
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/api/v1/package/my_packages")
-async def create_merchant_packages(user: LoggedInDep, package_repo: PackageRepoDep):
-    pass
+@router.post("/my_packages")
+async def create_single_merchant_packages(
+    package_create: PackageCreateNoOrder,
+    user: LoggedInDep,
+    package_repo: PackageRepoDep,
+    order_repo: OrderRepoDep,
+    merchant_repo: MerchantRepoDep,
+):
+    try:
+        merchant = merchant_repo.get_by_id(user.id)
+
+        if not merchant:
+            raise HTTPException(status_code=400, detail="You must be a merchant")
+
+        order_create = OrderCreate(
+            merchant_id=merchant.account_id,
+            date=datetime.now(),
+            details=f"Order auto-created at {datetime.now()}",
+        )
+        order = order_repo.create(order_create)
+
+        package_create.merchant_id = user.id
+        package_create.order_id = order.id
+        package = PackageCreate(**package_create.model_dump())
+        return package_repo.create(package)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/my_packages")

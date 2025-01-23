@@ -47,7 +47,9 @@ import {
 } from "@/components/ui/select";
 import { fetchPricingOptions } from "@/lib/data";
 import { PricingOption } from "@/types/pricingOptions";
-import { VNDong } from "@/lib/regionPrice";
+import { VNDong } from "@/lib/regionFormat";
+import { fetchCreatePackage } from "@/lib/dataCreate";
+import { PackageCreate } from "@/types/packages";
 
 const calculatePrice = (
   packageDetails: PackageForm,
@@ -78,12 +80,12 @@ const calculatePrice = (
   }
 
   // Add fragile fee
-  if (packageDetails.isFragile) {
+  if (packageDetails.is_fragile) {
     price += selectedOption.fragile_rate;
   }
 
   // Add urgent fee
-  if (packageDetails.isUrgent) {
+  if (packageDetails.is_urgent) {
     price += selectedOption.urgent_rate;
   }
 
@@ -97,12 +99,22 @@ const packageSchema = z.object({
   address_id: z.string().min(1, "Receiver address is required"),
   package_rate_id: z.string().min(1, "Package rate option is required"),
   width: z.number().min(0, "Width must be a positive number"),
-  length: z.number().min(0, "Length must be a positive number"),
-  height: z.number().min(0, "Height must be a positive number"),
-  weight: z.number().min(0, "Weight must be a positive number"),
-  isFragile: z.boolean(),
-  isUrgent: z.boolean(),
-  codAmount: z.number().min(0, "COD amount must be a positive number"),
+  length: z
+    .number()
+    .min(0, "Length must be a positive number")
+    .gte(2, "Package must be at minimum of size 2 cm"),
+  height: z
+    .number()
+    .min(0, "Height must be a positive number")
+    .gte(2, "Package must be at minimum of size 2 cm"),
+  weight: z
+    .number()
+    .min(0, "Weight must be a positive number")
+    .gte(2, "Package must be at minimum of size 2 cm"),
+  street: z.string().min(1, "Street is required"),
+  is_fragile: z.boolean(),
+  is_urgent: z.boolean(),
+  cod_cost: z.number().min(0, "COD amount must be a positive number"),
 });
 
 type PackageForm = z.infer<typeof packageSchema>;
@@ -119,15 +131,16 @@ export default function CreatePackagePage() {
       description: "",
       name: "",
       phone: "",
+      street: "",
       address_id: "",
       package_rate_id: "",
       width: 0,
       length: 0,
       height: 0,
       weight: 0,
-      isFragile: false,
-      isUrgent: false,
-      codAmount: 0,
+      is_fragile: false,
+      is_urgent: false,
+      cod_cost: 0,
     },
   });
 
@@ -151,7 +164,10 @@ export default function CreatePackagePage() {
   async function onSubmit(data: PackageForm) {
     try {
       setIsSubmitting(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulating API call
+
+      const respond = await fetchCreatePackage(data);
+      console.log(respond);
+
       toast({
         title: "Package created",
         description:
@@ -159,6 +175,7 @@ export default function CreatePackagePage() {
       });
       form.reset();
     } catch (error) {
+      console.log(error);
       toast({
         title: "Error",
         description: "Failed to create package. Please try again.",
@@ -221,7 +238,7 @@ export default function CreatePackagePage() {
 
       <div className="flex items-center gap-2 mb-4">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
-        <h1>Create New Package</h1>
+        <h1>Create New Order</h1>
       </div>
 
       <Tabs defaultValue="single">
@@ -302,6 +319,20 @@ export default function CreatePackagePage() {
                   </div>
                   <FormField
                     control={form.control}
+                    name="street"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Receiver Street</FormLabel>
+                        <FormControl>
+                          <Input placeholder="1DA St. street" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
                     name="address_id"
                     render={({ field }) => (
                       <FormItem>
@@ -328,6 +359,8 @@ export default function CreatePackagePage() {
                           <FormControl>
                             <Input
                               type="number"
+                              min={2}
+                              step={0.1}
                               {...field}
                               onChange={(e) =>
                                 field.onChange(
@@ -349,6 +382,8 @@ export default function CreatePackagePage() {
                           <FormControl>
                             <Input
                               type="number"
+                              min={2}
+                              step={0.1}
                               {...field}
                               onChange={(e) =>
                                 field.onChange(
@@ -370,6 +405,8 @@ export default function CreatePackagePage() {
                           <FormControl>
                             <Input
                               type="number"
+                              min={2}
+                              step={0.1}
                               {...field}
                               onChange={(e) =>
                                 field.onChange(
@@ -391,6 +428,8 @@ export default function CreatePackagePage() {
                           <FormControl>
                             <Input
                               type="number"
+                              min={2}
+                              step={0.1}
                               {...field}
                               onChange={(e) =>
                                 field.onChange(
@@ -407,7 +446,7 @@ export default function CreatePackagePage() {
                   <div className="flex space-x-4">
                     <FormField
                       control={form.control}
-                      name="isFragile"
+                      name="is_fragile"
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                           <FormControl>
@@ -427,7 +466,7 @@ export default function CreatePackagePage() {
                     />
                     <FormField
                       control={form.control}
-                      name="isUrgent"
+                      name="is_urgent"
                       render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                           <FormControl>
@@ -449,7 +488,7 @@ export default function CreatePackagePage() {
                   <div className="flex space-x-4">
                     <FormField
                       control={form.control}
-                      name="codAmount"
+                      name="cod_cost"
                       render={({ field }) => (
                         <FormItem className="grow">
                           <FormLabel>COD Amount</FormLabel>

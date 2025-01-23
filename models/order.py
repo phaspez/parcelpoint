@@ -5,8 +5,8 @@ from pydantic import BaseModel
 
 
 class BaseOrder(BaseModel):
-    merchant_id: str
-    staff_id: str
+    merchant_id: UUID
+    staff_id: UUID | None = None
     date: datetime
     details: str
 
@@ -20,7 +20,7 @@ class OrderCreate(BaseOrder):
 
 
 class OrderUpdate(BaseOrder):
-    merchant_id: str | None = None
-    staff_id: str | None = None
+    merchant_id: UUID | None = None
+    staff_id: UUID | None = None
     date: datetime | None = None
     details: str | None = None

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -32,25 +31,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Check, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { formatTimestamp } from "@/lib/regionFormat";
 
 const VNDong = new Intl.NumberFormat("vi-VN", {
   style: "currency",
   currency: "VND",
 });
-
-function formatTimestamp(timestamp: string) {
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-
-  return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
-}
 
 export default function PackageDetailPage() {
   const { id } = useParams();
@@ -188,7 +175,7 @@ export default function PackageDetailPage() {
             <TableBody>
               {historyData.map((history) => (
                 <TableRow key={history.id} className="h-12">
-                  <TableCell>{history.timestamp}</TableCell>
+                  <TableCell>{formatTimestamp(history.timestamp)}</TableCell>
                   <TableCell>{history.notes}</TableCell>
                   <TableCell>{history.action}</TableCell>
                 </TableRow>

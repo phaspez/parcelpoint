@@ -96,7 +96,7 @@ export default function HomePage() {
               ].map((feature, index) => (
                 <Card key={index}>
                   <CardHeader>
-                    <feature.icon className="h-10 w-10 text-lime-900 mb-2" />
+                    <feature.icon className="h-10 w-10 text-primary mb-2" />
                     <CardTitle>
                       <h3 className="text-left">{feature.title}</h3>
                     </CardTitle>
@@ -147,7 +147,7 @@ export default function HomePage() {
                   src="/truck.jpg"
                   width={600}
                   height={600}
-                  className="dark:invert place-self-center"
+                  className="dark:invert place-self-center bg-blend-lighten"
                   alt="landing image"
                 />
               </div>
@@ -156,29 +156,31 @@ export default function HomePage() {
         </section>
 
         {/* Statistics Showcase */}
-        <section className="py-20 bg-lime-800 rounded-xl text-white">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-              Our Impact in Numbers
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              {[
-                { value: "1.5B+", label: "Packages Delivered" },
-                { value: "4.5M+", label: "Online Retailers" },
-                { value: "80M+", label: "Online Shoppers" },
-                { value: "2,000+", label: "Partners" },
-                { value: "30,000+", label: "Staff Members" },
-                { value: "6,000+", label: "Drivers" },
-                { value: "2,500+", label: "Trucks" },
-                { value: "600,000m²+", label: "Logistics Area" },
-              ].map((stat, index) => (
-                <div key={index}>
-                  <p className="text-4xl font-bold mb-2">{stat.value}</p>
-                  <p className="text-sm">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <section className="">
+          <Card className="container mx-auto px-4">
+            <CardContent className="py-20 rounded-xl">
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+                Our Impact in Numbers
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                {[
+                  { value: "1.5B+", label: "Packages Delivered" },
+                  { value: "4.5M+", label: "Online Retailers" },
+                  { value: "80M+", label: "Online Shoppers" },
+                  { value: "2,000+", label: "Partners" },
+                  { value: "30,000+", label: "Staff Members" },
+                  { value: "6,000+", label: "Drivers" },
+                  { value: "2,500+", label: "Trucks" },
+                  { value: "600,000m²+", label: "Logistics Area" },
+                ].map((stat, index) => (
+                  <div key={index}>
+                    <p className="text-4xl font-bold mb-2">{stat.value}</p>
+                    <p className="text-sm">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </section>
 
         {/* Services Provided */}

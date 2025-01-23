@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.functions import func
 
@@ -20,7 +20,7 @@ class OrderRepository(BaseRepository[OrderSchema, OrderCreate, OrderUpdate]):
             .join(PackageSchema, OrderSchema.id == PackageSchema.order_id)
             .where(OrderSchema.merchant_id == id)
             .group_by(OrderSchema.id)
-            .order_by(OrderSchema.date)
+            .order_by(desc(OrderSchema.date))
         )
 
         results = self.db.execute(query).all()

@@ -36,6 +36,11 @@ class Package(BasePackage):
     id: UUID
 
 
+class PackageCreateNoOrder(BasePackage):
+    order_id: UUID | None = None
+    merchant_id: UUID | None = None
+
+
 class PackageCreate(BasePackage):
     pass
 

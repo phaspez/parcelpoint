@@ -44,6 +44,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Order } from "@/types/order";
+import { formatTimestamp } from "@/lib/regionFormat";
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -239,7 +240,7 @@ export default function OrdersPage() {
             <TableRow key={ord.id} className="h-12">
               <TableCell>{ord.id}</TableCell>
               <TableCell>{ord.details}</TableCell>
-              <TableCell>{ord.date}</TableCell>
+              <TableCell>{formatTimestamp(ord.date)}</TableCell>
               <TableCell>{ord.count}</TableCell>
               {/*<TableCell>*/}
               {/*  <Link href={`/dashboard/merchant/packages/${pkg.id}`} passHref>*/}

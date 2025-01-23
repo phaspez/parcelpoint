@@ -144,13 +144,13 @@ export default function MerchantDashboardPage() {
               <span>Net revenue</span>
             </CardContent>
             <CardContent>
-              <h1 className="text-green-800 text-lg md:text-2xl lg:text-4xl">
+              <h1 className="text-green-800 dark:text-green-300 text-lg md:text-2xl lg:text-4xl">
                 {VNDong.format(sumHighlight.sumCod)}
               </h1>
               <span>Gross revenue</span>
             </CardContent>
             <CardContent>
-              <h1 className="text-red-800 text-lg md:text-2xl lg:text-4xl">
+              <h1 className="text-red-800 dark:text-red-300 text-lg md:text-2xl lg:text-4xl">
                 {VNDong.format(sumHighlight.sumShipping)}
               </h1>
               <span>Shipping fee</span>
