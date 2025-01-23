@@ -58,13 +58,17 @@ def insert_package(package_data: tuple) -> bool:
 def seed_package(num_packages=20):
     try:
         package_data_list = [create_package_data(i) for i in range(num_packages)]
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            results = list(executor.map(insert_package, package_data_list))
+        for package in package_data_list:
+            insert_package(package)
+        print("finished seeding packages")
 
-        successful = sum(results)
-        print(
-            f"finished seeding packages! Successfully inserted {successful}/{num_packages} packages"
-        )
+        # with ThreadPoolExecutor(max_workers=4) as executor:
+        #     results = list(executor.map(insert_package, package_data_list))
+        #
+        # successful = sum(results)
+        # print(
+        #     f"finished seeding packages! Successfully inserted {successful}/{num_packages} packages"
+        # )
     except Exception as e:
         print(e)
         connection.rollback()

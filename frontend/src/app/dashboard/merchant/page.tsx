@@ -96,7 +96,7 @@ export default function MerchantDashboardPage() {
   if (!data) return <div>Error</div>;
 
   return (
-    <div>
+    <div className="w-full">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -174,7 +174,12 @@ export default function MerchantDashboardPage() {
                 <XAxis dataKey="date" tickMargin={10} />
                 <YAxis dataKey="count" />
                 <Brush height={15} travellerWidth={15} />
-                <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+                <Bar
+                  isAnimationActive={false}
+                  dataKey="count"
+                  fill="var(--color-count)"
+                  radius={4}
+                />
               </BarChart>
             </ChartContainer>
           </div>
@@ -187,8 +192,12 @@ export default function MerchantDashboardPage() {
                 <XAxis dataKey="date" tickMargin={10} />
                 <ChartLegend />
                 <YAxis dataKey="cod" />
-                <Line dataKey="cod" />
-                <Line dataKey="shipping" stroke="#f66d9b" />
+                <Line isAnimationActive={false} dataKey="cod" />
+                <Line
+                  isAnimationActive={false}
+                  dataKey="shipping"
+                  stroke="#f66d9b"
+                />
               </LineChart>
             </ChartContainer>
           </div>

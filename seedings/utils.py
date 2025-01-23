@@ -16,6 +16,10 @@ def get_accounts():
     return _feed_table("account")
 
 
+def get_packages():
+    return _feed_table("package")
+
+
 def get_merchants():
     return _feed_table("merchant")
 

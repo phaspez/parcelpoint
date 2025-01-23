@@ -5,4 +5,12 @@ class Base(DeclarativeBase):
     pass
 
 
-from schemas import package_rate, package, address, storage_block, order, users
+from schemas import (
+    package_rate,
+    package,
+    address,
+    storage_block,
+    order,
+    users,
+    package_history,
+)

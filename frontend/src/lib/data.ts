@@ -1,5 +1,7 @@
+"use server";
+
 import axios from "axios";
-import { Package, FetchPackage } from "@/types/packages";
+import { Package, FetchPackage, PackageHistory } from "@/types/packages";
 import { Order } from "@/types/order";
 import { PricingOption } from "@/types/pricingOptions";
 
@@ -121,6 +123,24 @@ export async function fetchPricingOptions(): Promise<PricingOption[]> {
     return response.data as PricingOption[];
   } catch (error) {
     console.error("Error fetching orders:", error);
+    throw error;
+  }
+}
+
+export async function fetchPackageHistory(
+  package_id: string,
+): Promise<PackageHistory[]> {
+  try {
+    const response = await axios.get(
+      process.env.NEXT_PUBLIC_BACKEND_URL +
+        `/api/v1/package/history/${package_id}`,
+    );
+    if (!response.data) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.data as PackageHistory[];
+  } catch (error) {
+    console.error("Error fetching package history:", error);
     throw error;
   }
 }

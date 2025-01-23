@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from connection import get_db
 from models.users.account import Account, AccountWithType
 from repositories.order import OrderRepository
+from repositories.package_history import PackageHistoryRepository
 from repositories.package_rate import PackageRateRepository
 from repositories.users.account import AccountRepository
 from repositories.address import AddressRepository
@@ -76,6 +77,15 @@ def get_package_rate_repository(db: DBSession) -> PackageRateRepository:
 
 
 PackageRateRepoDep = Annotated[OrderRepository, Depends(get_package_rate_repository)]
+
+
+def get_package_history_repository(db: DBSession) -> PackageHistoryRepository:
+    return PackageHistoryRepository(db)
+
+
+PackageHistoryRepoDep = Annotated[
+    PackageHistoryRepository, Depends(get_package_history_repository)
+]
 
 
 def require_logged_in_user(token: Annotated[str | None, Cookie()] = None):

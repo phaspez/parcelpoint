@@ -4,11 +4,14 @@ from fastapi import APIRouter, HTTPException, Query
 
 from dependencies import PackageRepoDep, LoggedInDep
 from models.package import PackageCreate, PackageUpdate, Package
+import routers.v1.package_history as package_history
 
 router = APIRouter(
     prefix="/package",
     tags=["package"],
 )
+
+router.include_router(package_history.router)
 
 
 @router.get("/")

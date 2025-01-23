@@ -12,9 +12,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { fetchPackageById } from "@/lib/data";
+import { fetchPackageById, fetchPackageHistory } from "@/lib/data";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Package } from "@/types/packages";
+import { Package, PackageHistory } from "@/types/packages";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,21 +23,48 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import PackageBadge from "@/components/PackageBadge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Check, X } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 const VNDong = new Intl.NumberFormat("vi-VN", {
   style: "currency",
   currency: "VND",
 });
 
+function formatTimestamp(timestamp: string) {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+}
+
 export default function PackageDetailPage() {
   const { id } = useParams();
   const [packageData, setPackageData] = useState<Package | null>(null);
+  const [historyData, setHistoryData] = useState<PackageHistory[]>([]);
 
   useEffect(() => {
     async function fetchData() {
       if (!id) return;
       const data = await fetchPackageById(id as string, "");
       if (data) setPackageData(data);
+      const history = await fetchPackageHistory(id as string);
+      if (history) setHistoryData(history);
+      console.log(history);
     }
 
     fetchData();
@@ -48,7 +75,7 @@ export default function PackageDetailPage() {
   }
 
   return (
-    <div className="container">
+    <div className="container w-full">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -86,10 +113,13 @@ export default function PackageDetailPage() {
           Back to Packages
         </Button>
       </Link>
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>
-            <h2>{packageData.name}</h2>
+            <span className="flex items-center gap-4">
+              <h2>{packageData.name}</h2>
+              <PackageBadge badge_name={packageData.status} />
+            </span>
           </CardTitle>
           <CardDescription>
             <div className="text-sm text-gray-500">
@@ -98,54 +128,73 @@ export default function PackageDetailPage() {
             <div className="text-sm text-gray-500">
               Order ID: {packageData.order_id}
             </div>
+            <div>
+              <p className="text-lg pt-2">{packageData.description}</p>
+            </div>
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
+          <h2>Details</h2>
+          <Separator />
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4 pt-4">
             <div>
-              <h3 className="font-semibold">Status</h3>
-              <p>{packageData.status}</p>
+              <p className="font-semibold">Weight</p>
+              <h3>{packageData.weight} kg</h3>
             </div>
             <div>
-              <h3 className="font-semibold">Weight</h3>
-              <p>{packageData.weight} kg</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Dimensions</h3>
-              <p>
+              <p className="font-semibold">Dimensions</p>
+              <h3>
                 {packageData.width} x {packageData.height} x{" "}
                 {packageData.length} cm
-              </p>
+              </h3>
             </div>
             <div>
-              <h3 className="font-semibold">Shipping Cost</h3>
-              <p>{VNDong.format(packageData.shipping_cost)}</p>
+              <p className="font-semibold">Shipping Cost</p>
+              <h3>{VNDong.format(packageData.shipping_cost)}</h3>
             </div>
             <div>
-              <h3 className="font-semibold">COD Cost</h3>
-              <p>{VNDong.format(packageData.cod_cost)}</p>
+              <p className="font-semibold">COD Cost</p>
+              <h3>{VNDong.format(packageData.cod_cost)}</h3>
             </div>
             <div>
-              <h3 className="font-semibold">Urgent</h3>
-              <p>{packageData.is_urgent ? "Yes" : "No"}</p>
+              <p className="font-semibold">Urgent</p>
+              <h3>{packageData.is_urgent ? "Yes" : "No"}</h3>
             </div>
             <div>
-              <h3 className="font-semibold">Fragile</h3>
-              <p>{packageData.is_fragile ? "Yes" : "No"}</p>
+              <p className="font-semibold">Fragile</p>
+              <h3>{packageData.is_fragile ? "Yes" : "No"}</h3>
             </div>
             <div>
-              <h3 className="font-semibold">Phone</h3>
-              <p>{packageData.phone}</p>
+              <p className="font-semibold">Phone</p>
+              <h3>{packageData.phone}</h3>
             </div>
-            <div>
-              <h3 className="font-semibold">Order date</h3>
-              <p>{packageData.order_date}</p>
-            </div>
+            {/*<div>*/}
+            {/*  <p className="font-semibold">Order date</p>*/}
+            {/*  <h3>{packageData.order_date}</h3>*/}
+            {/*</div>*/}
           </div>
-          <div className="mt-4">
-            <h3 className="font-semibold">Description</h3>
-            <p>{packageData.description}</p>
-          </div>
+        </CardContent>
+        <CardContent>
+          <h2>Tracking history</h2>
+          <Separator />
+          <Table>
+            <TableHeader className="h-12">
+              <TableRow>
+                <TableHead>Timestamp</TableHead>
+                <TableHead>Note</TableHead>
+                <TableHead>Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {historyData.map((history) => (
+                <TableRow key={history.id} className="h-12">
+                  <TableCell>{history.timestamp}</TableCell>
+                  <TableCell>{history.notes}</TableCell>
+                  <TableCell>{history.action}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>

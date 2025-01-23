@@ -2,12 +2,13 @@ from seedings.account import seed_account
 from seedings.address import seed_address
 from seedings.merchant import seed_merchant
 from seedings.order import seed_order
-from seedings.package import seed_package
 from seedings.package_rate import seed_package_rate
 from seedings.staff import seed_staff
 from seedings.storage_block import seed_storage_block
 from seedings.truncate import truncate
 from seedings.utils import get_storage_block_within_limits
+from seedings.package import seed_package
+from seedings.package_history import seed_package_history
 
 
 def global_setup():
@@ -20,6 +21,7 @@ def global_setup():
     seed_staff()
     seed_order(num_order=100)
     seed_package(num_packages=1000)
+    seed_package_history()
 
 
 def global_teardown():

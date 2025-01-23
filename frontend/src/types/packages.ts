@@ -30,3 +30,12 @@ export interface Package {
   status: string;
   order_date: string;
 }
+
+export interface PackageHistory {
+  id: string;
+  package_id: string;
+  merchant_id: string;
+  action: string;
+  notes: string;
+  timestamp: string;
+}
