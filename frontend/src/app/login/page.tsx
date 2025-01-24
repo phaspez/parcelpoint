@@ -54,7 +54,7 @@ export default function LoginPage() {
 
   const cookie = useCookies();
   const schema = usePhone ? phoneSchema : emailSchema;
-  const router = useRouter()l
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -109,7 +109,7 @@ export default function LoginPage() {
               router.push("/dashboard/merchant");
             }
             if (data.type == "STAFF") {
-              router.push("/dashboard/staff")
+              router.push("/dashboard/staff");
             }
           });
       })

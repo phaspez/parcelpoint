@@ -37,6 +37,8 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         is_fragile: bool | None = None,
         min_weight: float | None = None,
         max_weight: float | None = None,
+        min_date: datetime | None = None,
+        max_date: datetime | None = None,
         days_ago: int = 30,
         limit: int = 20,
         offset: int = 0,
@@ -63,19 +65,17 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         if max_weight is not None:
             filters.append(PackageSchema.weight <= max_weight)
 
+        if min_date is not None:
+            filters.append(OrderSchema.date >= min_date)
+        if max_date is not None:
+            filters.append(OrderSchema.date <= max_date)
         if days_ago is not None:
             date_threshold = datetime.now() - timedelta(days=days_ago)
             filters.append(OrderSchema.date >= date_threshold)
 
         if filters:
-            print(filters)
             query = query.filter(and_(*filters))
 
-        # print(
-        #     query.statement.compile(
-        #         dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
-        #     )
-        # )
         query = query.order_by(desc(OrderSchema.date))
         results = query.offset(offset).limit(limit).all()
         packages = []

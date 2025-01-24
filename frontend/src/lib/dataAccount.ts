@@ -11,7 +11,7 @@ export default async function fetchPersonalInfo() {
   if (!token) {
     redirect("/");
   }
-  
+
   const response = await fetch(process.env.BACKEND_URL + "/api/v1/account/me", {
     method: "get",
     headers: {

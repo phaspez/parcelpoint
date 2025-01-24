@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 
-from dependencies import StaffRepoDep, AccountRepoDep
+from dependencies import StaffRepoDep, AccountRepoDep, OrderRepoDep
 from models.users.account import Account, AccountCreate, AccountUpdate
 from models.users.staff import (
     Staff,
@@ -11,11 +11,14 @@ from models.users.staff import (
     StaffCreateNoID,
     StaffUpdate,
 )
+import routers.v1.dashboards.staff as staff
 
 router = APIRouter(
     prefix="/staff",
     tags=["staff"],
 )
+
+router.include_router(staff.router)
 
 
 @router.get("/")
