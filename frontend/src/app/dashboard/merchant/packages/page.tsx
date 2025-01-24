@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchPackages } from "@/lib/data";
-import { Check, Filter, Plus, Search, X } from "lucide-react";
+import { Check, Cross, Filter, Plus, Search, X } from "lucide-react";
 import { useCookies } from "next-client-cookies";
 import {
   Pagination,
@@ -51,7 +51,6 @@ export default function PackagesPage() {
   const cookies = useCookies();
 
   const [packages, setPackages] = useState<Package[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [idSearchTerm, setIdSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [urgentFilter, setUrgentFilter] = useState<boolean | undefined>();
@@ -65,6 +64,10 @@ export default function PackagesPage() {
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
     updateQuery(newPage, ITEMS_PER_PAGE);
+  };
+
+  const handleClearSearch = () => {
+    setIdSearchTerm("");
   };
 
   // Update URL function
@@ -96,7 +99,6 @@ export default function PackagesPage() {
       const order_id = isUUIDv4(idSearchTerm) ? idSearchTerm : undefined;
       const data = await fetchPackages(
         {
-          name: searchTerm,
           limit: ITEMS_PER_PAGE,
           offset: (currentPage - 1) * ITEMS_PER_PAGE,
           is_fragile: fragileFilter,
@@ -117,30 +119,12 @@ export default function PackagesPage() {
     statusFilter,
     urgentFilter,
     fragileFilter,
-    searchTerm,
   ]);
 
   useEffect(() => {
-    let result = packages;
-
     if (currentPage <= 0 || !currentPage) setCurrentPage(1);
     if (ITEMS_PER_PAGE <= 0 || !ITEMS_PER_PAGE) setItemsPerPage(30);
-
-    if (searchTerm) {
-      result = result.filter(
-        (pkg) =>
-          pkg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          pkg.id.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
-  }, [
-    packages,
-    searchTerm,
-    idSearchTerm,
-    statusFilter,
-    urgentFilter,
-    fragileFilter,
-  ]);
+  }, [packages, idSearchTerm, statusFilter, urgentFilter, fragileFilter]);
 
   return (
     <div className="container">
@@ -177,18 +161,17 @@ export default function PackagesPage() {
 
       <div className="flex flex-wrap gap-4 mb-4 items-center">
         <Search />
-        {/*<Input*/}
-        {/*  placeholder="Search by receiver name"*/}
-        {/*  value={searchTerm}*/}
-        {/*  onChange={(e) => setSearchTerm(e.target.value)}*/}
-        {/*  className="max-w-sm"*/}
-        {/*/>*/}
         <Input
           placeholder="Search by Order ID"
           value={idSearchTerm}
           onChange={(e) => setIdSearchTerm(e.target.value)}
           className="max-w-sm"
         />
+        {idSearchTerm && (
+          <Button variant="secondary" onClick={handleClearSearch}>
+            <X />
+          </Button>
+        )}
       </div>
       <div className="flex flex-wrap gap-4 mb-4 items-center">
         <Filter />

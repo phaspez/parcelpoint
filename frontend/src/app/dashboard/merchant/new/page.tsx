@@ -165,7 +165,7 @@ export default function CreatePackagePage() {
     try {
       setIsSubmitting(true);
 
-      const respond = await fetchCreatePackage(data);
+      const respond = await fetchCreatePackage({ ...data, merchant_id: "" });
       console.log(respond);
 
       toast({
@@ -566,7 +566,7 @@ export default function CreatePackagePage() {
               <div className="flex items-center justify-center w-full">
                 <label
                   htmlFor="dropzone-file"
-                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer"
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <svg

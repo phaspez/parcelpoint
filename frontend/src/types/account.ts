@@ -5,6 +5,7 @@ export interface Account {
   phone: string;
   email: string;
   street: string;
+  type: string;
 }
 
 export interface AccountWithType extends Account {

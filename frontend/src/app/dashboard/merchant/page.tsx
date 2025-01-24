@@ -22,7 +22,6 @@ import { type ChartConfig } from "@/components/ui/chart";
 import { Input } from "@/components/ui/input";
 import { fetchPackageDaysAgo } from "@/lib/data";
 import { Label } from "@/components/ui/label";
-import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardMerchant } from "@/types/dashboard";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -34,6 +33,15 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useUserStore } from "@/stores/userStore";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { VNDong } from "@/lib/regionFormat";
 
 const chartConfig = {
   count: {
@@ -56,14 +64,8 @@ function numberWithDots(x: number) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-const VNDong = new Intl.NumberFormat("vi-VN", {
-  style: "currency",
-  currency: "VND",
-});
-
 export default function MerchantDashboardPage() {
   const [data, setData] = useState<DashboardMerchant[]>([]);
-  const [loading, setLoading] = useState(true);
   const [days_ago, set_days_ago] = useState<number>(30);
   const [sumHighlight, setSumHighlight] = useState<SumHighlight>({
     sumPackage: 0,
@@ -72,6 +74,7 @@ export default function MerchantDashboardPage() {
   });
   const cookies = useCookies();
   const token = cookies.get("token");
+  const { user } = useUserStore();
 
   useEffect(() => {
     async function fetchData() {
@@ -111,23 +114,31 @@ export default function MerchantDashboardPage() {
 
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
-        <h1>Dashboard</h1>
+        <h1>Hello, {user?.name}!</h1>
       </span>
+      <div className="pb-4">
+        <p>
+          {user?.phone} | {user?.email}
+        </p>
+      </div>
       <div className="">
         <Card>
           <CardHeader>
             <span className="flex items-center gap-2">
+              <h3>Overview</h3>
+              <span className="grow" />
               <span className="material-symbols-outlined">filter_list</span>
-              <Label htmlFor="days_ago">Days</Label>
-              <Input
-                type="number"
-                className="w-[128px]"
-                name="days_ago"
-                onChange={(event) =>
-                  event.target.value && set_days_ago(Number(event.target.value))
-                }
-                value={days_ago}
-              />
+              <Label htmlFor="days_ago">Filter</Label>
+              <Select onValueChange={(val) => set_days_ago(Number(val))}>
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="30 days" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 days</SelectItem>
+                  <SelectItem value="30">30 days</SelectItem>
+                  <SelectItem value="39">40 days</SelectItem>
+                </SelectContent>
+              </Select>
             </span>
           </CardHeader>
           <div className="grid lg:grid-cols-2 xl:flex">

@@ -30,6 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { useUserStore } from "@/stores/userStore";
 import { AccountWithType } from "@/types/account";
+import { redirect, useRouter } from "next/navigation";
 
 const emailSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -53,6 +54,7 @@ export default function LoginPage() {
 
   const cookie = useCookies();
   const schema = usePhone ? phoneSchema : emailSchema;
+  const router = useRouter()l
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -99,12 +101,16 @@ export default function LoginPage() {
           })
           .then((res) => {
             const data = res.data as AccountWithType;
-            console.log(data);
             setUser(data);
             toast({
               title: `Hello, ${data.type.toLowerCase()} ${data.name}!`,
             });
-            console.log("done");
+            if (data.type == "MERCHANT") {
+              router.push("/dashboard/merchant");
+            }
+            if (data.type == "STAFF") {
+              router.push("/dashboard/staff")
+            }
           });
       })
       .catch((error: unknown) => {

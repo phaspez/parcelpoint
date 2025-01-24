@@ -242,13 +242,6 @@ export default function OrdersPage() {
               <TableCell>{ord.details}</TableCell>
               <TableCell>{formatTimestamp(ord.date)}</TableCell>
               <TableCell>{ord.count}</TableCell>
-              {/*<TableCell>*/}
-              {/*  <Link href={`/dashboard/merchant/packages/${pkg.id}`} passHref>*/}
-              {/*    <Button variant="outline" size="sm">*/}
-              {/*      View Details*/}
-              {/*    </Button>*/}
-              {/*  </Link>*/}
-              {/*</TableCell>*/}
             </TableRow>
           ))}
         </TableBody>
