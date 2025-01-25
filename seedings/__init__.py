@@ -6,7 +6,6 @@ from seedings.package_rate import seed_package_rate
 from seedings.staff import seed_staff
 from seedings.storage_block import seed_storage_block
 from seedings.truncate import truncate
-from seedings.utils import get_storage_block_within_limits
 from seedings.package import seed_package
 from seedings.package_history import seed_package_history
 
@@ -30,3 +29,4 @@ def global_teardown():
 
 if __name__ == "__main__":
     global_setup()
+    # print(get_storage_block_within_limits(500, 3, 1))

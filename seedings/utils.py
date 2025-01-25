@@ -25,7 +25,11 @@ def get_merchants():
 
 
 def get_staffs():
-    return _feed_table("staff")
+    cur.execute(
+        f"SELECT * FROM parcelpoint.public.staff WHERE staff.account_id NOT IN (SELECT account_id FROM parcelpoint.public.merchant)"
+    )
+    results = cur.fetchall()
+    return results
 
 
 def get_orders():
@@ -52,28 +56,6 @@ def get_random_package_rate_id():
     return random.choice(_feed_table("packagerate"))[0]
 
 
-def get_storage_block_within_limits(vol, weight, num_package=1):
-    cur.execute(
-        """
-        SELECT sb.*
-        FROM parcelpoint.public.storageblock sb
-        LEFT JOIN parcelpoint.public.package p ON sb.id = p.block_id
-        GROUP BY sb.id, sb.max_package, sb.max_weight, sb.max_size
-        HAVING 
-            (sb.max_package >= (COUNT(p.id) + %s))
-            AND (sb.max_weight >= (COALESCE(SUM(p.weight), 0) + %s))
-            AND (sb.max_size >= (COALESCE(SUM(p.width * p.length * p.height), 0) + %s))
-        ORDER BY 
-            (sb.max_weight - COALESCE(SUM(p.weight), 0)) DESC,
-            (sb.max_size - COALESCE(SUM(p.width * p.length * p.height), 0)) DESC 
-            
-        """,
-        (num_package, weight, vol),
-    )
-    results = cur.fetchall()
-    return results
-
-
 def get_storage_block_under_capacity(volume: float, weight: float, num_package: int):
     cur.execute(
         """
@@ -97,7 +79,7 @@ def random_bool():
 
 
 def random_package_status():
-    status = ["ORDERED", "DELIVERING", "DELIVERED", "CANCELLED", "MISSING"]
+    status = ["ORDERED", "DELIVERING", "DELIVERED", "DELIVERED", "CANCELLED", "MISSING"]
     return random.choice(status)
 
 

@@ -23,7 +23,7 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import fetchStaffDashboard from "@/lib/dataStaff";
 import { Package } from "@/types/packages";
-import { VNDong } from "@/lib/regionFormat";
+import { formatTimestamp, VNDong } from "@/lib/regionFormat";
 import {
   ChartConfig,
   ChartContainer,
@@ -39,6 +39,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Order } from "@/types/order";
 
 interface DasboardInfo {
   orders: {
@@ -49,7 +50,7 @@ interface DasboardInfo {
     id: string;
     merchant_id: string;
     staff_id: string;
-  };
+  }[];
   recent_packages: Package[];
 }
 
@@ -110,7 +111,7 @@ interface StorageBlock {
 
 interface DashboardData {
   summary: Summary;
-  orderStatuses: { name: OrderStatus; value: number }[];
+  //orderStatuses: { name: OrderStatus; value: number }[];
   storageBlocks: StorageBlock[];
   recentOrders: Order[];
 }
@@ -158,12 +159,10 @@ export default function StaffDashboard() {
     startDate: Date,
     endDate: Date,
   ): Promise<DashboardData> => {
-    console.log(startDate, endDate);
     const data = (await fetchStaffDashboard(
       startDate,
       endDate,
     )) as DasboardInfo;
-    console.log(data);
 
     const summary = calculatePackageSummary(data.recent_packages);
 
@@ -320,6 +319,7 @@ export default function StaffDashboard() {
                   innerRadius={40}
                   // fill="#8884d8"
                   dataKey="value"
+                  label
                 >
                   {dashboardData.summary.statusCount.map((entry, index) => (
                     <Cell
@@ -370,19 +370,19 @@ export default function StaffDashboard() {
             <TableHeader>
               <TableRow>
                 <TableHead>Order ID</TableHead>
-                <TableHead>Customer</TableHead>
+                <TableHead>Details</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Staff ID</TableHead>
-                <TableHead className="text-right">Total</TableHead>
+                <TableHead>Customer ID</TableHead>
+                <TableHead className="text-right">Total Packages</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {dashboardData.recentOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell>{order.id}</TableCell>
-                  <TableCell>{order.customer}</TableCell>
-                  <TableCell>{order.date}</TableCell>
-                  <TableCell>{order.staff_id}</TableCell>
+                  <TableCell>{order.details}</TableCell>
+                  <TableCell>{formatTimestamp(order.date)}</TableCell>
+                  <TableCell>{order.merchant_id}</TableCell>
                   <TableCell className="text-right">{order.count}</TableCell>
                 </TableRow>
               ))}

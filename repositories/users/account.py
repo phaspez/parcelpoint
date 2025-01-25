@@ -87,18 +87,22 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
         if not user:
             raise ValueError(f"User with {id} does not exist")
 
-        is_in_merchant = self.db.query(MerchantSchema).filter(
-            and_(MerchantSchema.account_id == user.id)
+        is_in_merchant = (
+            self.db.query(MerchantSchema)
+            .filter(and_(MerchantSchema.account_id == user.id))
+            .first()
         )
 
         if is_in_merchant:
             return "MERCHANT"
 
-        is_in_staff = self.db.query(StaffSchema).filter(
-            and_(StaffSchema.account_id == user.id)
+        is_in_staff = (
+            self.db.query(StaffSchema)
+            .filter(and_(StaffSchema.account_id == user.id))
+            .first()
         )
 
         if is_in_staff:
             return "STAFF"
 
-        return ValueError("Validation Error: Can't get id account type")
+        return ""

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Calendar,
   Home,
@@ -6,6 +8,7 @@ import {
   Settings,
   Package2,
   ReceiptText,
+  Warehouse,
 } from "lucide-react";
 
 import {
@@ -20,8 +23,12 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { useUserStore } from "@/stores/userStore";
 
 export function AppSidebar() {
+  const { user } = useUserStore();
+  console.log(user);
+
   return (
     <Sidebar>
       <SidebarHeader title={"ParcelPoint"}>
@@ -31,34 +38,73 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Management</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/dashboard/merchant">
-                    <Home />
-                    <span>Dashboard</span>
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuButton asChild>
-                  <Link href="/dashboard/merchant/packages">
-                    <Package2 />
-                    <span>Package</span>
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuButton asChild>
-                  <Link href="/dashboard/merchant/orders">
-                    <ReceiptText />
-                    <span>Orders</span>
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuButton asChild>
-                  <Link href="/">
-                    <Settings />
-                    <span>Settings</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
+            {user?.type == "MERCHANT" && (
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/dashboard/merchant">
+                      <Home />
+                      <span>Dashboard</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <SidebarMenuButton asChild>
+                    <Link href="/dashboard/merchant/packages">
+                      <Package2 />
+                      <span>Package</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <SidebarMenuButton asChild>
+                    <Link href="/dashboard/merchant/orders">
+                      <ReceiptText />
+                      <span>Orders</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <SidebarMenuButton asChild>
+                    <Link href="/">
+                      <Settings />
+                      <span>Settings</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            )}
+            {user?.type == "STAFF" && (
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/dashboard/staff">
+                      <Home />
+                      <span>Staff Dashboard</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <SidebarMenuButton asChild>
+                    <Link href="/dashboard/staff/packages">
+                      <Package2 />
+                      <span>Package</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <SidebarMenuButton asChild>
+                    <Link href="/dashboard/staff/storage">
+                      <Warehouse />
+                      <span>Storage</span>
+                    </Link>
+                  </SidebarMenuButton>
+
+                  <SidebarMenuButton asChild>
+                    <Link href="/dashboard/staff/orders">
+                      <ReceiptText />
+                      <span>Orders</span>
+                    </Link>
+                  </SidebarMenuButton>
+                  <SidebarMenuButton asChild>
+                    <Link href="/">
+                      <Settings />
+                      <span>Settings</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

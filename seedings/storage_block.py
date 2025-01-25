@@ -3,9 +3,9 @@ from seedings.connect import connection
 cur = connection.cursor()
 
 max_block = 10
-weights = [5, 100, 1000]
-sizes = [10, 100, 1000]
-packages = [1, 5, 1000]
+weights = [10, 50, 100]
+sizes = [10e2, 10e3, 10e4]
+packages = [1, 1, 1]
 
 
 def seed_storage_block():

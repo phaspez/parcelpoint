@@ -83,6 +83,7 @@ export default function MerchantDashboardPage() {
           days_ago,
           token,
         );
+        console.log(data);
 
         const sumPackage = data.reduce((acc, item) => acc + item.count, 0);
         const sumCod = data.reduce((acc, item) => acc + item.cod, 0);

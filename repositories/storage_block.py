@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy import and_, text, func, select
 from sqlalchemy.orm import Session
 
+from models.package import Package
 from models.storage_block import StorageBlockCreate, StorageBlockUpdate, StorageBlock
 from repositories.base import BaseRepository
 from schemas.package import PackageSchema
@@ -145,3 +146,35 @@ class StorageBlockRepository(
         return self.db.execute(
             sql, {"num": num_package, "weight": weight, "vol": volume}
         )
+
+    def get_all(self):
+        query = (
+            select(
+                StorageBlockSchema,
+                func.sum(func.coalesce(PackageSchema.weight, 0)).label(
+                    "current_weight"
+                ),
+                func.sum(
+                    func.coalesce(
+                        PackageSchema.width
+                        * PackageSchema.height
+                        * PackageSchema.length,
+                        0,
+                    )
+                ).label("current_size"),
+            )
+            .outerjoin(PackageSchema, StorageBlockSchema.id == PackageSchema.block_id)
+            .group_by(
+                StorageBlockSchema.id,
+            )
+        )
+
+        result = self.db.execute(query).all()
+        storage_blocks = []
+        for block, weight, size in result:
+            storage_block = block.__dict__
+            storage_block["weight"] = weight
+            storage_block["size"] = size
+            storage_blocks.append(storage_block)
+
+        return storage_blocks

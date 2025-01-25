@@ -41,6 +41,7 @@ def insert_user(user_data: tuple) -> bool:
 
 def seed_account(num_users=10):
     try:
+
         user_data_list = [create_user_data(i) for i in range(num_users)]
         with ThreadPoolExecutor(max_workers=4) as executor:
             results = list(executor.map(insert_user, user_data_list))

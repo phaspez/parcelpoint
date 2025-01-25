@@ -16,6 +16,7 @@ async def get_storage_blocks(
     storage_block_repo: StorageBlockRepoDep,
 ):
     blocks = storage_block_repo.get_all()
+    print(blocks)
     return blocks
 
 
