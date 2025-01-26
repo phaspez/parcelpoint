@@ -1,15 +1,15 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class BasePackageHistory(BaseModel):
     package_id: UUID
-    staff: UUID
+    staff_id: UUID
     action: str
     notes: str
-    timestamp: datetime
+    timestamp: datetime = Field(default_factory=datetime.now)
 
 
 class PackageHistory(BasePackageHistory):
@@ -21,7 +21,7 @@ class PackageHistoryCreate(BasePackageHistory):
 
 
 class PackageHistoryUpdate(BasePackageHistory):
-    staff: UUID | None = None
+    staff_id: UUID | None = None
     action: str | None = None
     notes: str | None = None
     timestamp: datetime | None = None

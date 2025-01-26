@@ -2,15 +2,27 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
-from fastapi.params import Body
 
-from dependencies import AddressRepoDep, PackageHistoryRepoDep
-from models.address import AddressCreate, AddressUpdate
+from dependencies import PackageHistoryRepoDep
+from models.package_history import PackageHistoryCreate
 
 router = APIRouter(
     prefix="/history",
     tags=["package_history"],
 )
+
+
+@router.post("/")
+async def create_history(
+    package_history_create: PackageHistoryCreate,
+    package_history_repo: PackageHistoryRepoDep,
+):
+    try:
+        print(package_history_create)
+        return package_history_repo.create(package_history_create)
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/{id}")

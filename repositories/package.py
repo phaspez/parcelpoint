@@ -9,11 +9,13 @@ from sqlalchemy.sql.functions import count
 
 from models.order import Order
 from models.package import PackageCreate, PackageUpdate, Package
+from models.users.account import Account
 from repositories.base import BaseRepository
 from repositories.package_rate import PackageRateRepository
 from repositories.storage_block import StorageBlockRepository
 from schemas.order import OrderSchema
 from schemas.package import PackageSchema
+from schemas.users import AccountSchema
 from seedings.package_rate import oversize_rate
 
 
@@ -39,14 +41,15 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         max_weight: float | None = None,
         min_date: datetime | None = None,
         max_date: datetime | None = None,
-        days_ago: int = 30,
+        days_ago: int | None = None,
         limit: int = 20,
         offset: int = 0,
     ):
         query = (
             self.db.query(PackageSchema)
-            .add_column(OrderSchema.date)
+            .add_columns(OrderSchema.date, AccountSchema.name)
             .join(OrderSchema, PackageSchema.order_id == OrderSchema.id)
+            .join(AccountSchema, AccountSchema.id == PackageSchema.merchant_id)
         )
 
         filters = []
@@ -65,11 +68,11 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         if max_weight is not None:
             filters.append(PackageSchema.weight <= max_weight)
 
-        if min_date is not None:
+        if min_date:
             filters.append(OrderSchema.date >= min_date)
-        if max_date is not None:
+        if max_date:
             filters.append(OrderSchema.date <= max_date)
-        if days_ago is not None:
+        if days_ago and days_ago > 0:
             date_threshold = datetime.now() - timedelta(days=days_ago)
             filters.append(OrderSchema.date >= date_threshold)
 
@@ -79,9 +82,10 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         query = query.order_by(desc(OrderSchema.date))
         results = query.offset(offset).limit(limit).all()
         packages = []
-        for package, date in results:
+        for package, date, merchant in results:
             package_dict = package.__dict__
             package_dict["order_date"] = date
+            package_dict["merchant_name"] = merchant
             packages.append(package_dict)
         return packages
 

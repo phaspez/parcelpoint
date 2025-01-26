@@ -12,13 +12,6 @@ from .utils import (
     random_datetime_last_month,
 )
 
-#
-#
-# def get_packages():
-#     cur.execute(f"SELECT * FROM parcelpoint.public.package")
-#     results = cur.fetchall()
-#     return results
-
 
 def insert_package_history(data):
     try:

@@ -128,10 +128,10 @@ export default function OrdersPage() {
             <TableBody>
               {orders.map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell>{order.id}</TableCell>
-                  <TableCell>{order.merchant_id}</TableCell>
+                  <TableCell>{order.id.slice(0, 8)}...</TableCell>
+                  <TableCell>{order.merchant_id.slice(0, 8)}...</TableCell>
                   <TableCell>{formatTimestamp(order.date)}</TableCell>
-                  <TableCell>{order.staff_id}</TableCell>
+                  <TableCell>{order.staff_id.slice(0, 8)}...</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button variant="outline" asChild>

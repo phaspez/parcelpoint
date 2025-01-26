@@ -19,7 +19,7 @@ export async function fetchAllOrders() {
   }
 }
 
-export async function fetchOrder(id: string) {
+export async function fetchOrderByID(id: string) {
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/order/${id}`,

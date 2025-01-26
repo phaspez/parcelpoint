@@ -41,7 +41,7 @@ export interface PackageCreate extends BasePackage {}
 export interface PackageHistory {
   id: string;
   package_id: string;
-  merchant_id: string;
+  staff_id: string;
   action: string;
   notes: string;
   timestamp: string;

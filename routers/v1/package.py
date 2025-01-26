@@ -101,6 +101,39 @@ async def get_merchant_packages(
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@router.get("/search")
+async def search_packages(
+    package_repo: PackageRepoDep,
+    merchant_id: UUID | None = None,
+    block_id: UUID | None = None,
+    order_id: UUID | None = None,
+    is_urgent: bool | None = None,
+    is_fragile: bool | None = None,
+    min_weight: float | None = None,
+    max_weight: float | None = None,
+    days_ago: int | None = None,
+    limit: int = Query(20, le=50),
+    offset: int = Query(0, ge=0),
+):
+    try:
+        results = package_repo.query_packages(
+            merchant_id=merchant_id,
+            block_id=block_id,
+            order_id=order_id,
+            is_urgent=is_urgent,
+            is_fragile=is_fragile,
+            min_weight=min_weight,
+            max_weight=max_weight,
+            days_ago=days_ago,
+            limit=limit,
+            offset=offset,
+        )
+        return results
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @router.patch("/{id}")
 async def patch_package(
     id: UUID, package_patched: PackageUpdate, package_repo: PackageRepoDep

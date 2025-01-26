@@ -22,43 +22,33 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { fetchOrderByID } from "@/app/dashboard/staff/orders/data";
+import { fetchPackages } from "@/lib/data";
+import { useUserStore } from "@/stores/userStore";
+import { useCookies } from "next-client-cookies";
+import { fetchStaffPackages } from "@/app/dashboard/staff/orders/[id]/data";
+import { Package } from "@/types/packages";
+import { Order } from "@/types/order";
+import { formatTimestamp } from "@/lib/regionFormat";
+import { VNDong } from "@/lib/regionFormat";
+import Link from "next/link";
+import { EllipsisVertical, Trash } from "lucide-react";
 
-interface Package {
-  id: string;
-  name: string;
-  weight: number;
-  dimensions: string;
-}
-
-interface Order {
-  id: string;
-  merchantId: string;
-  customerName: string;
-  orderDate: string;
-  total: number;
+interface OrderDetails {
+  order: Order;
   packages: Package[];
 }
 
-// Mock API calls
-const fetchOrder = async (id: string): Promise<Order> => {
-  // Simulating API delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  return {
-    id,
-    merchantId: `MERCH-${Math.floor(Math.random() * 100)}`,
-    customerName: `Customer ${Math.floor(Math.random() * 100)}`,
-    orderDate: new Date().toISOString(),
-    total: Math.random() * 1000,
-    packages: Array.from(
-      { length: Math.floor(Math.random() * 5) + 1 },
-      (_, i) => ({
-        id: `PKG-${i + 1}`,
-        name: `Package ${i + 1}`,
-        weight: Math.random() * 10,
-        dimensions: `${Math.floor(Math.random() * 50)}x${Math.floor(Math.random() * 50)}x${Math.floor(Math.random() * 50)}`,
-      }),
-    ),
-  };
+const fetchOrder = async (
+  id: string,
+  access_token: string,
+): Promise<OrderDetails> => {
+  console.log(id);
+  const order = await fetchOrderByID(id);
+  const packages = await fetchStaffPackages({ order_id: id }, access_token);
+  console.log(packages);
+
+  return { order: order, packages: packages };
 };
 
 const deletePackage = async (
@@ -73,21 +63,24 @@ export default function OrderDetailsPage() {
   const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<OrderDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const cookie = useCookies();
+  const token = cookie.get("token");
 
   useEffect(() => {
-    fetchOrder(params.id as string).then((orderData) => {
-      setOrder(orderData);
-      setIsLoading(false);
-    });
+    if (token)
+      fetchOrder(params.id as string, token).then((orderData) => {
+        setOrder(orderData);
+        setIsLoading(false);
+      });
   }, [params.id]);
 
   const handleDeletePackage = async (packageId: string) => {
     if (!order) return;
 
     try {
-      await deletePackage(order.id, packageId);
+      await deletePackage(order.order.id, packageId);
       setOrder((prevOrder) => ({
         ...prevOrder!,
         packages: prevOrder!.packages.filter((pkg) => pkg.id !== packageId),
@@ -133,7 +126,7 @@ export default function OrderDetailsPage() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{order.id}</BreadcrumbPage>
+            <BreadcrumbPage>{order.order.id}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -145,31 +138,46 @@ export default function OrderDetailsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">
-            Order Details: {order.id}
+          <CardTitle className="">
+            <h3>No. {order.order.id} </h3>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <p>
+                  <strong>Merchant ID:</strong> {order.order.merchant_id}
+                </p>
+                <p>
+                  <strong>Staff:</strong> {order.order.staff_id}
+                </p>
+              </div>
+              <div>
+                <p>
+                  <strong>Order Date:</strong>{" "}
+                  {formatTimestamp(order.order.date)}
+                </p>
+                <p>
+                  <strong>COD total amount:</strong>{" "}
+                  {VNDong.format(
+                    order.packages.reduce(
+                      (sum, item) => sum + item.cod_cost,
+                      0,
+                    ),
+                  )}
+                </p>
+                <p>
+                  <strong>Shipping revenue amount:</strong>{" "}
+                  {VNDong.format(
+                    order.packages.reduce(
+                      (sum, item) => sum + item.shipping_cost,
+                      0,
+                    ),
+                  )}
+                </p>
+              </div>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div>
-              <p>
-                <strong>Merchant ID:</strong> {order.merchantId}
-              </p>
-              <p>
-                <strong>Customer Name:</strong> {order.customerName}
-              </p>
-            </div>
-            <div>
-              <p>
-                <strong>Order Date:</strong>{" "}
-                {new Date(order.orderDate).toLocaleDateString()}
-              </p>
-              <p>
-                <strong>Total:</strong> ${order.total.toFixed(2)}
-              </p>
-            </div>
-          </div>
-          <h3 className="text-xl font-semibold mb-4">Packages</h3>
+          <h3>Packages</h3>
           <Table>
             <TableHeader>
               <TableRow>
@@ -177,23 +185,33 @@ export default function OrderDetailsPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Weight</TableHead>
                 <TableHead>Dimensions</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="w-[120px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {order.packages.map((pkg) => (
                 <TableRow key={pkg.id}>
-                  <TableCell>{pkg.id}</TableCell>
+                  <TableCell>{pkg.id.slice(0, 8)}...</TableCell>
                   <TableCell>{pkg.name}</TableCell>
                   <TableCell>{pkg.weight.toFixed(2)} kg</TableCell>
-                  <TableCell>{pkg.dimensions}</TableCell>
                   <TableCell>
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleDeletePackage(pkg.id)}
-                    >
-                      Delete
-                    </Button>
+                    {pkg.width} x {pkg.length} x {pkg.height}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/dashboard/staff/packages/${pkg.id}`}>
+                        <Button variant="secondary">
+                          <EllipsisVertical />
+                        </Button>
+                      </Link>
+
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleDeletePackage(pkg.id)}
+                      >
+                        <Trash />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

@@ -39,10 +39,6 @@ def get_storage_block_within_limits(cur, vol=1, weight=1, num_package=1):
     )
 
     results = cur.fetchone()
-    print(f"Diagnostic Info - Packages: {num_package}, Weight: {weight}, Volume: {vol}")
-    if results:
-        print(f"MAX: {results[1]}/{results[2]}")
-        print(f"Query Results: {results}", end="\n\n")
     return results[0] if results else None
 
 

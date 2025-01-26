@@ -29,11 +29,11 @@ async def get_overview(
 ):
     try:
         user = current_user
-        # if user.type != "STAFF":
-        #     raise HTTPException(
-        #         status_code=401,
-        #         detail="You must me a staff member to view this",
-        #     )
+        if user.type != "STAFF":
+            raise HTTPException(
+                status_code=401,
+                detail="You must me a staff member to view this",
+            )
 
         recent_packages = package_repo.query_packages(
             min_date=start_date, max_date=end_date, limit=10000

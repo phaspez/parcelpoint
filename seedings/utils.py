@@ -56,6 +56,35 @@ def get_random_package_rate_id():
     return random.choice(_feed_table("packagerate"))[0]
 
 
+def get_storage_block_within_limits(vol=1, weight=1, num_package=1):
+    cur.execute(
+        """
+            WITH BlockCapacity AS (
+                SELECT
+                    sb.id,
+                    COUNT(p2.id) as current_count,
+                    COALESCE(SUM(p2.weight), 0) as current_weight,
+                    COALESCE(SUM(p2.width * p2.length * p2.weight), 0) as current_volume
+                FROM parcelpoint.public.storageblock sb
+                LEFT JOIN parcelpoint.public.package p2 on sb.id = p2.block_id
+                GROUP BY (sb.id)
+                ORDER BY current_count , current_weight , current_volume 
+            )
+
+            SELECT sb.id, bc.current_count, sb.max_package FROM parcelpoint.public.storageblock sb
+            LEFT JOIN BlockCapacity bc ON sb.id = bc.id
+            WHERE %s + bc.current_count <= sb.max_package 
+            AND %s + bc.current_weight <= sb.max_weight
+            AND %s + bc.current_volume <= sb.max_size
+            ORDER BY current_count DESC, current_weight DESC, current_volume DESC
+            """,
+        (num_package, weight, vol),
+    )
+
+    results = cur.fetchone()
+    return results[0] if results else None
+
+
 def get_storage_block_under_capacity(volume: float, weight: float, num_package: int):
     cur.execute(
         """
