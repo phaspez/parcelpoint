@@ -33,6 +33,7 @@ import { formatTimestamp } from "@/lib/regionFormat";
 import { VNDong } from "@/lib/regionFormat";
 import Link from "next/link";
 import { EllipsisVertical, Trash } from "lucide-react";
+import { deletePackage } from "@/app/dashboard/staff/orders/[id]/data";
 
 interface OrderDetails {
   order: Order;
@@ -49,14 +50,6 @@ const fetchOrder = async (
   console.log(packages);
 
   return { order: order, packages: packages };
-};
-
-const deletePackage = async (
-  orderId: string,
-  packageId: string,
-): Promise<void> => {
-  // Simulating API delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
 };
 
 export default function OrderDetailsPage() {
@@ -77,10 +70,10 @@ export default function OrderDetailsPage() {
   }, [params.id]);
 
   const handleDeletePackage = async (packageId: string) => {
-    if (!order) return;
+    if (!order || !token) return;
 
     try {
-      await deletePackage(order.order.id, packageId);
+      await deletePackage(packageId, token);
       setOrder((prevOrder) => ({
         ...prevOrder!,
         packages: prevOrder!.packages.filter((pkg) => pkg.id !== packageId),

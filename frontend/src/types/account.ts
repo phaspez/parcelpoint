@@ -3,6 +3,7 @@ export interface Account {
   name: string;
   hashed_password: string;
   phone: string;
+  address_id: string;
   email: string;
   street: string;
   type: string;

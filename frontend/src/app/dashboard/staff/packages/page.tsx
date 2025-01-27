@@ -20,7 +20,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchPackages } from "@/app/dashboard/staff/packages/data";
-import { Check, Cross, Filter, Plus, Search, X } from "lucide-react";
+import {
+  Check,
+  Cross,
+  EllipsisVertical,
+  Filter,
+  Plus,
+  Search,
+  X,
+} from "lucide-react";
 import { useCookies } from "next-client-cookies";
 import {
   Pagination,
@@ -147,14 +155,6 @@ export default function PackagesPage() {
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
         <h1>Packages</h1>
-        <span className="grow" />
-
-        <Link href="/dashboard/merchant/new">
-          <Button>
-            {" "}
-            <Plus /> Create new package
-          </Button>
-        </Link>
       </span>
 
       <div className="flex flex-wrap gap-4 mb-4 items-center">
@@ -223,6 +223,7 @@ export default function PackagesPage() {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[100px]">Merchant ID</TableHead>
             <TableHead>Receiver Name</TableHead>
             <TableHead>Order Date</TableHead>
             <TableHead className="w-[100px]">Receiver Phone</TableHead>
@@ -230,12 +231,13 @@ export default function PackagesPage() {
             <TableHead className="w-[50px]">Weight</TableHead>
             <TableHead className="w-[50px]">Urgent</TableHead>
             <TableHead className="w-[50px]">Fragile</TableHead>
-            <TableHead className="w-[100px]"></TableHead>
+            <TableHead className="w-[60px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {packages.map((pkg) => (
             <TableRow key={pkg.id}>
+              <TableCell>{pkg.merchant_id.slice(0, 8)}...</TableCell>
               <TableCell>{pkg.name}</TableCell>
               <TableCell>{formatTimestamp(pkg.order_date)}</TableCell>
               <TableCell>{pkg.phone}</TableCell>
@@ -246,7 +248,7 @@ export default function PackagesPage() {
               <TableCell>
                 <Link href={`/dashboard/staff/packages/${pkg.id}`} passHref>
                   <Button variant="outline" size="sm">
-                    View Details
+                    <EllipsisVertical />
                   </Button>
                 </Link>
               </TableCell>

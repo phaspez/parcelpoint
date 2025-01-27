@@ -28,11 +28,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Order } from "@/types/order";
 import { fetchAllOrders } from "@/app/dashboard/staff/orders/data";
 import { formatTimestamp } from "@/lib/regionFormat";
-
-const deleteOrder = async (id: string): Promise<void> => {
-  // Simulating API delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-};
+import { deleteOrder } from "@/app/dashboard/staff/orders/data";
 
 export default function OrdersPage() {
   const { toast } = useToast();

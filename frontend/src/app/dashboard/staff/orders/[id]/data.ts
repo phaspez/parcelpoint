@@ -39,3 +39,24 @@ export async function fetchStaffPackages(
     throw error;
   }
 }
+
+export async function deletePackage(id: string, access_token: string) {
+  try {
+    const response = await axios.delete(
+      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/package/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      },
+    );
+    if (!response.data) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching packages:", error);
+    throw error;
+  }
+}

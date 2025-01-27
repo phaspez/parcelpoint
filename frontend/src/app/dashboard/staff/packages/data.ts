@@ -1,5 +1,6 @@
 import { FetchPackage, Package } from "@/types/packages";
 import axios from "axios";
+import { Account } from "@/types/account";
 
 export interface PackageHistoryCreate {
   action: string;
@@ -120,6 +121,43 @@ export async function getAddressByID(id: string) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     return response.data as Address;
+  } catch (error) {
+    console.error("Error fetching address:", error);
+    throw error;
+  }
+}
+
+export interface Merchant {
+  account_id: string;
+  company_name: string;
+  merchant_description: string;
+  registration_date: string;
+}
+
+export async function getMerchantByID(id: string) {
+  try {
+    const response = await axios.get(
+      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/merchant/${id}`,
+    );
+    if (!response.data) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.data as Merchant;
+  } catch (error) {
+    console.error("Error fetching address:", error);
+    throw error;
+  }
+}
+
+export async function getAccountByID(id: string) {
+  try {
+    const response = await axios.get(
+      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/account/${id}`,
+    );
+    if (!response.data) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.data as Account;
   } catch (error) {
     console.error("Error fetching address:", error);
     throw error;

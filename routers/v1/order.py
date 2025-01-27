@@ -54,6 +54,7 @@ async def delete_order(id: UUID, order_repo: OrderRepoDep):
     except ValueError as ve:
         raise HTTPException(status_code=404, detail=str(ve))
     except Exception as ex:
+        print(ex)
         raise HTTPException(status_code=500, detail=str(ex))
 
 

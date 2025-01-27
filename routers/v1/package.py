@@ -5,7 +5,13 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Query, Body
 from requests.packages import package
 
-from dependencies import PackageRepoDep, LoggedInDep, OrderRepoDep, MerchantRepoDep
+from dependencies import (
+    PackageRepoDep,
+    LoggedInDep,
+    OrderRepoDep,
+    MerchantRepoDep,
+    PackageHistoryRepoDep,
+)
 from models.order import OrderCreate
 from models.package import PackageCreate, PackageUpdate, Package, PackageCreateNoOrder
 import routers.v1.package_history as package_history
@@ -145,17 +151,22 @@ async def patch_package(
         print(e)
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/{id}")
-async def delete_block(id: UUID, package_repo: PackageRepoDep) -> Package:
+async def delete_block(
+    id: UUID, package_repo: PackageRepoDep, package_history_repo: PackageHistoryRepoDep
+) -> Package:
     try:
+        package_history_repo.delete_all_by_package_id(id)
         deleted = package_repo.delete(id)
         return Package(**deleted.__dict__)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 

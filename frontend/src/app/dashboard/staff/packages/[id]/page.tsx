@@ -40,11 +40,21 @@ import { useUserStore } from "@/stores/userStore";
 import {
   Address,
   createPackageHistory,
+  getAccountByID,
   getAddressByID,
+  getMerchantByID,
+  Merchant,
   PackageHistoryCreate,
   updatePackage,
 } from "@/app/dashboard/staff/packages/data";
 import { useRouter } from "next/navigation";
+import { Account } from "@/types/account";
+
+interface MerchantContact {
+  merchant: Merchant;
+  account: Account;
+  address: Address;
+}
 
 export default function PackageDetailPage() {
   const { toast } = useToast();
@@ -53,6 +63,8 @@ export default function PackageDetailPage() {
   const [packageData, setPackageData] = useState<Package | null>(null);
   const [historyData, setHistoryData] = useState<PackageHistory[]>([]);
   const [editedPackage, setEditedPackage] = useState<Package | null>(null);
+  const [merchantContact, setMerchantContact] =
+    useState<MerchantContact | null>(null);
   const [address, setAddress] = useState<Address>({
     commune: "",
     province: "",
@@ -75,7 +87,25 @@ export default function PackageDetailPage() {
           setPackageData(data);
           setEditedPackage(data);
 
-          const address = await getAddressByID(data.address_id);
+          const [merchant, base_merchant] = await Promise.all([
+            getMerchantByID(data.merchant_id),
+            getAccountByID(data.merchant_id),
+          ]);
+          console.log(merchant, base_merchant);
+          if (!merchant || !base_merchant) return;
+
+          const [merchant_address, address] = await Promise.all([
+            getAddressByID(base_merchant.address_id),
+            getAddressByID(data.address_id),
+          ]);
+          console.log(merchant_address, address);
+
+          setMerchantContact({
+            account: base_merchant,
+            merchant: merchant,
+            address: merchant_address,
+          });
+
           if (address) setAddress(address);
         }
 
@@ -171,13 +201,13 @@ export default function PackageDetailPage() {
         <CardHeader>
           <CardTitle>
             <span className="flex items-center gap-4">
-              <h2>{packageData.name}</h2>
+              <h2>NO. {packageData.id}</h2>
               <PackageBadge badge_name={packageData.status} />
             </span>
           </CardTitle>
           <CardDescription>
             <div className="text-sm text-gray-500">
-              Package ID: {packageData.id}
+              Merchant ID: {packageData.merchant_id}
             </div>
             <div className="text-sm text-gray-500">
               Order ID: {packageData.order_id}
@@ -219,7 +249,23 @@ export default function PackageDetailPage() {
               <h4>{packageData.is_fragile ? "Yes" : "No"}</h4>
             </div>
           </div>
-          <h3>Receiver Information</h3>
+          <h3>Sender</h3>
+          <Separator />
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4 pt-4 pb-10">
+            <div className="col-span-2">
+              <p className="font-semibold">Address</p>
+              <div className="grid xl:grid-cols-2">
+                <h4>{merchantContact?.account.street}</h4>
+                <h4>{`${merchantContact?.address.district}, ${merchantContact?.address.district}, ${merchantContact?.address.province}`}</h4>
+              </div>
+            </div>
+            <div>
+              <p className="font-semibold">Phone</p>
+              <h4>{merchantContact?.account.phone}</h4>
+            </div>
+          </div>
+
+          <h3>Receiver</h3>
           <Separator />
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4 pt-4 pb-10">
             <div className="col-span-2">
@@ -230,7 +276,7 @@ export default function PackageDetailPage() {
               </div>
             </div>
             <div>
-              <p className="font-semibold">Receiver Phone</p>
+              <p className="font-semibold">Phone</p>
               <h4>{packageData.phone}</h4>
             </div>
           </div>

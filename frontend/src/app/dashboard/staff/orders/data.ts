@@ -19,6 +19,24 @@ export async function fetchAllOrders() {
   }
 }
 
+export async function deleteOrder(id: string) {
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/order/${id}`,
+      {
+        method: "delete",
+        headers: {},
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    throw error;
+  }
+}
+
 export async function fetchOrderByID(id: string) {
   try {
     const response = await fetch(
