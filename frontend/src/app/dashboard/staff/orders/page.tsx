@@ -96,59 +96,53 @@ export default function OrdersPage() {
         <h1>Order Management</h1>
       </span>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-2">
-            <Input
-              placeholder="Search by Order ID or Merchant ID"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-            />
-            <Button onClick={handleSearch}>
-              <Search />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Merchant ID</TableHead>
-                <TableHead>Order Date</TableHead>
+      <div className="flex items-center space-x-2 pb-4">
+        <Input
+          placeholder="Search by Order ID or Merchant ID"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <Button onClick={handleSearch}>
+          <Search />
+        </Button>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Order ID</TableHead>
+            <TableHead>Merchant ID</TableHead>
+            <TableHead>Order Date</TableHead>
 
-                <TableHead>Staff ID</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>{order.id.slice(0, 8)}...</TableCell>
-                  <TableCell>{order.merchant_id.slice(0, 8)}...</TableCell>
-                  <TableCell>{formatTimestamp(order.date)}</TableCell>
-                  <TableCell>{order.staff_id.slice(0, 8)}...</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" asChild>
-                        <Link href={`/dashboard/staff/orders/${order.id}`}>
-                          <EllipsisVertical />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleDelete(order.id)}
-                      >
-                        <Trash />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            <TableHead>Staff ID</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {orders.map((order) => (
+            <TableRow key={order.id}>
+              <TableCell>{order.id?.slice(0, 8)}...</TableCell>
+              <TableCell>{order.merchant_id?.slice(0, 8)}...</TableCell>
+              <TableCell>{formatTimestamp(order.date)}</TableCell>
+              <TableCell>{order.staff_id?.slice(0, 8)}...</TableCell>
+              <TableCell>
+                <div className="flex space-x-2">
+                  <Button variant="outline" asChild>
+                    <Link href={`/dashboard/staff/orders/${order.id}`}>
+                      <EllipsisVertical />
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDelete(order.id)}
+                  >
+                    <Trash />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

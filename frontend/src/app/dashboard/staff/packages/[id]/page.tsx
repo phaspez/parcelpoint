@@ -186,8 +186,17 @@ export default function PackageDetailPage() {
           className="flex items-center"
           passHref
         >
-          <Button variant="default" className="flex items-center h-full">
+          <Button variant="secondary" className="flex items-center h-full">
             Back to Packages
+          </Button>
+        </Link>
+        <Link
+          href={`/dashboard/staff/orders/${packageData.order_id}`}
+          className="flex items-center"
+          passHref
+        >
+          <Button variant="default" className="flex items-center h-full">
+            View Order
           </Button>
         </Link>
         <span className="grow" />
@@ -248,6 +257,10 @@ export default function PackageDetailPage() {
               <p className="font-semibold">Fragile</p>
               <h4>{packageData.is_fragile ? "Yes" : "No"}</h4>
             </div>
+            <div>
+              <p className="font-semibold">Storage Block</p>
+              <h4>{packageData.block_id || "None"}</h4>
+            </div>
           </div>
           <h3>Sender</h3>
           <Separator />
@@ -268,9 +281,15 @@ export default function PackageDetailPage() {
           <h3>Receiver</h3>
           <Separator />
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4 pt-4 pb-10">
-            <div className="col-span-2">
+            <div>
+              <p className="font-semibold">Name</p>
+              <div>
+                <h4>{packageData.name}</h4>
+              </div>
+            </div>
+            <div className="">
               <p className="font-semibold">Address</p>
-              <div className="grid xl:grid-cols-2">
+              <div className="">
                 <h4>{packageData.street}</h4>
                 <h4>{`${address.commune}, ${address.district}, ${address.province}`}</h4>
               </div>

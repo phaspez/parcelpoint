@@ -182,9 +182,6 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         return super().create(package)
 
     def update(self, id: UUID, package_updated: PackageUpdate) -> PackageSchema | None:
-        if not package_updated.block_id:
-            return super().update(id, package_updated)
-
         package = self.get_by_id(id)
 
         if not package:

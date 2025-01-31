@@ -64,9 +64,11 @@ export default function Header() {
             <div
               className={`flex items-center space-x-6 text-sm font-medium ${user ? "" : "hidden"}`}
             >
-              <Link href="/dashboard/merchant">Dashboard</Link>
-              <Link href="/dashboard/merchant/packages">Packages</Link>
-              <Link href="/dashboard/merchant/orders">Orders</Link>
+              {user?.type === "MERCHANT" ? (
+                <Link href="/dashboard/merchant">Dashboard</Link>
+              ) : (
+                <Link href="/dashboard/staff">Dashboard</Link>
+              )}
             </div>
           </nav>
         </div>
@@ -80,9 +82,16 @@ export default function Header() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/merchant">Dashboard</Link>
-                  </DropdownMenuItem>
+                  {user.type === "MERCHANT" ? (
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/merchant">Dashboard</Link>
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/staff">Dashboard</Link>
+                    </DropdownMenuItem>
+                  )}
+
                   <DropdownMenuItem onClick={handleLogout}>
                     Log out
                   </DropdownMenuItem>

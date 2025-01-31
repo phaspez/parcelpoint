@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { fetchOrders, fetchPackages } from "@/lib/data";
 import { useUserStore } from "@/stores/userStore";
-import { Check, Filter, Search, X } from "lucide-react";
+import { Check, EllipsisVertical, Filter, Search, X } from "lucide-react";
 import { useCookies } from "next-client-cookies";
 import {
   Pagination,
@@ -242,6 +242,15 @@ export default function OrdersPage() {
               <TableCell>{ord.details}</TableCell>
               <TableCell>{formatTimestamp(ord.date)}</TableCell>
               <TableCell>{ord.count}</TableCell>
+              <TableCell>
+                {
+                  <Link href={`/dashboard/merchant/orders/${ord.id}`}>
+                    <Button>
+                      <EllipsisVertical />
+                    </Button>
+                  </Link>
+                }
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

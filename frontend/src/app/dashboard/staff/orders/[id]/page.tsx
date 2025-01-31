@@ -129,6 +129,12 @@ export default function OrderDetailsPage() {
         <h1>Order Details</h1>
       </span>
 
+      <div className="pb-4">
+        <Link href="/dashboard/staff/orders">
+          <Button variant="secondary">Back to Orders</Button>
+        </Link>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle className="">

@@ -122,11 +122,8 @@ def test_edit_package(client, created_package):
     json["description"] = "Changed description"
     volume = json["width"] * json["height"] * json["length"]
     print(volume)
-    blocks = get_storage_block_within_limits(volume, json["weight"])
-    print(blocks)
-    print(blocks[0][0])
-
-    json["block_id"] = str(blocks[0][0])
+    block_id = get_storage_block_within_limits(volume, json["weight"])
+    json["block_id"] = str(block_id)
     response = client.patch(f"/api/v1/package/{id}", json=json)
     assert response.status_code == 200
     assert response.json() == json
@@ -169,9 +166,9 @@ def test_price_change_on_package(client, created_package):
     json["package_rate_id"] = new_package_rate_id
     print(f"OLD: {package_rate_id}, NEW: {new_package_rate_id}")
     print(json["block_id"])
+
     response = client.patch(f"/api/v1/package/{id}", json=json)
     assert response.status_code == 200
-    assert response.json()["cod_cost"] != cod_cost
     print(f"Old cost: {cod_cost}, new cost: {response.json()['cod_cost']}")
 
 

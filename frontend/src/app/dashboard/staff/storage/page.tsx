@@ -152,143 +152,138 @@ export default function StoragePage() {
         <h1>Storage Management</h1>
       </span>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-2xl font-bold"></CardTitle>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>Add Storage Block</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add New Storage Block</DialogTitle>
-                <DialogDescription>
-                  Create a new storage block by providing a name and capacity.
-                </DialogDescription>
-              </DialogHeader>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-8"
+      <div className="pb-4">
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>Add Storage Block</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add New Storage Block</DialogTitle>
+              <DialogDescription>
+                Create a new storage block by providing a name and capacity.
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Block name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="max_weight"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Capacity (kg)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Capacity"
+                          {...field}
+                          onChange={(e) => field.onChange(+e.target.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="max_package"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Max package</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Max package"
+                          {...field}
+                          onChange={(e) => field.onChange(+e.target.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="max_size"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Volume (cm<sup>3</sup>)
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Capacity"
+                          {...field}
+                          onChange={(e) => field.onChange(+e.target.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter>
+                  <Button type="submit">Create</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Size</TableHead>
+            <TableHead>Size Capacity</TableHead>
+            <TableHead>Weight Capacity</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {storageBlocks.map((block) => (
+            <TableRow key={block.id}>
+              <TableCell>{block.name}</TableCell>
+              <TableCell>{block.max_size}</TableCell>
+              <TableCell>
+                <Progress
+                  className="lg:w-[256px]"
+                  value={(block.size / block.max_size) * 100}
+                />
+              </TableCell>
+              <TableCell>
+                <Progress
+                  className="lg:w-[256px]"
+                  value={(block.weight / block.max_weight) * 100}
+                />
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDelete(block.id)}
                 >
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Block name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="max_weight"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Capacity (kg)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="Capacity"
-                            {...field}
-                            onChange={(e) => field.onChange(+e.target.value)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="max_package"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Max package</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="Max package"
-                            {...field}
-                            onChange={(e) => field.onChange(+e.target.value)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="max_size"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Volume (cm<sup>3</sup>)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="Capacity"
-                            {...field}
-                            onChange={(e) => field.onChange(+e.target.value)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <DialogFooter>
-                    <Button type="submit">Create</Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Size</TableHead>
-                <TableHead>Size Capacity</TableHead>
-                <TableHead>Weight Capacity</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {storageBlocks.map((block) => (
-                <TableRow key={block.id}>
-                  <TableCell>{block.name}</TableCell>
-                  <TableCell>{block.max_size}</TableCell>
-                  <TableCell>
-                    <Progress
-                      className="lg:w-[256px]"
-                      value={(block.size / block.max_size) * 100}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Progress
-                      className="lg:w-[256px]"
-                      value={(block.weight / block.max_weight) * 100}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleDelete(block.id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                  Delete
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
