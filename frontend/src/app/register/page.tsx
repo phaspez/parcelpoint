@@ -27,6 +27,7 @@ import { AddressSearch } from "@/components/AddressSearch";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { AccountCreate, MerchantCreate } from "@/types/account";
+import { useRouter } from "next/navigation";
 
 function formatDate(date: Date) {
   const year = date.getFullYear();
@@ -78,6 +79,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -110,6 +112,7 @@ export default function RegisterPage() {
       })
       .then((result) => {
         console.log(result);
+        router.push("/login");
       })
       .catch((error) => {
         console.error(error);

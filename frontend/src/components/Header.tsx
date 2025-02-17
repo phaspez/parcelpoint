@@ -15,15 +15,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AccountWithType } from "@/types/account";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const { user, setUser, clearUser, clearToken, setToken } = useUserStore();
   const cookie = useCookies();
+  const router = useRouter();
 
   const handleLogout = () => {
     cookie.remove("token");
     clearUser();
     clearToken();
+    router.push("/");
   };
 
   useEffect(() => {

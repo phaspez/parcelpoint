@@ -85,7 +85,8 @@ async def get_merchant_packages(
     is_fragile: bool | None = None,
     min_weight: float | None = None,
     max_weight: float | None = None,
-    days_ago: int = Query(7, gt=0),
+    status: str | None = None,
+    days_ago: int = Query(365, gt=0),
     limit: int = Query(0, le=50),
     offset: int = Query(0, ge=0),
 ):
@@ -100,6 +101,7 @@ async def get_merchant_packages(
             max_weight=max_weight,
             days_ago=days_ago,
             limit=limit,
+            status=status,
             offset=offset,
         )
         return results

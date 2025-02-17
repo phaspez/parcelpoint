@@ -60,7 +60,7 @@ export function AppSidebar() {
                     </Link>
                   </SidebarMenuButton>
                   <SidebarMenuButton asChild>
-                    <Link href="/">
+                    <Link href="/dashboard/merchant/you">
                       <Settings />
                       <span>Settings</span>
                     </Link>
@@ -96,12 +96,12 @@ export function AppSidebar() {
                       <span>Orders</span>
                     </Link>
                   </SidebarMenuButton>
-                  <SidebarMenuButton asChild>
-                    <Link href="/">
-                      <Settings />
-                      <span>Settings</span>
-                    </Link>
-                  </SidebarMenuButton>
+                  {/*<SidebarMenuButton asChild>*/}
+                  {/*  <Link href="/dashboard/merchant/you">*/}
+                  {/*    <Settings />*/}
+                  {/*    <span>Settings</span>*/}
+                  {/*  </Link>*/}
+                  {/*</SidebarMenuButton>*/}
                 </SidebarMenuItem>
               </SidebarMenu>
             )}

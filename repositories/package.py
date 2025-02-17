@@ -41,6 +41,7 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         max_weight: float | None = None,
         min_date: datetime | None = None,
         max_date: datetime | None = None,
+        status: str | None = None,
         days_ago: int | None = None,
         limit: int = 20,
         offset: int = 0,
@@ -67,6 +68,8 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
             filters.append(PackageSchema.weight >= min_weight)
         if max_weight is not None:
             filters.append(PackageSchema.weight <= max_weight)
+        if status is not None:
+            filters.append(PackageSchema.status == status)
 
         if min_date:
             filters.append(OrderSchema.date >= min_date)
@@ -203,14 +206,15 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
 
         weight = package_updated.weight if package_updated.weight else package.weight
 
-        is_exceed_limit = self.storage_block.check_if_exceed_limit(
-            volume, weight, package_updated.block_id, exclude_package=id
-        )
-
-        if is_exceed_limit:
-            self.db.rollback()
-            raise ValueError(
-                "Either volume, weight or max count exceeded the limit of the block"
+        if package_updated.block_id:
+            is_exceed_limit = self.storage_block.check_if_exceed_limit(
+                volume, weight, package_updated.block_id, exclude_package=id
             )
+
+            if is_exceed_limit:
+                self.db.rollback()
+                raise ValueError(
+                    "Either volume, weight or max count exceeded the limit of the block"
+                )
 
         return super().update(id, package_updated)

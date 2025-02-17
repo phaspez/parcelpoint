@@ -364,7 +364,7 @@ export default function CreatePackagePage() {
                               {...field}
                               onChange={(e) =>
                                 field.onChange(
-                                  Number.parseFloat(e.target.value),
+                                  Number.parseFloat(e.target.value || "0"),
                                 )
                               }
                             />
@@ -387,7 +387,7 @@ export default function CreatePackagePage() {
                               {...field}
                               onChange={(e) =>
                                 field.onChange(
-                                  Number.parseFloat(e.target.value),
+                                  Number.parseFloat(e.target.value || "0"),
                                 )
                               }
                             />
@@ -410,7 +410,7 @@ export default function CreatePackagePage() {
                               {...field}
                               onChange={(e) =>
                                 field.onChange(
-                                  Number.parseFloat(e.target.value),
+                                  Number.parseFloat(e.target.value || "0"),
                                 )
                               }
                             />
@@ -433,7 +433,7 @@ export default function CreatePackagePage() {
                               {...field}
                               onChange={(e) =>
                                 field.onChange(
-                                  Number.parseFloat(e.target.value),
+                                  Number.parseFloat(e.target.value || "0"),
                                 )
                               }
                             />
