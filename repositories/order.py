@@ -34,9 +34,6 @@ class OrderRepository(BaseRepository[OrderSchema, OrderCreate, OrderUpdate]):
         return orders
 
     def query_order_range(self, start_date: datetime, end_date: datetime):
-        print(start_date)
-        print(end_date)
-
         query = (
             select(
                 OrderSchema, MerchantSchema.company_name, func.count(PackageSchema.id)

@@ -138,7 +138,7 @@ def test_patch_account_existing_unique(client, created_account, created_token):
             "Authorization": f"Bearer {created_token}",
         },
     )
-    assert response.status_code == 500
+    assert response.status_code == 400
 
     print(response.json())
 

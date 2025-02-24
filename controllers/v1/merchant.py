@@ -1,4 +1,4 @@
-import routers.v1.dashboards.merchant as dashboard
+import controllers.v1.dashboards.merchant as dashboard
 
 from uuid import UUID
 from fastapi import APIRouter, HTTPException

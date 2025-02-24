@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from routers.v1 import (
+from controllers.v1 import (
     account,
     address,
     merchant,

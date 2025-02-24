@@ -14,7 +14,7 @@ from dependencies import (
 )
 from models.order import OrderCreate
 from models.package import PackageCreate, PackageUpdate, Package, PackageCreateNoOrder
-import routers.v1.package_history as package_history
+import controllers.v1.package_history as package_history
 
 router = APIRouter(
     prefix="/package",

@@ -49,13 +49,7 @@ async def get_orders_by_id(id: UUID, order_repo: OrderRepoDep):
 
 @router.delete("/{id}")
 async def delete_order(id: UUID, order_repo: OrderRepoDep):
-    try:
-        return order_repo.delete(id)
-    except ValueError as ve:
-        raise HTTPException(status_code=404, detail=str(ve))
-    except Exception as ex:
-        print(ex)
-        raise HTTPException(status_code=500, detail=str(ex))
+    return order_repo.delete(id)
 
 
 @router.patch("/{id}")

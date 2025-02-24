@@ -1,8 +1,11 @@
 from typing import Generic, TypeVar
 from uuid import UUID, uuid4
+
+from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
+from starlette.status import HTTP_404_NOT_FOUND
 
 SchemaType = TypeVar("SchemaType")
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -21,9 +24,7 @@ class BaseRepository(Generic[SchemaType, CreateSchemaType, UpdateSchemaType]):
         return self.db.query(self.model).filter(and_(self.model.id == id)).first()
 
     def create(self, schema: CreateSchemaType) -> SchemaType:
-        db_object = self.model(
-            **{**schema.model_dump(), "id": uuid4()}
-        )  # Convert Pydantic schemas to dict
+        db_object = self.model(**{**schema.model_dump(), "id": uuid4()})
         self.db.add(db_object)
         self.db.commit()
         self.db.refresh(db_object)
@@ -32,7 +33,10 @@ class BaseRepository(Generic[SchemaType, CreateSchemaType, UpdateSchemaType]):
     def delete(self, id: UUID) -> SchemaType:
         ins = self.get_by_id(id)
         if not ins:
-            raise ValueError(f"ID {id} is deleted or didn't exist")
+            raise HTTPException(
+                status_code=HTTP_404_NOT_FOUND,
+                detail=f"ID {id} is deleted or didn't exist",
+            )
 
         self.db.delete(ins)
         self.db.commit()
@@ -41,7 +45,7 @@ class BaseRepository(Generic[SchemaType, CreateSchemaType, UpdateSchemaType]):
     def update(self, id: UUID, schema: UpdateSchemaType) -> SchemaType | None:
         db_object = self.get_by_id(id)
         if db_object:
-            obj_data = schema.model_dump(exclude_unset=True)  # Only get set values
+            obj_data = schema.model_dump(exclude_unset=True)
             for key, value in obj_data.items():
                 if value is None:
                     continue

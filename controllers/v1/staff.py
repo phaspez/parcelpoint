@@ -11,7 +11,7 @@ from models.users.staff import (
     StaffCreateNoID,
     StaffUpdate,
 )
-import routers.v1.dashboards.staff as staff
+import controllers.v1.dashboards.staff as staff
 
 router = APIRouter(
     prefix="/staff",

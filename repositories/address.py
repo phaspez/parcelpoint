@@ -14,12 +14,6 @@ class AddressRepository(BaseRepository[AddressSchema, AddressCreate, AddressUpda
         super().__init__(db, AddressSchema)
 
     def search(self, search_terms: List[str]):
-        """
-        Search addresses with multiple terms matching any field
-        Args:
-            search_terms: List of lowercase search terms
-        """
-        # Build dynamic query with flexible matching
         conditions = []
         params = {}
 

@@ -2,16 +2,37 @@ from typing import Type
 from uuid import uuid4, UUID
 
 import bcrypt
+from fastapi import HTTPException, status
 from psycopg.errors import UniqueViolation
 from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_400_BAD_REQUEST
 
-from models.users.account import AccountCreate, AccountUpdate
+from models.users.account import AccountCreate, AccountUpdate, Account
 from repositories.base import BaseRepository
 from schemas.users import StaffSchema
 from schemas.users.account import AccountSchema
 from schemas.users.merchant import MerchantSchema
+import re
+
+from utils.jwt import create_access_token_dict
+
+
+def validate_login_identifier(username: str) -> tuple[str, str]:
+    email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    phone_pattern = r"^[0-9]*$"
+
+    if re.match(email_pattern, username):
+        return "email", username.lower()
+    elif re.match(phone_pattern, username):
+        normalized_phone = "".join(filter(str.isdigit, username))
+        return "phone", normalized_phone
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid login identifier. Please provide a valid email or phone number",
+        )
 
 
 def hash_password(password: str) -> str:
@@ -41,8 +62,14 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
         except IntegrityError as e:
             self.db.rollback()
             if isinstance(e.orig, UniqueViolation):
-                raise ValueError("Phone or Email already exists")
-            raise ValueError(e.orig)
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Phone or Email already exists",
+                )
+            raise HTTPException(status_code=400, detail=e.detail)
+        except Exception as e:
+            self.db.rollback()
+            raise HTTPException(status_code=500, detail=e)
 
     def update(self, id: UUID, updated_values: AccountUpdate) -> AccountSchema | None:
         try:
@@ -52,11 +79,17 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
         except IntegrityError as e:
             self.db.rollback()
             if isinstance(e.orig, UniqueViolation):
-                raise ValueError("Phone or Email already exists")
-            raise e
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Phone or Email already exists",
+                )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=e.detail,
+            )
         except Exception as e:
             self.db.rollback()
-            raise e
+            raise HTTPException(status_code=500, detail=e)
 
     def refresh(self, instance):
         self.db.refresh(instance)
@@ -75,10 +108,16 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
             .first()
         )
         if user is None:
-            raise ValueError(f"User with {by} {check} does not exist")
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail=f"User with {by} {check} does not exist",
+            )
 
         if not verify_password(password, str(user.hashed_password)):
-            raise ValueError("Phone or Password is incorrect")
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail="Phone or Password is incorrect",
+            )
 
         return user
 
@@ -106,3 +145,31 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
             return "STAFF"
 
         return ""
+
+    def login(self, form_data):
+        # arbitrary number for testing invalid fields
+        if len(form_data.password) < 6 or len(form_data.username) < 3:
+            raise HTTPException(status_code=400, detail="Invalid field input")
+
+        identifier_type, normalized_username = validate_login_identifier(
+            form_data.username
+        )
+
+        user = self.check_user_password(
+            password=form_data.password,
+            email=normalized_username if identifier_type == "email" else None,
+            phone=normalized_username if identifier_type == "phone" else None,
+        )
+
+        account = Account(**user.__dict__)
+        verified = verify_password(form_data.password, account.hashed_password)
+        if not verified:
+            raise HTTPException(
+                status_code=400, detail="Incorrect username or password"
+            )
+
+        access_token = create_access_token_dict({"user_id": str(account.id)})
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+        }
