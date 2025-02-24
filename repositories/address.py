@@ -47,7 +47,7 @@ class AddressRepository(BaseRepository[AddressSchema, AddressCreate, AddressUpda
             """
         )
 
-        # Add the terms arrays to params
+        # add the terms arrays to params
         params.update({"terms": search_terms, "exact_terms": search_terms})
 
         result = self.db.execute(query, params).fetchall()

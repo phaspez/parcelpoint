@@ -31,6 +31,7 @@ import axios from "axios";
 import { useUserStore } from "@/stores/userStore";
 import { AccountWithType } from "@/types/account";
 import { redirect, useRouter } from "next/navigation";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
 const emailSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -206,9 +207,22 @@ export default function LoginPage() {
                 )}
               />
 
-              <Button type="submit" className="w-full">
-                Login
-              </Button>
+              <div className="flex items-center gap-4">
+                <Button type="submit" className="w-full">
+                  Login
+                </Button>
+
+                <GoogleLogin
+                  theme={"outline"}
+                  onError={() => {
+                    console.log("error");
+                  }}
+                  onSuccess={(response) => {
+                    console.log("success");
+                    console.log(response);
+                  }}
+                />
+              </div>
             </form>
           </Form>
         </CardContent>
@@ -219,6 +233,7 @@ export default function LoginPage() {
               Sign up
             </Link>
           </p>
+          <div></div>
         </CardFooter>
       </Card>
     </div>

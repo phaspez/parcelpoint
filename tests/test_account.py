@@ -64,7 +64,6 @@ def test_login_email(client, created_account):
     assert response.status_code == 200
     assert response.json()
 
-    print(response.json())
     test_login_email.created_data = response.json()
 
 
@@ -76,13 +75,6 @@ def created_token():
     if not test_login_email.created_data:
         raise ValueError("test_login must be run before using this fixture")
     return test_login_email.created_data["access_token"]
-
-
-# def test_get_accounts_logged_in(client, created_token):
-#     client.cookies = {"token": created_token}
-#     response = client.get("/api/v1/account")
-#     assert response.status_code == 200
-#     assert response.json()
 
 
 def test_login_empty(client):

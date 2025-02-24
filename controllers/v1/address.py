@@ -48,11 +48,7 @@ async def search_address(q: str, address_repo: AddressRepoDep):
 
 @router.get("/{id}")
 async def get_address_by_id(id: UUID, address_repo: AddressRepoDep):
-    address = address_repo.get_by_id(id)
-    if not address:
-        raise HTTPException(status_code=404, detail="Address not found")
-
-    return address
+    return address_repo.get_by_id(id)
 
 
 @router.post("/")
@@ -60,19 +56,12 @@ async def create_address(
     address: Annotated[AddressCreate, Body],
     address_repo: AddressRepoDep,
 ):
-    try:
-        res = address_repo.create(address)
-        return res
-    except Exception as e:
-        return HTTPException(status_code=500, detail="Internal server error")
+    return address_repo.create(address)
 
 
 @router.delete("/{id}")
 async def delete_address(id: UUID, address_repo: AddressRepoDep):
-    try:
-        return address_repo.delete(id)
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
+    return address_repo.delete(id)
 
 
 @router.patch("/{id}")

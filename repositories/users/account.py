@@ -94,6 +94,28 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
     def refresh(self, instance):
         self.db.refresh(instance)
 
+    def get_by_google_id(self, google_id: str) -> AccountSchema:
+        user: AccountSchema | None = (
+            self.db.query().filter(AccountSchema.google_id == google_id).first()
+        )
+        if user is None:
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail=f"User with Google ID {google_id} does not exist",
+            )
+        return user
+
+    def get_by_email(self, email: str) -> AccountSchema:
+        user: AccountSchema | None = (
+            self.db.query().filter(AccountSchema.email == email).first()
+        )
+        if user is None:
+            raise HTTPException(
+                status_code=HTTP_400_BAD_REQUEST,
+                detail=f"User with email {email} does not exist",
+            )
+        return user
+
     def check_user_password(
         self, password: str, phone: str | None, email: str | None = None
     ) -> Type[AccountSchema]:

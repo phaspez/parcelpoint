@@ -32,18 +32,15 @@ async def register_merchant(
     merchant_repo: MerchantRepoDep,
     account_repo: AccountRepoDep,
 ) -> MerchantDetails:
-    try:
-        account = account_repo.create(account_create)
-        account_model = Account(**account.__dict__)
-        merchant_model = MerchantCreate(
-            **merchant_create.model_dump(),
-            account_id=account.id,
-        )
-        merchant = merchant_repo.create(merchant_model)
+    account = account_repo.create(account_create)
+    account_model = Account(**account.__dict__)
+    merchant_model = MerchantCreate(
+        **merchant_create.model_dump(),
+        account_id=account.id,
+    )
+    merchant = merchant_repo.create(merchant_model)
 
-        return MerchantDetails(account=account_model, **merchant_model.model_dump())
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return MerchantDetails(account=account_model, **merchant_model.model_dump())
 
 
 @router.get("/{id}")
@@ -54,14 +51,7 @@ async def get_merchant_by_id(
     is_detailed: bool = False,
 ):
     merchant = merchant_repo.get_by_id(id)
-
-    if merchant is None:
-        raise HTTPException(status_code=404, detail="Merchant not found")
     account = account_repo.get_by_id(id)
-    if merchant is None:
-        raise HTTPException(
-            status_code=500, detail="Merchant found but user isn't, something's wrong"
-        )
 
     merchant_model = Merchant(**merchant.__dict__)
     if is_detailed:
@@ -83,24 +73,13 @@ async def update_merchant(
     if merchant is None or account is None:
         raise HTTPException(status_code=404, detail="Merchant not found")
 
-    try:
-        account_model = account_repo.update(id, account_updated)
-        merchant_model = merchant_repo.update(id, merchant_updated)
+    account_model = account_repo.update(id, account_updated)
+    merchant_model = merchant_repo.update(id, merchant_updated)
 
-        if account_model is None:
-            raise HTTPException(
-                status_code=500,
-                detail="Merchant found but user isn't, something's wrong",
-            )
-
-        account_repo.refresh(account_model)
-        return MerchantDetails(
-            **merchant_model.__dict__, account=Account(**account_model.__dict__)
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=e)
+    account_repo.refresh(account_model)
+    return MerchantDetails(
+        **merchant_model.__dict__, account=Account(**account_model.__dict__)
+    )
 
 
 @router.delete("/{id}")
@@ -111,8 +90,6 @@ async def delete_merchant(
 ):
     account = account_repo.get_by_id(id)
     merchant = merchant_repo.get_by_id(id)
-    if account is None or merchant is None:
-        raise HTTPException(status_code=404, detail="Merchant not found")
 
     merchant_repo.delete(id)
     account_repo.delete(id)

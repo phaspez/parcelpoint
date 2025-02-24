@@ -104,9 +104,8 @@ async def delete_account(
 async def get_account_by_id(id: UUID, account_repo: AccountRepoDep) -> AccountWithType:
     account = account_repo.get_by_id(id)
     account_type = account_repo.get_user_id_type(id)
-
-    at = AccountWithType(**account.__dict__, type=account_type)
-
     if not account or not account_type:
         raise HTTPException(status_code=404, detail="Account not found")
+
+    at = AccountWithType(**account.__dict__, type=account_type)
     return at

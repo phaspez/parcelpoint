@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { CookiesProvider } from "next-client-cookies/server";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,23 +48,25 @@ export default function RootLayout({
           geistMono.variable,
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <CookiesProvider>
-            <div className="relative flex min-h-screen flex-col dark:bg-black">
-              <Header />
-              <main className="flex-1 px-4 md:px-20 lg:px-40 py-10 pb-10">
-                {children}
-              </main>
-              <Footer />
-            </div>
-            <Toaster />
-          </CookiesProvider>
-        </ThemeProvider>
+        <GoogleOAuthProvider clientId="885738935087-dgvfhn67sfnqr8g87if8jb2e1tmj24b4.apps.googleusercontent.com">
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <CookiesProvider>
+              <div className="relative flex min-h-screen flex-col dark:bg-black">
+                <Header />
+                <main className="flex-1 px-4 md:px-20 lg:px-40 py-10 pb-10">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+              <Toaster />
+            </CookiesProvider>
+          </ThemeProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

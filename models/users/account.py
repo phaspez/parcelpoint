@@ -17,6 +17,7 @@ class Account(BaseModel):
     phone: str = Field(pattern=r"^[0-9]*$", min_length=9)
     email: EmailStr | None = None
     address_id: UUID
+    google_id: str | None = None
     street: str
 
 
@@ -34,6 +35,7 @@ class AccountCreate(BaseModel):
     phone: str = Field(pattern=r"^[0-9]*$", min_length=9)
     email: EmailStr
     address_id: UUID
+    google_id: str | None = None
     street: str
 
 
@@ -50,4 +52,5 @@ class AccountUpdate(BaseModel):
     phone: Annotated[str, AfterValidator(check_phone_length)] | None = None
     email: EmailStr | None = None
     address_id: UUID | None = None
+    google_id: str | None = None
     street: str | None = None
