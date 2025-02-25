@@ -6,8 +6,6 @@ from google.auth.transport import requests
 from pydantic import BaseModel
 from typing import Optional
 import os
-
-from connection import get_db
 from dependencies import AccountRepoDep
 from models.users.account import AccountUpdate
 from schemas.users import AccountSchema
@@ -48,42 +46,41 @@ async def verify_google_token(token: str) -> dict:
 
         return id_info
     except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Google token"
-        )
+        raise HTTPException(status_code=401, detail="Invalid Google token")
 
 
 # Routes
-@router.post("/auth/google")
+@router.post("/")
 async def google_auth(token: GoogleToken, account_repo: AccountRepoDep):
     # Verify the Google token
     user_info = await verify_google_token(token.token)
+    print(user_info)
 
-    user = account_repo.get_by_google_id(user_info["sub"])
+    user: AccountSchema | None = None
+    try:
+        user = account_repo.get_by_google_id(user_info["sub"])
+    except:
+        user = None
 
     if not user:
         # check if email exists but without Google auth
-        user = account_repo.get_by_email(user_info["email"])
+        try:
+            user = account_repo.get_by_email(user_info["email"])
+        except:
+            user = None
 
         if user:
             # link Google ID to existing account
             account_update = AccountUpdate(google_id=user_info["sub"])
-            account_update.goo
-            account_repo.update(user.id, AccountUpdate())
-            user.google_id = user_info["sub"]
-            db.commit()
+            account_repo.update(user.id, account_update)
         else:
-            # Create new account
-            user = AccountSchema(
-                name=user_info["name"],
-                email=user_info["email"],
-                google_id=user_info["sub"],
+            raise HTTPException(
+                status_code=401,
+                detail="Account not exist",
             )
-            db.add(user)
-            db.commit()
-            db.refresh(user)
 
     # Generate JWT token or your preferred session mechanism
-    access_token = create_access_token(data={"sub": user.email})
+    user_model: Account = Account(**user.__dict__)
+    access_token = create_access_token(user_model)
 
     return {"access_token": access_token, "token_type": "bearer"}

@@ -9,6 +9,7 @@ from controllers.v1 import (
     package_rate,
     staff,
     storage_block,
+    google_auth,
 )
 
 router = APIRouter(
@@ -25,3 +26,4 @@ router.include_router(staff.router)
 router.include_router(package.router)
 router.include_router(order.router)
 router.include_router(package_rate.router)
+router.include_router(google_auth.router)

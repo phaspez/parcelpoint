@@ -213,13 +213,29 @@ export default function LoginPage() {
                 </Button>
 
                 <GoogleLogin
-                  theme={"outline"}
+                  theme="filled_black"
                   onError={() => {
                     console.log("error");
                   }}
-                  onSuccess={(response) => {
+                  onSuccess={async (response) => {
                     console.log("success");
                     console.log(response);
+                    try {
+                      const result = await fetch(
+                        "http://localhost:8000/api/v1/auth/google",
+                        {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({
+                            token: response.credential,
+                          }),
+                        },
+                      );
+                    } catch (err) {
+                      console.log(err);
+                    }
                   }}
                 />
               </div>
