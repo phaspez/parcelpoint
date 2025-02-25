@@ -17,5 +17,5 @@ class AccountSchema(Base):
         ForeignKey(AddressSchema.id),
         nullable=False,
     )
-    google_id = Column(String, unique=True, nullable=True)
     street = Column(String)
+    google_id = Column(String, unique=True, nullable=True)

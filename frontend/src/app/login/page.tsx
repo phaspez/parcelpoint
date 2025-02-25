@@ -66,6 +66,34 @@ export default function LoginPage() {
     },
   });
 
+  const processLoginSuccess = async (access_token: string) => {
+    cookie.set("token", access_token, { expires: 14 });
+    setToken(access_token);
+    console.log(access_token);
+
+    await axios
+      .get(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/account/me", {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${access_token}`,
+        },
+      })
+      .then((res) => {
+        const data = res.data as AccountWithType;
+        setUser(data);
+        toast({
+          title: `Hello, ${data.type.toLowerCase()} ${data.name}!`,
+        });
+        if (data.type == "MERCHANT") {
+          router.push("/dashboard/merchant");
+        }
+        if (data.type == "STAFF") {
+          router.push("/dashboard/staff");
+        }
+      });
+  };
+
   async function onSubmit(values: z.infer<typeof schema>) {
     const user = { username: "", password: values.password };
     if ("phone" in values) {
@@ -88,31 +116,7 @@ export default function LoginPage() {
       )
       .then(async (res) => {
         const access_token = res.data.access_token;
-        cookie.set("token", access_token, { expires: 14 });
-        setToken(access_token);
-        console.log(access_token);
-
-        await axios
-          .get(process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/account/me", {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              Authorization: `Bearer ${access_token}`,
-            },
-          })
-          .then((res) => {
-            const data = res.data as AccountWithType;
-            setUser(data);
-            toast({
-              title: `Hello, ${data.type.toLowerCase()} ${data.name}!`,
-            });
-            if (data.type == "MERCHANT") {
-              router.push("/dashboard/merchant");
-            }
-            if (data.type == "STAFF") {
-              router.push("/dashboard/staff");
-            }
-          });
+        await processLoginSuccess(access_token);
       })
       .catch((error: unknown) => {
         if (axios.isAxiosError(error) && error.response) {
@@ -213,29 +217,41 @@ export default function LoginPage() {
                 </Button>
 
                 <GoogleLogin
-                  theme="filled_black"
+                  theme="outline"
                   onError={() => {
                     console.log("error");
                   }}
                   onSuccess={async (response) => {
-                    console.log("success");
-                    console.log(response);
-                    try {
-                      const result = await fetch(
-                        "http://localhost:8000/api/v1/auth/google",
-                        {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                          },
-                          body: JSON.stringify({
-                            token: response.credential,
-                          }),
+                    const result = await fetch(
+                      "http://localhost:8000/api/v1/auth/google",
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
                         },
-                      );
-                    } catch (err) {
-                      console.log(err);
+                        body: JSON.stringify({
+                          token: response.credential,
+                        }),
+                      },
+                    );
+
+                    console.log(response);
+
+                    if (!result.ok) {
+                      console.error(result.statusText);
+                      console.error(result.body);
+
+                      toast({
+                        variant: "destructive",
+                        title: "We're having troubles logging in",
+                        description:
+                          "Make sure your Google account is valid and registered",
+                      });
+                      return;
                     }
+
+                    const data = await result.json();
+                    await processLoginSuccess(data.access_token);
                   }}
                 />
               </div>

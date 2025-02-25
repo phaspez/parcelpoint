@@ -18,7 +18,7 @@ def create_user_data(user_id: int) -> tuple:
     address_id = get_random_address_id()
     street = f"street name {user_id + 1}"
 
-    return name, hashed_password, phone, email, address_id, street
+    return name, hashed_password, phone, email, address_id, street, None
 
 
 def insert_user(user_data: tuple) -> bool:
@@ -27,7 +27,7 @@ def insert_user(user_data: tuple) -> bool:
             local_cur.execute(
                 """
                 INSERT INTO parcelpoint.public.account VALUES
-                (gen_random_uuid(), %s, %s, %s, %s, %s, %s)
+                (gen_random_uuid(), %s, %s, %s, %s, %s, %s, %s)
                 """,
                 user_data,
             )

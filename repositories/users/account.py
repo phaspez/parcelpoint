@@ -96,7 +96,9 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
 
     def get_by_google_id(self, google_id: str) -> AccountSchema:
         user: AccountSchema | None = (
-            self.db.query().filter(AccountSchema.google_id == google_id).first()
+            self.db.query(AccountSchema)
+            .filter(AccountSchema.google_id == google_id)
+            .first()
         )
         if user is None:
             raise HTTPException(
@@ -107,8 +109,9 @@ class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpda
 
     def get_by_email(self, email: str) -> AccountSchema:
         user: AccountSchema | None = (
-            self.db.query().filter(AccountSchema.email == email).first()
+            self.db.query(AccountSchema).filter(AccountSchema.email == email).first()
         )
+
         if user is None:
             raise HTTPException(
                 status_code=HTTP_400_BAD_REQUEST,

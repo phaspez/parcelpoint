@@ -34,6 +34,7 @@ import { VNDong } from "@/lib/regionFormat";
 import Link from "next/link";
 import { EllipsisVertical, Trash } from "lucide-react";
 import { deletePackage } from "@/app/dashboard/staff/orders/[id]/data";
+import OrderDetailsCard from "@/components/OrderDetails";
 
 interface OrderDetails {
   order: Order;
@@ -135,89 +136,11 @@ export default function OrderDetailsPage() {
         </Link>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="">
-            <h3>No. {order.order.id} </h3>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <p>
-                  <strong>Merchant ID:</strong> {order.order.merchant_id}
-                </p>
-                <p>
-                  <strong>Staff:</strong> {order.order.staff_id}
-                </p>
-              </div>
-              <div>
-                <p>
-                  <strong>Order Date:</strong>{" "}
-                  {formatTimestamp(order.order.date)}
-                </p>
-                <p>
-                  <strong>COD total amount:</strong>{" "}
-                  {VNDong.format(
-                    order.packages.reduce(
-                      (sum, item) => sum + item.cod_cost,
-                      0,
-                    ),
-                  )}
-                </p>
-                <p>
-                  <strong>Shipping revenue amount:</strong>{" "}
-                  {VNDong.format(
-                    order.packages.reduce(
-                      (sum, item) => sum + item.shipping_cost,
-                      0,
-                    ),
-                  )}
-                </p>
-              </div>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <h3>Packages</h3>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Package ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Weight</TableHead>
-                <TableHead>Dimensions</TableHead>
-                <TableHead className="w-[120px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {order.packages.map((pkg) => (
-                <TableRow key={pkg.id}>
-                  <TableCell>{pkg.id.slice(0, 8)}...</TableCell>
-                  <TableCell>{pkg.name}</TableCell>
-                  <TableCell>{pkg.weight.toFixed(2)} kg</TableCell>
-                  <TableCell>
-                    {pkg.width} x {pkg.length} x {pkg.height}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Link href={`/dashboard/staff/packages/${pkg.id}`}>
-                        <Button variant="secondary">
-                          <EllipsisVertical />
-                        </Button>
-                      </Link>
-
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleDeletePackage(pkg.id)}
-                      >
-                        <Trash />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <OrderDetailsCard
+        order={order}
+        role="staff"
+        handleDeletePackage={handleDeletePackage}
+      />
     </div>
   );
 }

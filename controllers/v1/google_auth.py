@@ -9,7 +9,7 @@ import os
 from dependencies import AccountRepoDep
 from models.users.account import AccountUpdate
 from schemas.users import AccountSchema
-from utils.jwt import create_access_token
+from utils.jwt import create_access_token, create_access_token_dict
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
@@ -57,6 +57,8 @@ async def google_auth(token: GoogleToken, account_repo: AccountRepoDep):
     print(user_info)
 
     user: AccountSchema | None = None
+    print(user_info["sub"])
+    print(user_info["email"])
     try:
         user = account_repo.get_by_google_id(user_info["sub"])
     except:
@@ -68,7 +70,7 @@ async def google_auth(token: GoogleToken, account_repo: AccountRepoDep):
             user = account_repo.get_by_email(user_info["email"])
         except:
             user = None
-
+        print(user)
         if user:
             # link Google ID to existing account
             account_update = AccountUpdate(google_id=user_info["sub"])
@@ -80,7 +82,9 @@ async def google_auth(token: GoogleToken, account_repo: AccountRepoDep):
             )
 
     # Generate JWT token or your preferred session mechanism
-    user_model: Account = Account(**user.__dict__)
-    access_token = create_access_token(user_model)
-
-    return {"access_token": access_token, "token_type": "bearer"}
+    # user_model: Account = Account(**user.__dict__)
+    access_token = create_access_token_dict({"user_id": str(user.id)})
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+    }
