@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -24,9 +24,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { getAddressByID } from "@/app/dashboard/staff/packages/data";
+import {
+  getAddressByID,
+  getMerchantByID,
+} from "@/app/dashboard/staff/packages/data";
 import { useUserStore } from "@/stores/userStore";
-import { getMerchantByID } from "@/app/dashboard/staff/packages/data";
 import { patchMerchantAccount } from "@/app/dashboard/merchant/you/data";
 
 interface UserData {

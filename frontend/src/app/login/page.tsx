@@ -30,8 +30,8 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { useUserStore } from "@/stores/userStore";
 import { AccountWithType } from "@/types/account";
-import { redirect, useRouter } from "next/navigation";
-import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { useRouter } from "next/navigation";
+import { GoogleLogin } from "@react-oauth/google";
 
 const emailSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),

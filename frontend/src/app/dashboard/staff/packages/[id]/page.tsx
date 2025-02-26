@@ -7,14 +7,6 @@ import Link from "next/link";
 import { fetchPackageById, fetchPackageHistory } from "@/lib/data";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Package, PackageHistory } from "@/types/packages";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { useToast } from "@/hooks/use-toast";
 import PopupEdit from "@/app/dashboard/staff/packages/[id]/PopupEdit";
 import { useUserStore } from "@/stores/userStore";

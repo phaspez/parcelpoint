@@ -8,7 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { cn } from "@/lib/utils";
 import { CookiesProvider } from "next-client-cookies/server";
 import { Toaster } from "@/components/ui/toaster";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const geistSans = Geist({

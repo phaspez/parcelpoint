@@ -33,14 +33,6 @@ import {
 } from "@/components/ui/pagination";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import PackageBadge from "@/components/PackageBadge";
 import { Package } from "@/types/packages";
 import { formatTimestamp } from "@/lib/regionFormat";

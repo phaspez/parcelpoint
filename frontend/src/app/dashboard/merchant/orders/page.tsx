@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { type Package, generateFakePackages } from "@/lib/fake-data";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,9 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchOrders, fetchPackages } from "@/lib/data";
-import { useUserStore } from "@/stores/userStore";
-import { Check, EllipsisVertical, Filter, Search, X } from "lucide-react";
+import { fetchOrders } from "@/lib/data";
+import { EllipsisVertical, Filter, Search } from "lucide-react";
 import { useCookies } from "next-client-cookies";
 import {
   Pagination,
@@ -35,14 +33,6 @@ import {
 } from "@/components/ui/pagination";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Order } from "@/types/order";
 import { formatTimestamp } from "@/lib/regionFormat";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";

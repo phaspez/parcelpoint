@@ -1,17 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useCookies } from "next-client-cookies";
 import Link from "next/link";
@@ -23,7 +15,6 @@ import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 export default function OrderDetailsPage() {
   const { toast } = useToast();
   const params = useParams();
-  const router = useRouter();
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const cookie = useCookies();

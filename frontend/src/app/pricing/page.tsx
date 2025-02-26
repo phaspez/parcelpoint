@@ -41,6 +41,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 
 // Define the form schema
 const packageSchema = z.object({
@@ -55,7 +56,6 @@ const packageSchema = z.object({
 
 type PackageForm = z.infer<typeof packageSchema>;
 
-// Simulated API call to calculate price
 const calculatePrice = async (
   packageDetails: PackageForm,
   pricingOption: PricingOption,
@@ -132,17 +132,11 @@ export default function PricingPage() {
 
   return (
     <div className="container py-10 px-10 w-full place-content-center">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Pricing</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <AutoBreadcrumb
+        breadcrumbLink={[]}
+        breadcrumbPage={[]}
+        currentPage="Pricing"
+      />
 
       <h1 className="">Shipping Price Estimator</h1>
       <Card>

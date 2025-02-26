@@ -2,15 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Clock,
-  Package,
-  Search,
-  Shield,
-  Truck,
-  Users,
-  BarChart,
-} from "lucide-react";
+import { BarChart, Clock, Search, Shield, Truck, Users } from "lucide-react";
 
 export default function HomePage() {
   return (
