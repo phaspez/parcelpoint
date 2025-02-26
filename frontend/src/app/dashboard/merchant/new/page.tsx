@@ -49,7 +49,7 @@ import { fetchPricingOptions } from "@/lib/data";
 import { PricingOption } from "@/types/pricingOptions";
 import { VNDong } from "@/lib/regionFormat";
 import { fetchCreatePackage } from "@/lib/dataCreate";
-import { PackageCreate } from "@/types/packages";
+import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 
 const calculatePrice = (
   packageDetails: PackageForm,
@@ -63,7 +63,6 @@ const calculatePrice = (
 
   let price = selectedOption.base_rate;
 
-  // Calculate volume
   const volume =
     packageDetails.width * packageDetails.length * packageDetails.height;
 
@@ -72,19 +71,16 @@ const calculatePrice = (
     price += selectedOption.oversize_rate;
   }
 
-  // Add overweight fee
   if (packageDetails.weight > selectedOption.base_weight) {
     price +=
       (packageDetails.weight - selectedOption.base_weight) *
       selectedOption.overweight_rate_per_kg;
   }
 
-  // Add fragile fee
   if (packageDetails.is_fragile) {
     price += selectedOption.fragile_rate;
   }
 
-  // Add urgent fee
   if (packageDetails.is_urgent) {
     price += selectedOption.urgent_rate;
   }
@@ -164,9 +160,7 @@ export default function CreatePackagePage() {
   async function onSubmit(data: PackageForm) {
     try {
       setIsSubmitting(true);
-
       const respond = await fetchCreatePackage({ ...data, merchant_id: "" });
-      console.log(respond);
 
       toast({
         title: "Package created",
@@ -212,29 +206,11 @@ export default function CreatePackagePage() {
 
   return (
     <div className="container">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/merchant/">
-              Dashboard
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/merchant/packages">
-              Packages
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Create</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <AutoBreadcrumb
+        breadcrumbLink={["/dashboard/merchant", "/dashboard/merchant/packages"]}
+        breadcrumbPage={["Dashboard", "Packages"]}
+        currentPage={"Create"}
+      />
 
       <div className="flex items-center gap-2 mb-4">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />

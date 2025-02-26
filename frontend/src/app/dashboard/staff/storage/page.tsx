@@ -51,6 +51,7 @@ import {
   fetchStorageBlocks,
 } from "@/app/dashboard/staff/storage/data";
 import { Progress } from "@/components/ui/progress";
+import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -131,21 +132,11 @@ export default function StoragePage() {
 
   return (
     <div className="container">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/staff">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Storage Management</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <AutoBreadcrumb
+        breadcrumbLink={["/dashboard/staff"]}
+        breadcrumbPage={["Dashboard"]}
+        currentPage="Storage Management"
+      />
 
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />

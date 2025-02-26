@@ -57,8 +57,6 @@ async def google_auth(token: GoogleToken, account_repo: AccountRepoDep):
     print(user_info)
 
     user: AccountSchema | None = None
-    print(user_info["sub"])
-    print(user_info["email"])
     try:
         user = account_repo.get_by_google_id(user_info["sub"])
     except:

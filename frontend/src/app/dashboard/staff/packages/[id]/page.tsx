@@ -31,6 +31,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Account } from "@/types/account";
 import PackageDetails from "@/components/PackageDetails";
+import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 
 interface MerchantContact {
   merchant: Merchant;
@@ -134,29 +135,14 @@ export default function PackageDetailPage() {
 
   return (
     <div className="container w-full">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/merchant/">
-              Dashboard
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/merchant/packages">
-              Packages
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{id}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <AutoBreadcrumb
+        breadcrumbLink={[
+          "/dashboard/merchant/",
+          "/dashboard/merchant/packages",
+        ]}
+        breadcrumbPage={["Dashboard", "Packages"]}
+        currentPage={id?.toString()}
+      />
 
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />

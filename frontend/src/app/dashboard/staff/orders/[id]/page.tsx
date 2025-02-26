@@ -3,15 +3,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import {
   Breadcrumb,
@@ -22,36 +13,12 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { fetchOrderByID } from "@/app/dashboard/staff/orders/data";
-import { fetchPackages } from "@/lib/data";
-import { useUserStore } from "@/stores/userStore";
 import { useCookies } from "next-client-cookies";
-import { fetchStaffPackages } from "@/app/dashboard/staff/orders/[id]/data";
-import { Package } from "@/types/packages";
-import { Order } from "@/types/order";
-import { formatTimestamp } from "@/lib/regionFormat";
-import { VNDong } from "@/lib/regionFormat";
 import Link from "next/link";
-import { EllipsisVertical, Trash } from "lucide-react";
 import { deletePackage } from "@/app/dashboard/staff/orders/[id]/data";
 import OrderDetailsCard from "@/components/OrderDetails";
-
-interface OrderDetails {
-  order: Order;
-  packages: Package[];
-}
-
-const fetchOrder = async (
-  id: string,
-  access_token: string,
-): Promise<OrderDetails> => {
-  console.log(id);
-  const order = await fetchOrderByID(id);
-  const packages = await fetchStaffPackages({ order_id: id }, access_token);
-  console.log(packages);
-
-  return { order: order, packages: packages };
-};
+import { fetchOrder, OrderDetails } from "@/app/dashboard/common/fetchOrder";
+import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 
 export default function OrderDetailsPage() {
   const { toast } = useToast();
@@ -103,27 +70,11 @@ export default function OrderDetailsPage() {
 
   return (
     <div className="container">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/staff">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/staff/orders">
-              Order Management
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{order.order.id}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <AutoBreadcrumb
+        breadcrumbLink={["/dashboard/staff", "/dashboard/staff/orders"]}
+        breadcrumbPage={["Dashboard", "Order Management"]}
+        currentPage={order.order.id}
+      />
 
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />

@@ -42,6 +42,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { VNDong } from "@/lib/regionFormat";
+import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 
 const chartConfig = {
   count: {
@@ -101,17 +102,11 @@ export default function MerchantDashboardPage() {
 
   return (
     <div className="w-full">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Dashboard</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <AutoBreadcrumb
+        breadcrumbLink={[]}
+        breadcrumbPage={[]}
+        currentPage={"Dashboard"}
+      />
 
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />

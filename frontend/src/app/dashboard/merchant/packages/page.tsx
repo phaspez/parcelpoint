@@ -44,6 +44,7 @@ import {
 import PackageBadge from "@/components/PackageBadge";
 import { Package } from "@/types/packages";
 import { formatTimestamp } from "@/lib/regionFormat";
+import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 
 export default function PackagesPage() {
   const router = useRouter();
@@ -128,23 +129,11 @@ export default function PackagesPage() {
 
   return (
     <div className="container">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/merchant">
-              Dashboard
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Packages</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <AutoBreadcrumb
+        breadcrumbLink={["/dashboard/merchant"]}
+        breadcrumbPage={["Dashboard"]}
+        currentPage="Packages"
+      />
 
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />

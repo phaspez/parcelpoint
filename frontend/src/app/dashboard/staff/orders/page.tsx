@@ -29,6 +29,7 @@ import { Order } from "@/types/order";
 import { fetchAllOrders } from "@/app/dashboard/staff/orders/data";
 import { formatTimestamp } from "@/lib/regionFormat";
 import { deleteOrder } from "@/app/dashboard/staff/orders/data";
+import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 
 export default function OrdersPage() {
   const { toast } = useToast();
@@ -75,21 +76,11 @@ export default function OrdersPage() {
 
   return (
     <div className="container">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/staff">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Order Management</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <AutoBreadcrumb
+        breadcrumbLink={["/dashboard/staff"]}
+        breadcrumbPage={["Dashboard"]}
+        currentPage="Order Management"
+      />
 
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />

@@ -63,20 +63,6 @@ const formSchema = z.object({
     .min(10, "Description must be at least 10 characters"),
 });
 
-// Mock API calls
-const fetchUserData = async (id: string): Promise<UserData> => {
-  // Simulating API call
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  return {
-    id: "123e4567-e89b-12d3-a456-426614174000",
-    name: "John Doe",
-    phone: "1234567890",
-    email: "john@example.com",
-    address_id: "123e4567-e89b-12d3-a456-426614174001",
-    street: "123 Main St",
-  };
-};
-
 export default function MerchantPersonalInfo() {
   const { toast } = useToast();
   const [userData, setUserData] = useState<UserData | null>(null);

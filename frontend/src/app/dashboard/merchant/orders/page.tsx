@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Order } from "@/types/order";
 import { formatTimestamp } from "@/lib/regionFormat";
+import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -139,23 +140,11 @@ export default function OrdersPage() {
 
   return (
     <div className="container">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/merchant">
-              Dashboard
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Orders</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <AutoBreadcrumb
+        breadcrumbLink={["/dashboard/merchant"]}
+        breadcrumbPage={["Dashboard"]}
+        currentPage="Orders"
+      />
 
       <span className="flex items-center gap-2">
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
