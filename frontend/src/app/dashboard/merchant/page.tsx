@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { VNDong } from "@/lib/regionFormat";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
+import ExcelOrderDownload from "@/components/ExcelOrderDownload";
 
 const chartConfig = {
   count: {
@@ -126,6 +127,7 @@ export default function MerchantDashboardPage() {
                   <SelectItem value="39">40 days</SelectItem>
                 </SelectContent>
               </Select>
+              <ExcelOrderDownload />
             </span>
           </CardHeader>
           <div className="grid lg:grid-cols-2 xl:flex">

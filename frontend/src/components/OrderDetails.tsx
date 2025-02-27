@@ -10,15 +10,7 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  BookUser,
-  Box,
-  EllipsisVertical,
-  Info,
-  Package2,
-  PackageIcon,
-  Trash,
-} from "lucide-react";
+import { BookUser, Box, Info, Trash } from "lucide-react";
 import { Order } from "@/types/order";
 import { Package } from "@/types/packages";
 

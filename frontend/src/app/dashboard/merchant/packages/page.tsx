@@ -37,6 +37,7 @@ import PackageBadge from "@/components/PackageBadge";
 import { Package } from "@/types/packages";
 import { formatTimestamp } from "@/lib/regionFormat";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
+import ExcelOrderDownload from "@/components/ExcelOrderDownload";
 
 export default function PackagesPage() {
   const router = useRouter();
@@ -135,9 +136,10 @@ export default function PackagesPage() {
         <Link href="/dashboard/merchant/new">
           <Button>
             {" "}
-            <Plus /> Create new package
+            <Plus /> Create new...
           </Button>
         </Link>
+        <ExcelOrderDownload />
       </span>
 
       <div className="flex flex-wrap gap-4 mb-4 items-center">

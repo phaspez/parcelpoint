@@ -9,6 +9,7 @@ import {
   Package2,
   ReceiptText,
   Warehouse,
+  User,
 } from "lucide-react";
 
 import {
@@ -61,8 +62,8 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                   <SidebarMenuButton asChild>
                     <Link href="/dashboard/merchant/you">
-                      <Settings />
-                      <span>Settings</span>
+                      <User />
+                      <span>Account</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
