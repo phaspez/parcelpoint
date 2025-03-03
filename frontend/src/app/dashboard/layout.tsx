@@ -10,6 +10,7 @@ export default function DashboardLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
+
       <div className="w-full place-items-center">{children}</div>
     </SidebarProvider>
   );

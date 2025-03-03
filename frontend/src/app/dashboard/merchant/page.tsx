@@ -35,6 +35,11 @@ import {
 import { VNDong } from "@/lib/regionFormat";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 import ExcelOrderDownload from "@/components/ExcelOrderDownload";
+import Marquee from "react-fast-marquee";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { ArrowUpLeft, ArrowUpRight } from "lucide-react";
+import { CgGoogle } from "react-icons/cg";
 
 const chartConfig = {
   count: {
@@ -94,6 +99,29 @@ export default function MerchantDashboardPage() {
 
   return (
     <div className="w-full">
+      <Marquee
+        className="mb-4"
+        speed={25}
+        gradient
+        gradientColor={"hsl(var(--background))"}
+      >
+        <div className="flex gap-6 items-center pl-6">
+          <div className="flex gap-2 items-center">
+            <Badge>New!</Badge>
+            You can now log in with your Google email.
+            <CgGoogle />
+          </div>
+          <div className="flex gap-2 items-center">
+            <Badge>Important Notice</Badge>
+            We have updated our Terms of Service. Effective from 27/04/25.
+            <Link href="/" className="underline">
+              See terms.
+            </Link>
+            <ArrowUpRight />
+          </div>
+        </div>
+      </Marquee>
+
       <AutoBreadcrumb
         breadcrumbLink={[]}
         breadcrumbPage={[]}

@@ -3,13 +3,57 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Clock, Search, Shield, Truck, Users } from "lucide-react";
+import { BsAmazon } from "react-icons/bs";
+import Marquee from "react-fast-marquee";
+import StaggeredCards from "@/components/StaggeredCards";
 
 export default function HomePage() {
+  const customer_brand = [
+    {
+      name: "Vascara",
+      url: "https://giaohangtietkiem.vn/_next/image/?url=https%3A%2F%2Fcache.giaohangtietkiem.vn%2Fd%2F131a8fa8b4b8f0d089b5b75ee90f90b3.png&w=256&q=75",
+    },
+    {
+      name: "Format",
+      url: "https://giaohangtietkiem.vn/_next/image/?url=https%3A%2F%2Fcache.giaohangtietkiem.vn%2Fd%2F2406b2d4591efddb72fc2b181bf00a6f.png&w=256&q=75",
+    },
+    {
+      name: "Cocoon",
+      url: "https://giaohangtietkiem.vn/_next/image/?url=https%3A%2F%2Fcache.giaohangtietkiem.vn%2Fd%2F046b9ba850d6df366d54a421f3724b1d.png&w=256&q=75",
+    },
+    {
+      name: "PNJ",
+      url: "https://giaohangtietkiem.vn/_next/image/?url=https%3A%2F%2Fcache.giaohangtietkiem.vn%2Fd%2F824e17c0938ad006c7de7b3b95223908.png&w=256&q=75",
+    },
+    {
+      name: "Realme",
+      url: "https://giaohangtietkiem.vn/_next/image/?url=https%3A%2F%2Fcache.giaohangtietkiem.vn%2Fd%2F8e9d449abe803f124f96fc3a7e5ee80e.png&w=256&q=75",
+    },
+    {
+      name: "Pharmacity",
+      url: "https://giaohangtietkiem.vn/_next/image/?url=https%3A%2F%2Fcache.giaohangtietkiem.vn%2Fd%2Fa11d05b45da0a5422ce169cee9e0203a.png&w=256&q=75",
+    },
+  ];
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] py-12 px-4 sm:px-6 lg:px-8">
+    <div
+      className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]
+    py-12 px-4 sm:px-6 lg:px-8"
+    >
       <div className="text-center">
+        {/*<Image*/}
+        {/*  className="relative top-0"*/}
+        {/*  src="/bg_landing2.png"*/}
+        {/*  alt="background"*/}
+        {/*  width={1024}*/}
+        {/*  height={600}*/}
+        {/*/>*/}
+        {/*<div*/}
+        {/*  className="sticky inset-0 -z-0 bg-top bg-no-repeat"*/}
+        {/*  style={{ backgroundImage: "url('/bg_landing2.png')" }}*/}
+        {/*/>*/}
         <section className="w-full flex flex-wrap lg:grid grid-cols-2 place-content-center gap-4 items-center">
-          <div>
+          <div className="py-20">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
               Logistics. Streamlined.
             </h1>
@@ -33,13 +77,9 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <Image
-            src="/post_office.jpg"
-            width={600}
-            height={600}
-            className="dark:invert place-self-center"
-            alt="landing image"
-          />
+          <div className="w-full px-20">
+            <StaggeredCards />
+          </div>
         </section>
 
         <section className="py-20">
@@ -149,7 +189,7 @@ export default function HomePage() {
 
         {/* Statistics Showcase */}
         <section className="">
-          <Card className="container mx-auto px-4">
+          <Card className="container mx-auto px-4 bg-gray-500 bg-[url('/bg_landing.png')] bg-blend-darken  bg-cover bg-bottom text-white">
             <CardContent className="py-20 rounded-xl">
               <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
                 Our Impact in Numbers
@@ -166,7 +206,9 @@ export default function HomePage() {
                   { value: "600,000m²+", label: "Logistics Area" },
                 ].map((stat, index) => (
                   <div key={index}>
-                    <p className="text-4xl font-bold mb-2">{stat.value}</p>
+                    <p className="text-2xl lg:text-4xl font-bold mb-2">
+                      {stat.value}
+                    </p>
                     <p className="text-sm">{stat.label}</p>
                   </div>
                 ))}
@@ -226,6 +268,55 @@ export default function HomePage() {
                 </Card>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Customers */}
+        <section className="py-20">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              Our Happy Customers
+            </h2>
+            <Marquee
+              className="mb-4"
+              speed={25}
+              gradient
+              autoFill
+              gradientColor={"hsl(var(--background))"}
+            >
+              <div className="flex items-center gap-6 text-6xl pl-6">
+                {customer_brand.map((brand, index) => (
+                  <Image
+                    className="w-auto h-auto"
+                    key={index}
+                    alt={brand.name}
+                    src={brand.url}
+                    width={128}
+                    height={75}
+                  />
+                ))}
+              </div>
+            </Marquee>
+            <Marquee
+              className="mb-4"
+              speed={25}
+              direction="right"
+              gradient
+              autoFill
+              gradientColor={"hsl(var(--background))"}
+            >
+              <div className="flex items-center gap-6 text-6xl pl-6">
+                {customer_brand.reverse().map((brand, index) => (
+                  <Image
+                    key={index}
+                    alt={brand.name}
+                    src={brand.url}
+                    width={128}
+                    height={75}
+                  />
+                ))}
+              </div>
+            </Marquee>
           </div>
         </section>
 

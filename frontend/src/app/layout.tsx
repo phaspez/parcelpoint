@@ -56,7 +56,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <CookiesProvider>
-              <div className="relative flex min-h-screen flex-col dark:bg-black">
+              <div className="relative flex min-h-screen flex-col">
                 <Header />
                 <main className="flex-1 px-4 md:px-20 lg:px-40 py-10 pb-10">
                   {children}
