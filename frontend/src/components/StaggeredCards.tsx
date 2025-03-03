@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { Card } from "@/components/ui/card";
 
-interface Card {
+interface CardInfo {
   id: number;
   title: string;
   description: string;
@@ -11,7 +12,7 @@ interface Card {
 }
 
 interface StaggeredCardStackProps {
-  cards: Card[];
+  cards: CardInfo[];
 }
 
 const StaggeredCardStack: React.FC<StaggeredCardStackProps> = ({ cards }) => {
@@ -22,9 +23,9 @@ const StaggeredCardStack: React.FC<StaggeredCardStackProps> = ({ cards }) => {
       {cards.map((card, index) => {
         // Calculate initial position based on index
         const offsetClasses = [
-          index === 0 ? "top-0 left-0" : "",
-          index === 1 ? "top-5 -left-24" : "",
-          index === 2 ? "top-10 left-24" : "",
+          index === 0 ? "top-0 right-10" : "",
+          index === 1 ? "-top-10 -left-24" : "",
+          index === 2 ? "top-10 left-32" : "",
           index === 3 ? "top-16 left-32" : "",
         ].join(" ");
 
@@ -40,12 +41,11 @@ const StaggeredCardStack: React.FC<StaggeredCardStackProps> = ({ cards }) => {
         const zIndex = isHovered ? 50 : 30 - index * 10;
 
         return (
-          <div
+          <Card
             key={card.id}
-            className={`absolute rounded-lg shadow-xl bg-white dark:bg-gray-800 p-6 ${offsetClasses} ${rotation} cursor-pointer transform`}
+            className={`absolute rounded-lg shadow-xl bg-card p-6 ${offsetClasses} ${rotation} cursor-pointer transform transition-all duration-400 ease-out`}
             style={{
               zIndex,
-              transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
               transform: isHovered
                 ? `translateY(-2rem) scale(1.05) rotate(0deg)`
                 : `rotate(${parseInt(rotation.split("-")[1]) || 0}deg)`,
@@ -57,7 +57,7 @@ const StaggeredCardStack: React.FC<StaggeredCardStackProps> = ({ cards }) => {
             onMouseLeave={() => setHoveredCard(null)}
           >
             {card.image && (
-              <div className="h-72 bg-gray-200 dark:bg-gray-700 rounded-md overflow-hidden">
+              <div className="h-72 bg-muted rounded-md overflow-hidden">
                 <Image
                   src={card.image}
                   alt={card.title}
@@ -68,15 +68,11 @@ const StaggeredCardStack: React.FC<StaggeredCardStackProps> = ({ cards }) => {
                 />
               </div>
             )}
-            <div
-              className={`transition-opacity max-w-[500px] duration-300 mt-4`}
-            >
+            <div className="transition-opacity max-w-[500px] duration-300 mt-4">
               <h3 className="text-xl font-bold">{card.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300 mt-2">
-                {card.description}
-              </p>
+              <p className="text-muted-foreground mt-2">{card.description}</p>
             </div>
-          </div>
+          </Card>
         );
       })}
     </div>
@@ -85,13 +81,22 @@ const StaggeredCardStack: React.FC<StaggeredCardStackProps> = ({ cards }) => {
 
 // Usage example
 const StaggeredCards: React.FC = () => {
-  const cardData: Card[] = [
+  const cardData: CardInfo[] = [
     {
       id: 1,
-      title: "Image Gallery",
-      description: "An image gallery with Cloudinary.",
+      title: "Fast and Reliable",
+      description:
+        "With our state-of-the-art tracking and management systems provide you with updates.",
+      image: "/bg_landing3.png",
+    },
+    {
+      id: 3,
+      title: "Unmatched Experience",
+      description:
+        "With over 1.5 billion packages delivered, we have the expertise to handle your parcels with care and efficiency.",
       image: "/bg_landing2.png",
     },
+
     {
       id: 2,
       title: "National Coverage",
@@ -99,13 +104,7 @@ const StaggeredCards: React.FC = () => {
         "An all-in-one starter kit for high-performance e-commerce delivery system.",
       image: "/bg_landing.png",
     },
-    {
-      id: 3,
-      title: "Fast and Reliable",
-      description:
-        "With our state-of-the-art tracking and management systems provide you with updates.",
-      image: "/bg_landing3.png",
-    },
+
     // Add more cards as needed
   ];
 

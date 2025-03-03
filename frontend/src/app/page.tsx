@@ -6,6 +6,7 @@ import { BarChart, Clock, Search, Shield, Truck, Users } from "lucide-react";
 import { BsAmazon } from "react-icons/bs";
 import Marquee from "react-fast-marquee";
 import StaggeredCards from "@/components/StaggeredCards";
+import BackgroundBlob from "@/components/BackgroundBlob";
 
 export default function HomePage() {
   const customer_brand = [
@@ -40,24 +41,14 @@ export default function HomePage() {
       className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]
     py-12 px-4 sm:px-6 lg:px-8"
     >
+      <BackgroundBlob />
       <div className="text-center">
-        {/*<Image*/}
-        {/*  className="relative top-0"*/}
-        {/*  src="/bg_landing2.png"*/}
-        {/*  alt="background"*/}
-        {/*  width={1024}*/}
-        {/*  height={600}*/}
-        {/*/>*/}
-        {/*<div*/}
-        {/*  className="sticky inset-0 -z-0 bg-top bg-no-repeat"*/}
-        {/*  style={{ backgroundImage: "url('/bg_landing2.png')" }}*/}
-        {/*/>*/}
         <section className="w-full flex flex-wrap lg:grid grid-cols-2 place-content-center gap-4 items-center">
-          <div className="py-20">
+          <div className="pb-20">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
               Logistics. Streamlined.
             </h1>
-            <p className="mt-3 text-xl text-gray-500 sm:mt-5 sm:text-2xl max-w-md mx-auto">
+            <p className="mt-3 text-xl sm:mt-5 sm:text-2xl max-w-md mx-auto">
               Manage your business with ease and efficiency.
             </p>
             <div className="mt-8 flex justify-center">
@@ -77,12 +68,61 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className="w-full px-20">
+          <div className="hidden md:block w-full px-20">
             <StaggeredCards />
           </div>
         </section>
 
-        <section className="py-20">
+        {/* Customers */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+              Our Happy Customers
+            </h2>
+            <Marquee
+              className="mb-4"
+              speed={25}
+              gradient
+              autoFill
+              gradientColor={"hsl(var(--background))"}
+            >
+              <div className="flex items-center gap-6 text-6xl pl-6">
+                {customer_brand.map((brand, index) => (
+                  <Image
+                    className="w-auto h-auto"
+                    key={index}
+                    alt={brand.name}
+                    src={brand.url}
+                    width={128}
+                    height={75}
+                  />
+                ))}
+              </div>
+            </Marquee>
+            <Marquee
+              className="mb-4"
+              speed={25}
+              direction="right"
+              gradient
+              autoFill
+              gradientColor={"hsl(var(--background))"}
+            >
+              <div className="flex items-center gap-6 text-6xl pl-6">
+                {customer_brand.reverse().map((brand, index) => (
+                  <Image
+                    key={index}
+                    alt={brand.name}
+                    src={brand.url}
+                    width={128}
+                    height={75}
+                  />
+                ))}
+              </div>
+            </Marquee>
+          </div>
+        </section>
+
+        <section className="py-16">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
               Key Features
@@ -143,7 +183,7 @@ export default function HomePage() {
         </section>
 
         {/* Why Choose Us */}
-        <section className="py-20">
+        <section className="py-16">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
               Why Choose Us
@@ -176,10 +216,10 @@ export default function HomePage() {
               </div>
               <div className="flex items-center justify-center">
                 <Image
-                  src="/truck.jpg"
+                  src="/bg_landing4.png"
                   width={600}
                   height={600}
-                  className="dark:invert place-self-center bg-blend-lighten"
+                  className="place-self-center bg-blend-lighten rounded-lg ease-out -rotate-6 hover:rotate-0 transition-all duration-200 shadow-2xl"
                   alt="landing image"
                 />
               </div>
@@ -189,8 +229,8 @@ export default function HomePage() {
 
         {/* Statistics Showcase */}
         <section className="">
-          <Card className="container mx-auto px-4 bg-gray-500 bg-[url('/bg_landing.png')] bg-blend-darken  bg-cover bg-bottom text-white">
-            <CardContent className="py-20 rounded-xl">
+          <Card className="container mx-auto px-4 bg-gray-500 bg-[url('/bg_landing2.png')] bg-cover bg-blend-darken bg-bottom text-white">
+            <CardContent className="py-16 rounded-xl">
               <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
                 Our Impact in Numbers
               </h2>
@@ -268,55 +308,6 @@ export default function HomePage() {
                 </Card>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* Customers */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-              Our Happy Customers
-            </h2>
-            <Marquee
-              className="mb-4"
-              speed={25}
-              gradient
-              autoFill
-              gradientColor={"hsl(var(--background))"}
-            >
-              <div className="flex items-center gap-6 text-6xl pl-6">
-                {customer_brand.map((brand, index) => (
-                  <Image
-                    className="w-auto h-auto"
-                    key={index}
-                    alt={brand.name}
-                    src={brand.url}
-                    width={128}
-                    height={75}
-                  />
-                ))}
-              </div>
-            </Marquee>
-            <Marquee
-              className="mb-4"
-              speed={25}
-              direction="right"
-              gradient
-              autoFill
-              gradientColor={"hsl(var(--background))"}
-            >
-              <div className="flex items-center gap-6 text-6xl pl-6">
-                {customer_brand.reverse().map((brand, index) => (
-                  <Image
-                    key={index}
-                    alt={brand.name}
-                    src={brand.url}
-                    width={128}
-                    height={75}
-                  />
-                ))}
-              </div>
-            </Marquee>
           </div>
         </section>
 
