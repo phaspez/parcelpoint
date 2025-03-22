@@ -18,6 +18,13 @@ class OrderRepository(BaseRepository[OrderSchema, OrderCreate, OrderUpdate]):
     def __init__(self, db: Session):
         super().__init__(db, OrderSchema)
 
+    def delete_with_cascade(self, id: UUID) -> OrderSchema:
+        order = self.get_by_id(id)
+        self.db.query(PackageSchema).filter(PackageSchema.order_id == id).delete()
+        self.db.delete(order)
+        self.db.commit()
+        return order
+
     def get_by_merchant_id(self, id: UUID):
         query = (
             select(OrderSchema, func.count(PackageSchema.id))

@@ -163,14 +163,6 @@ export default function PackagesPage() {
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
         <h1>Packages</h1>
         <span className="grow" />
-
-        <Link href="/dashboard/merchant/new">
-          <Button>
-            {" "}
-            <Plus /> Create new...
-          </Button>
-        </Link>
-        <ExcelOrderDownload />
       </span>
 
       <div className="flex flex-wrap gap-4 mb-4 items-center">

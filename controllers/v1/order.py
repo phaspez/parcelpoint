@@ -62,7 +62,7 @@ async def get_orders_by_id(id: UUID, order_repo: OrderRepoDep):
 
 @router.delete("/{id}")
 async def delete_order(id: UUID, order_repo: OrderRepoDep):
-    return order_repo.delete(id)
+    return order_repo.delete_with_cascade(id)
 
 
 @router.patch("/{id}")

@@ -10,6 +10,7 @@ import {
   ReceiptText,
   Warehouse,
   User,
+  Users,
 } from "lucide-react";
 
 import {
@@ -98,12 +99,12 @@ export function AppSidebar() {
                       <span>Orders</span>
                     </Link>
                   </SidebarMenuButton>
-                  {/*<SidebarMenuButton asChild>*/}
-                  {/*  <Link href="/dashboard/merchant/you">*/}
-                  {/*    <Settings />*/}
-                  {/*    <span>Settings</span>*/}
-                  {/*  </Link>*/}
-                  {/*</SidebarMenuButton>*/}
+                  <SidebarMenuButton asChild>
+                    <Link href="/dashboard/staff/accounts">
+                      <Users />
+                      <span>Accounts</span>
+                    </Link>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
             )}

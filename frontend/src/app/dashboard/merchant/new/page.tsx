@@ -42,6 +42,8 @@ import { PricingOption } from "@/types/pricingOptions";
 import { VNDong } from "@/lib/regionFormat";
 import { fetchCreatePackage } from "@/lib/dataCreate";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
+import { Info, MapPin, Receipt, Truck } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 const calculatePrice = (
   packageDetails: PackageForm,
@@ -231,8 +233,8 @@ export default function CreatePackagePage() {
           <Card>
             <CardHeader>
               <CardTitle>Create a Single Package</CardTitle>
-              <CardDescription>
-                Enter the details for your new package.
+              <CardDescription className="flex items-center gap-2">
+                <Info /> Enter the details for your new package.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -304,7 +306,9 @@ export default function CreatePackagePage() {
                     name="address_id"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address</FormLabel>
+                        <FormLabel className="flex items-center gap-2">
+                          <MapPin /> Address
+                        </FormLabel>
                         <FormControl>
                           <AddressSearch
                             onAddressSelectAction={(addressId) => {
@@ -424,7 +428,7 @@ export default function CreatePackagePage() {
                             />
                           </FormControl>
                           <div className="space-y-1 leading-none">
-                            <FormLabel>Fragile</FormLabel>
+                            <FormLabel> Fragile</FormLabel>
                             <FormDescription>
                               Check if the package contains fragile items
                             </FormDescription>
@@ -459,7 +463,9 @@ export default function CreatePackagePage() {
                       name="cod_cost"
                       render={({ field }) => (
                         <FormItem className="grow">
-                          <FormLabel>COD Amount</FormLabel>
+                          <FormLabel className="flex items-center gap-4">
+                            <Receipt /> COD Amount
+                          </FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -483,7 +489,9 @@ export default function CreatePackagePage() {
                       name="package_rate_id"
                       render={({ field }) => (
                         <FormItem className="grow">
-                          <FormLabel>Shipping Option</FormLabel>
+                          <FormLabel className="flex items-center gap-4">
+                            <Truck /> Shipping Option
+                          </FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
