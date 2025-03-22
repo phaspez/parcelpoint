@@ -11,7 +11,8 @@ from models.order import OrderCreate, Order, OrderUpdate
 @pytest.fixture
 def random_order_id(client):
     response = client.get("/api/v1/order")
-    choice = random.choice(response.json())
+    print(response)
+    choice = random.choice(response.json()["data"])
     return choice["id"]
 
 

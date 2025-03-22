@@ -4,6 +4,7 @@ import axios from "axios";
 import { Package, FetchPackage, PackageHistory } from "@/types/packages";
 import { Order } from "@/types/order";
 import { PricingOption } from "@/types/pricingOptions";
+import { Pagination } from "@/types/pagination";
 
 export async function fetchPackageDaysAgo(
   daysAgo: number = 20,
@@ -30,41 +31,34 @@ export async function fetchPackages(
   searchParams: Partial<FetchPackage>,
   access_token: string,
 ) {
-  try {
-    // Convert searchParams to query string, filtering out undefined values
-    const queryString = new URLSearchParams(
-      Object.entries(searchParams)
-        .filter(([_, value]) => value !== undefined)
-        .reduce(
-          (acc, [key, value]) => ({
-            ...acc,
-            [key]: String(value),
-          }),
-          {},
-        ),
-    ).toString();
+  const queryString = new URLSearchParams(
+    Object.entries(searchParams)
+      .filter(([_, value]) => value !== undefined)
+      .reduce(
+        (acc, [key, value]) => ({
+          ...acc,
+          [key]: String(value),
+        }),
+        {},
+      ),
+  ).toString();
+  console.log(queryString);
 
-    console.log(queryString);
-
-    const response = await axios.get(
-      process.env.NEXT_PUBLIC_BACKEND_URL +
-        `/api/v1/package/my_packages${queryString ? `?${queryString}` : ""}`,
-      {
-        withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
+  const response = await axios.get(
+    process.env.NEXT_PUBLIC_BACKEND_URL +
+      `/api/v1/package/my_packages${queryString ? `?${queryString}` : ""}`,
+    {
+      withCredentials: true,
+      headers: {
+        Authorization: `Bearer ${access_token}`,
       },
-    );
-    if (!response.data) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.data as Package[];
-  } catch (error) {
-    console.error("Error fetching packages:", error);
-    throw error;
+    },
+  );
+  if (!response.data) {
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
+
+  return response.data as Pagination<Package>;
 }
 
 export async function fetchPackageById(id: string, access_token: string) {
@@ -89,10 +83,22 @@ export async function fetchPackageById(id: string, access_token: string) {
   }
 }
 
-export async function fetchOrders(access_token: string) {
+export async function fetchOrders(
+  access_token: string,
+  page: number = 1,
+  limit: number = 30,
+) {
   try {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    console.log(params.toString());
+
     const response = await axios.get(
-      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/order/my_orders`,
+      process.env.NEXT_PUBLIC_BACKEND_URL +
+        `/api/v1/order/my_orders?${params.toString()}`,
       {
         withCredentials: true,
         headers: {
@@ -104,7 +110,7 @@ export async function fetchOrders(access_token: string) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return response.data as Order[];
+    return response.data as Pagination<Order>;
   } catch (error) {
     console.error("Error fetching orders:", error);
     throw error;

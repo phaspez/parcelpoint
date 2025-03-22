@@ -51,10 +51,13 @@ export default function PackageDetails({
         <CardTitle></CardTitle>
         <CardDescription>
           <div className="flex items-start flex-wrap gap-4">
-            <span className="grow">
+            <span className="flex items-center gap-3  grow">
               <PackageBadge badge_name={packageData.status} />
+              <div>
+                <p className="text-lg">{packageData.description}</p>
+              </div>
             </span>
-            <div>
+            <div className="flex flex-wrap gap-3">
               <div className="text-sm text-gray-500">
                 Package ID: {packageData.id}
               </div>
@@ -63,9 +66,6 @@ export default function PackageDetails({
               </div>
               <div className="text-sm text-gray-500">
                 Order ID: {packageData.order_id}
-              </div>
-              <div>
-                <p className="text-lg pt-2">{packageData.description}</p>
               </div>
             </div>
           </div>
@@ -77,7 +77,7 @@ export default function PackageDetails({
           Properties
         </h3>
         <Separator />
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4 pt-4 pb-10">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 pt-4 pb-10">
           <div>
             <p className="font-semibold">Weight</p>
             <h4>{packageData.weight} kg</h4>
@@ -115,9 +115,13 @@ export default function PackageDetails({
         </h3>
         <Separator />
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4 pt-4 pb-10">
-          <div className="col-span-2">
+          <div>
+            <p className="font-semibold">Name</p>
+            <h4>{merchantContact?.account.name}</h4>
+          </div>
+          <div>
             <p className="font-semibold">Address</p>
-            <div className="grid xl:grid-cols-2">
+            <div>
               <h4>{merchantContact?.account.street}</h4>
               <h4>{`${merchantContact?.address.district}, ${merchantContact?.address.district}, ${merchantContact?.address.province}`}</h4>
             </div>
@@ -161,19 +165,21 @@ export default function PackageDetails({
         <Table>
           <TableHeader className="h-12">
             <TableRow>
+              <TableHead>No.</TableHead>
               <TableHead>Timestamp</TableHead>
               <TableHead>Note</TableHead>
               <TableHead>Action</TableHead>
-              <TableHead>Done by Staff</TableHead>
+              {/*<TableHead>Done by Staff</TableHead>*/}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {historyData.map((history) => (
+            {historyData.map((history, idx) => (
               <TableRow key={history.id} className="h-12">
+                <TableCell>{idx + 1}</TableCell>
                 <TableCell>{formatTimestamp(history.timestamp)}</TableCell>
                 <TableCell>{history.notes}</TableCell>
                 <TableCell>{history.action}</TableCell>
-                <TableCell>{history.staff_id.slice(0, 8)}...</TableCell>
+                {/*<TableCell>{history.staff_id.slice(0, 8)}...</TableCell>*/}
               </TableRow>
             ))}
           </TableBody>

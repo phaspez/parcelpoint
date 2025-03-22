@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { useUserStore } from "@/stores/userStore";
+import { DialogTitle } from "@/components/ui/dialog";
 
 export function AppSidebar() {
   const { user } = useUserStore();
@@ -35,10 +36,10 @@ export function AppSidebar() {
       <SidebarHeader title={"ParcelPoint"}>
         <div className="h-0 lg:h-10"></div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent title={"ParcelPoint"}>
         <SidebarGroup>
           <SidebarGroupLabel>Management</SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent title={"Group"}>
             {user?.type == "MERCHANT" && (
               <SidebarMenu>
                 <SidebarMenuItem>

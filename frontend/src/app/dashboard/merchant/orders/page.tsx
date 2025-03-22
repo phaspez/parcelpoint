@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -43,22 +43,27 @@ export default function OrdersPage() {
   const cookies = useCookies();
 
   const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [idSearchTerm, setIdSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
-  const [urgentFilter, setUrgentFilter] = useState<boolean | undefined>();
-  const [fragileFilter, setFragileFilter] = useState<boolean | undefined>();
+  const [urgentFilter, setUrgentFilter] = useState<string | undefined>();
+  const [fragileFilter, setFragileFilter] = useState<string | undefined>();
 
+  // Get pagination parameters from URL
   const queryPage = parseInt(searchParams.get("page") || "1", 10);
   const queryLimit = parseInt(searchParams.get("limit") || "30", 10);
   const [currentPage, setCurrentPage] = useState(queryPage);
-  const [ITEMS_PER_PAGE, setItemsPerPage] = useState(queryLimit);
+  const [itemsPerPage, setItemsPerPage] = useState(queryLimit);
 
   // Update URL when pagination changes
   const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
     setCurrentPage(newPage);
-    updateQuery(newPage, ITEMS_PER_PAGE);
+    updateQuery(newPage, itemsPerPage);
   };
 
   // Update URL function
@@ -69,64 +74,89 @@ export default function OrdersPage() {
     router.push(`?${params.toString()}`);
   };
 
+  // Sync state with URL parameters
   useEffect(() => {
     setCurrentPage(queryPage);
     setItemsPerPage(queryLimit);
   }, [queryPage, queryLimit]);
 
-  const isUUIDv4 = (str: string) => {
-    const uuidv4Regex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    console.log(uuidv4Regex.test(str));
-    return uuidv4Regex.test(str);
+  // Build filters object for API request
+  const getFilters = () => {
+    const filters: Record<string, string> = {};
+
+    if (searchTerm) filters.search = searchTerm;
+    if (idSearchTerm) filters.id = idSearchTerm;
+    if (statusFilter && statusFilter !== "ALL") filters.status = statusFilter;
+    if (urgentFilter && urgentFilter !== "all") filters.urgent = urgentFilter;
+    if (fragileFilter && fragileFilter !== "all")
+      filters.fragile = fragileFilter;
+
+    return filters;
   };
 
-  // the fetch data effect
+  // Fetch data effect
   useEffect(() => {
-    async function fetchAllPackages() {
+    async function fetchPaginatedOrders() {
       const access_token = cookies.get("token");
       if (!access_token) return;
 
-      //const order_id = isUUIDv4(idSearchTerm) ? idSearchTerm : undefined;
+      setLoading(true);
 
-      const data = await fetchOrders(access_token);
-      console.log(data);
-      setOrders(data);
-      setFilteredOrders(data);
+      try {
+        const filters = getFilters();
+        const result = await fetchOrders(
+          access_token,
+          currentPage,
+          itemsPerPage,
+        );
+
+        setOrders(result.data);
+        setTotalItems(result.items);
+        setTotalPages(result.page_count);
+      } catch (error) {
+        console.error("Error fetching paginated orders:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    fetchAllPackages();
+    fetchPaginatedOrders();
   }, [
+    cookies,
     currentPage,
+    itemsPerPage,
+    searchTerm,
     idSearchTerm,
-    ITEMS_PER_PAGE,
     statusFilter,
     urgentFilter,
     fragileFilter,
-    searchTerm,
   ]);
 
-  useEffect(() => {
-    let result = orders;
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
 
-    if (currentPage <= 0 || !currentPage) setCurrentPage(1);
-    if (ITEMS_PER_PAGE <= 0 || !ITEMS_PER_PAGE) setItemsPerPage(30);
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-    if (searchTerm) {
-      result = result.filter((pkg) =>
-        pkg.id.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
 
-    setFilteredOrders(result);
-  }, [
-    orders,
-    searchTerm,
-    idSearchTerm,
-    statusFilter,
-    urgentFilter,
-    fragileFilter,
-  ]);
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return pageNumbers;
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    const newLimit = parseInt(value, 10);
+    setItemsPerPage(newLimit);
+    setCurrentPage(1); // Reset to first page when changing items per page
+    updateQuery(1, newLimit);
+  };
 
   return (
     <div className="container">
@@ -136,134 +166,144 @@ export default function OrdersPage() {
         currentPage="Orders"
       />
 
-      <span className="flex items-center gap-2">
-        <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
-        <h1>Orders</h1>
-      </span>
+      <div className="flex items-center justify-between mb-6">
+        <span className="flex items-center gap-2">
+          <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
+          <h1>Orders</h1>
+        </span>
 
-      <div className="hidden flex-wrap gap-4 mb-4 items-center">
-        <Search />
-        <Input
-          placeholder="Search by receiver name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
-        <Input
-          placeholder="Search by package ID"
-          value={idSearchTerm}
-          onChange={(e) => setIdSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
-      </div>
-      <div className="hidden flex-wrap gap-4 mb-4 items-center">
-        <Filter />
-        <Select onValueChange={(value) => setStatusFilter(value || undefined)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All Statuses</SelectItem>
-            <SelectItem value="DELIVERED">Delivered</SelectItem>
-            <SelectItem value="ORDERED">Ordered</SelectItem>
-            <SelectItem value="DELIVERING">Delivering</SelectItem>
-            <SelectItem value="CANCELLED">Cancelled</SelectItem>
-            <SelectItem value="MISSING">Missing</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          onValueChange={(value) =>
-            setUrgentFilter(
-              value === "true" ? true : value === "false" ? false : undefined,
-            )
-          }
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by urgency" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="true">Urgent</SelectItem>
-            <SelectItem value="false">Not Urgent</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          onValueChange={(value) =>
-            setFragileFilter(
-              value === "true" ? true : value === "false" ? false : undefined,
-            )
-          }
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by fragility" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="true">Fragile</SelectItem>
-            <SelectItem value="false">Not Fragile</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span>Show:</span>
+            <Select
+              value={itemsPerPage.toString()}
+              onValueChange={handleItemsPerPageChange}
+            >
+              <SelectTrigger className="w-[80px]">
+                <SelectValue placeholder={itemsPerPage.toString()} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="30">30</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Order ID</TableHead>
-            <TableHead>Order Details</TableHead>
-            <TableHead>Order Date</TableHead>
-            <TableHead className="w-[100px]">Packages Count</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredOrders.map((ord) => (
-            <TableRow key={ord.id} className="h-12">
-              <TableCell>{ord.id}</TableCell>
-              <TableCell>{ord.details}</TableCell>
-              <TableCell>{formatTimestamp(ord.date)}</TableCell>
-              <TableCell>{ord.count}</TableCell>
-              <TableCell>
-                {
-                  <Link href={`/dashboard/merchant/orders/${ord.id}`}>
-                    <Button>
-                      <EllipsisVertical />
-                    </Button>
-                  </Link>
-                }
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="flex flex-wrap gap-4 mb-6 items-center">
+        <div className="flex items-center gap-2 flex-grow max-w-md">
+          <Search className="text-muted-foreground" />
+          <Input
+            placeholder="Search by order details"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full"
+          />
+        </div>
+      </div>
 
-      <Pagination>
-        <PaginationContent>
-          {currentPage > 1 && (
-            <>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  href="#"
-                />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-            </>
+      {loading ? (
+        <div className="flex justify-center py-8">Loading orders...</div>
+      ) : (
+        <>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>No.</TableHead>
+                <TableHead>Order ID</TableHead>
+                <TableHead>Order Details</TableHead>
+                <TableHead>Order Date</TableHead>
+                <TableHead className="w-[100px]">Packages Count</TableHead>
+                <TableHead className="w-[80px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {orders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-6">
+                    No orders found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                orders.map((ord, idx) => (
+                  <TableRow key={ord.id} className="h-12">
+                    <TableCell>
+                      {(currentPage - 1) * itemsPerPage + idx + 1}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {ord.id.substring(0, 8)}...
+                    </TableCell>
+                    <TableCell>{ord.details}</TableCell>
+                    <TableCell>{formatTimestamp(ord.date)}</TableCell>
+                    <TableCell>{ord.count}</TableCell>
+                    <TableCell>
+                      <Link href={`/dashboard/merchant/orders/${ord.id}`}>
+                        <Button variant="outline" size="sm">
+                          View Details
+                        </Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Showing{" "}
+                {orders.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}{" "}
+                to {Math.min(currentPage * itemsPerPage, totalItems)} of{" "}
+                {totalItems} orders
+              </div>
+
+              <Pagination className="mx-auto">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className={
+                        currentPage <= 1 ? "pointer-events-none opacity-50" : ""
+                      }
+                      href="#"
+                    />
+                  </PaginationItem>
+
+                  {getPageNumbers().map((pageNum) => (
+                    <PaginationItem key={pageNum}>
+                      <PaginationLink
+                        href="#"
+                        onClick={() => handlePageChange(pageNum)}
+                        isActive={pageNum === currentPage}
+                      >
+                        {pageNum}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className={
+                        currentPage >= totalPages
+                          ? "pointer-events-none opacity-50"
+                          : ""
+                      }
+                      href="#"
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+
+              <div className="w-32"></div>
+            </div>
           )}
-          <PaginationItem>
-            <PaginationLink href="#">{currentPage}</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext
-              onClick={() => handlePageChange(currentPage + 1)}
-              href="#"
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+        </>
+      )}
     </div>
   );
 }

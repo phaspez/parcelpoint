@@ -1,6 +1,8 @@
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
+from fastapi.params import Query
 
 from dependencies import OrderRepoDep, LoggedInDep
 from models.order import OrderCreate, OrderUpdate
@@ -12,14 +14,25 @@ router = APIRouter(
 
 
 @router.get("/")
-async def get_order(order_repo: OrderRepoDep):
-    return order_repo.get_all()
+async def get_order(
+    order_repo: OrderRepoDep,
+    page: int | None = Query(1, ge=1),
+    limit: int | None = Query(10, ge=1, le=100),
+):
+    return order_repo.get_all_paginated(page=page, page_size=limit)
 
 
 @router.get("/my_orders")
-async def get_orders_by_merchant(user: LoggedInDep, order_repo: OrderRepoDep):
-    order = order_repo.get_by_merchant_id(user.id)
-    return order
+async def get_orders_by_merchant(
+    user: LoggedInDep,
+    order_repo: OrderRepoDep,
+    page: Annotated[int, Query(gt=0)] = 1,
+    limit: Annotated[int, Query(gt=0, le=100)] = 10,
+):
+    paginated = order_repo.get_by_merchant_id_paginated(
+        user.id, page=page, page_size=limit
+    )
+    return paginated
 
 
 @router.post("/")

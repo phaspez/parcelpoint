@@ -1,6 +1,7 @@
 import { FetchPackage, Package } from "@/types/packages";
 import axios from "axios";
 import { Account } from "@/types/account";
+import { Pagination } from "@/types/pagination";
 
 export interface PackageHistoryCreate {
   action: string;
@@ -43,7 +44,7 @@ export async function fetchPackages(
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return response.data as Package[];
+    return response.data as Pagination<Package>;
   } catch (error) {
     console.error("Error fetching packages:", error);
     throw error;

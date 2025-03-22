@@ -1,18 +1,27 @@
 import { Order } from "@/types/order";
+import { Pagination } from "@/types/pagination";
 
-export async function fetchAllOrders() {
+export async function fetchAllOrders(page?: number, limit?: number) {
   try {
-    const response = await fetch(
-      process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/order",
-      {
-        method: "get",
-        headers: {},
-      },
-    );
+    const params = new URLSearchParams();
+    if (page !== undefined) params.append("page", page.toString());
+    if (limit !== undefined) params.append("limit", limit.toString());
+
+    console.log(params.toString());
+
+    const url =
+      process.env.NEXT_PUBLIC_BACKEND_URL +
+      "/api/v1/order" +
+      (params.toString() ? `?${params.toString()}` : "");
+
+    const response = await fetch(url, {
+      method: "get",
+      headers: {},
+    });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return (await response.json()) as Order[];
+    return (await response.json()) as Pagination<Order>;
   } catch (error) {
     console.error("Error fetching orders:", error);
     throw error;

@@ -17,5 +17,5 @@ export const fetchOrder = async (
   const packages = await fetchStaffPackages({ order_id: id }, access_token);
   console.log(packages);
 
-  return { order: order, packages: packages };
+  return { order: order, packages: packages.data };
 };

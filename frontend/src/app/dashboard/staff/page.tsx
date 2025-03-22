@@ -86,14 +86,6 @@ function calculatePackageSummary(packages: Package[]): Summary {
   return result;
 }
 
-// Mock data and types
-type OrderStatus =
-  | "ORDERED"
-  | "DELIVERING"
-  | "DELIVERED"
-  | "CANCELLED"
-  | "MISSING";
-
 interface StorageBlock {
   id: string;
   name: string;

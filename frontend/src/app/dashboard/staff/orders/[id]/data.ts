@@ -1,5 +1,6 @@
 import { FetchPackage, Package } from "@/types/packages";
 import axios from "axios";
+import { Pagination } from "@/types/pagination";
 
 export async function fetchStaffPackages(
   searchParams: Partial<FetchPackage>,
@@ -33,7 +34,7 @@ export async function fetchStaffPackages(
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return response.data as Package[];
+    return response.data as Pagination<Package>;
   } catch (error) {
     console.error("Error fetching packages:", error);
     throw error;

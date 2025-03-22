@@ -21,7 +21,7 @@ def get_merchants(client):
 @pytest.fixture
 def random_order_id(client):
     response = client.get("/api/v1/order")
-    choice = random.choice(response.json())
+    choice = random.choice(response.json()["data"])
     return choice["id"]
 
 

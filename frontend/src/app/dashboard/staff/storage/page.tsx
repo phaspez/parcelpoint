@@ -229,29 +229,21 @@ export default function StoragePage() {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>No.</TableHead>
             <TableHead>Name</TableHead>
-            <TableHead>Size</TableHead>
-            <TableHead>Size Capacity</TableHead>
-            <TableHead>Weight Capacity</TableHead>
+            <TableHead>Max Size</TableHead>
+            <TableHead>Weight</TableHead>
+            <TableHead>ID</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {storageBlocks.map((block) => (
+          {storageBlocks.map((block, idx) => (
             <TableRow key={block.id}>
+              <TableCell>{idx + 1}</TableCell>
               <TableCell>{block.name}</TableCell>
               <TableCell>{block.max_size}</TableCell>
-              <TableCell>
-                <Progress
-                  className="lg:w-[256px]"
-                  value={(block.size / block.max_size) * 100}
-                />
-              </TableCell>
-              <TableCell>
-                <Progress
-                  className="lg:w-[256px]"
-                  value={(block.weight / block.max_weight) * 100}
-                />
-              </TableCell>
+              <TableCell>{block.max_weight}</TableCell>
+              <TableCell>{block.id}</TableCell>
               <TableCell>
                 <Button
                   variant="destructive"

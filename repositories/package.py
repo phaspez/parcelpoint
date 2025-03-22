@@ -9,6 +9,7 @@ from sqlalchemy.sql.functions import count
 
 from models.order import Order
 from models.package import PackageCreate, PackageUpdate, Package
+from models.pagination import Pagination
 from models.users.account import Account
 from repositories.base import BaseRepository
 from repositories.package_rate import PackageRateRepository
@@ -30,7 +31,7 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         self.storage_block = StorageBlockRepository(db)
         self.package_rate = PackageRateRepository(db)
 
-    def query_packages(
+    def _build_package_query(
         self,
         merchant_id: UUID | None = None,
         block_id: UUID | None = None,
@@ -43,9 +44,8 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
         max_date: datetime | None = None,
         status: str | None = None,
         days_ago: int | None = None,
-        limit: int = 20,
-        offset: int = 0,
     ):
+        """Helper method to build the base query with filters"""
         query = (
             self.db.query(PackageSchema)
             .add_columns(OrderSchema.date, AccountSchema.name)
@@ -83,6 +83,38 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
             query = query.filter(and_(*filters))
 
         query = query.order_by(desc(OrderSchema.date))
+        return query
+
+    def query_packages(
+        self,
+        merchant_id: UUID | None = None,
+        block_id: UUID | None = None,
+        order_id: UUID | None = None,
+        is_urgent: bool | None = None,
+        is_fragile: bool | None = None,
+        min_weight: float | None = None,
+        max_weight: float | None = None,
+        min_date: datetime | None = None,
+        max_date: datetime | None = None,
+        status: str | None = None,
+        days_ago: int | None = None,
+        limit: int = 20,
+        offset: int = 0,
+    ):
+        query = self._build_package_query(
+            merchant_id,
+            block_id,
+            order_id,
+            is_urgent,
+            is_fragile,
+            min_weight,
+            max_weight,
+            min_date,
+            max_date,
+            status,
+            days_ago,
+        )
+
         results = query.offset(offset).limit(limit).all()
         packages = []
         for package, date, merchant in results:
@@ -91,6 +123,66 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
             package_dict["merchant_name"] = merchant
             packages.append(package_dict)
         return packages
+
+    def query_packages_paginated(
+        self,
+        merchant_id: UUID | None = None,
+        block_id: UUID | None = None,
+        order_id: UUID | None = None,
+        is_urgent: bool | None = None,
+        is_fragile: bool | None = None,
+        min_weight: float | None = None,
+        max_weight: float | None = None,
+        min_date: datetime | None = None,
+        max_date: datetime | None = None,
+        status: str | None = None,
+        days_ago: int | None = None,
+        page: int = 1,
+        page_size: int = 10,
+    ) -> Pagination:
+        query = self._build_package_query(
+            merchant_id,
+            block_id,
+            order_id,
+            is_urgent,
+            is_fragile,
+            min_weight,
+            max_weight,
+            min_date,
+            max_date,
+            status,
+            days_ago,
+        )
+
+        subquery = query.subquery()
+        count_query = self.db.query(func.count(subquery.c.id))
+
+        total_items = count_query.scalar() or 0
+
+        offset = (page - 1) * page_size
+        page_count = (total_items + page_size - 1) // page_size
+        previous_page = page - 1 if page > 1 else None
+        next_page = page + 1 if page < page_count else None
+
+        results = query.offset(offset).limit(page_size).all()
+
+        packages = []
+        for package, date, merchant in results:
+            package_dict = package.__dict__
+            package_dict["order_date"] = date
+            package_dict["merchant_name"] = merchant
+            if "_sa_instance_state" in package_dict:
+                del package_dict["_sa_instance_state"]
+            packages.append(package_dict)
+
+        return Pagination[dict](
+            current_page=page,
+            page_count=page_count,
+            items=total_items,
+            previous=previous_page,
+            next=next_page,
+            data=packages,
+        )
 
     def query_package_days_ago(self, id: UUID, days_ago: int = 5):
         end_date = datetime.now().date()

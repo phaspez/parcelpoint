@@ -75,8 +75,8 @@ async def create_single_merchant_packages(
 
 @router.get("/my_packages")
 async def get_merchant_packages(
-    package_repo: PackageRepoDep,
-    user: LoggedInDep,
+    package_repo: "PackageRepoDep",
+    user: "LoggedInDep",
     merchant_id: UUID | None = None,
     block_id: UUID | None = None,
     order_id: UUID | None = None,
@@ -86,26 +86,23 @@ async def get_merchant_packages(
     max_weight: float | None = None,
     status: str | None = None,
     days_ago: int = Query(365, gt=0),
-    limit: int = Query(0, le=50),
-    offset: int = Query(0, ge=0),
+    offset: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(10, ge=1, le=50, description="Items per page"),
 ):
-    try:
-        results = package_repo.query_packages(
-            merchant_id=user.id,
-            block_id=block_id,
-            order_id=order_id,
-            is_urgent=is_urgent,
-            is_fragile=is_fragile,
-            min_weight=min_weight,
-            max_weight=max_weight,
-            days_ago=days_ago,
-            limit=limit,
-            status=status,
-            offset=offset,
-        )
-        return results
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    results = package_repo.query_packages_paginated(
+        merchant_id=user.id,
+        block_id=block_id,
+        order_id=order_id,
+        is_urgent=is_urgent,
+        is_fragile=is_fragile,
+        min_weight=min_weight,
+        max_weight=max_weight,
+        days_ago=days_ago,
+        status=status,
+        page=offset,
+        page_size=limit,
+    )
+    return results
 
 
 @router.get("/my_packages/export")
@@ -256,29 +253,27 @@ async def search_packages(
     order_id: UUID | None = None,
     is_urgent: bool | None = None,
     is_fragile: bool | None = None,
+    status: str | None = None,
     min_weight: float | None = None,
     max_weight: float | None = None,
     days_ago: int | None = None,
     limit: int = Query(20, le=50),
-    offset: int = Query(0, ge=0),
+    offset: int = Query(1, gt=0),  # page
 ):
-    try:
-        results = package_repo.query_packages(
-            merchant_id=merchant_id,
-            block_id=block_id,
-            order_id=order_id,
-            is_urgent=is_urgent,
-            is_fragile=is_fragile,
-            min_weight=min_weight,
-            max_weight=max_weight,
-            days_ago=days_ago,
-            limit=limit,
-            offset=offset,
-        )
-        return results
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=400, detail=str(e))
+    results = package_repo.query_packages_paginated(
+        merchant_id=merchant_id,
+        block_id=block_id,
+        order_id=order_id,
+        is_urgent=is_urgent,
+        is_fragile=is_fragile,
+        min_weight=min_weight,
+        max_weight=max_weight,
+        days_ago=days_ago,
+        status=status,
+        page=offset,
+        page_size=limit,
+    )
+    return results
 
 
 @router.patch("/{id}")

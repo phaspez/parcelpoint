@@ -79,6 +79,7 @@ export default function OrderDetailsCard({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>No.</TableHead>
               <TableHead>Package ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Weight</TableHead>
@@ -87,8 +88,9 @@ export default function OrderDetailsCard({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {order.packages.map((pkg) => (
+            {order.packages.map((pkg, idx) => (
               <TableRow key={pkg.id}>
+                <TableCell>{idx + 1}</TableCell>
                 <TableCell>{pkg.id.slice(0, 8)}...</TableCell>
                 <TableCell>{pkg.name}</TableCell>
                 <TableCell>{pkg.weight.toFixed(2)} kg</TableCell>
@@ -98,9 +100,7 @@ export default function OrderDetailsCard({
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Link href={`/dashboard/${role}/packages/${pkg.id}`}>
-                      <Button variant="secondary">
-                        <Info />
-                      </Button>
+                      <Button variant="secondary">View Details</Button>
                     </Link>
 
                     {handleDeletePackage && (

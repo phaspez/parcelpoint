@@ -13,7 +13,6 @@ import OrderDetailsCard from "@/components/OrderDetails";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 
 export default function OrderDetailsPage() {
-  const { toast } = useToast();
   const params = useParams();
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,34 +21,14 @@ export default function OrderDetailsPage() {
 
   useEffect(() => {
     if (token)
-      fetchOrder(params.id as string, token).then((orderData) => {
-        setOrder(orderData);
-        setIsLoading(false);
-      });
+      fetchOrder(params.id as string, token)
+        .then((orderData) => {
+          setOrder(orderData);
+          setIsLoading(false);
+        })
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
   }, [params.id]);
-
-  const handleDeletePackage = async (packageId: string) => {
-    if (!order || !token) return;
-
-    try {
-      await deletePackage(packageId, token);
-      setOrder((prevOrder) => ({
-        ...prevOrder!,
-        packages: prevOrder!.packages.filter((pkg) => pkg.id !== packageId),
-      }));
-      toast({
-        title: "Package deleted",
-        description:
-          "The package has been successfully removed from the order.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete package. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   if (isLoading) {
     return <div className="container py-10">Loading...</div>;
@@ -73,7 +52,7 @@ export default function OrderDetailsPage() {
       </span>
 
       <div className="pb-4">
-        <Link href="/dashboard/staff/orders">
+        <Link href="/dashboard/merchant/orders">
           <Button variant="secondary">Back to Orders</Button>
         </Link>
       </div>
