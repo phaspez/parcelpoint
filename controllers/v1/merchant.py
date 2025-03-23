@@ -82,6 +82,19 @@ async def update_merchant(
     )
 
 
+@router.patch("/separate/{id}")
+async def update_merchant_separate(
+    id: UUID,
+    merchant_updated: MerchantUpdate,
+    merchant_repo: MerchantRepoDep,
+):
+    merchant = merchant_updated.model_dump()
+    if merchant is None:
+        raise HTTPException(status_code=404, detail="Merchant not found")
+
+    return merchant_repo.update(id, merchant_updated)
+
+
 @router.delete("/{id}")
 async def delete_merchant(
     id: UUID,

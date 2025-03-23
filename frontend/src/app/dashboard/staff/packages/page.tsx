@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchPackages } from "@/app/dashboard/staff/packages/data";
-import { Check, Cross, Filter, Plus, Search, X } from "lucide-react";
+import { Check, Cross, Filter, Package2, Plus, Search, X } from "lucide-react";
 import { useCookies } from "next-client-cookies";
 import {
   Pagination,
@@ -163,6 +163,9 @@ export default function PackagesPage() {
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
         <h1>Packages</h1>
         <span className="grow" />
+        <div className="hidden md:block">
+          <Package2 size={64} />
+        </div>
       </span>
 
       <div className="flex flex-wrap gap-4 mb-4 items-center">

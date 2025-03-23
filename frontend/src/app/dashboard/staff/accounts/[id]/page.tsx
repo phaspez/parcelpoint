@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,7 +38,14 @@ import {
   Merchant,
   Staff,
   BaseAccount,
+  patchMerchant,
+  patchStaff,
+  patchAccount,
 } from "@/app/dashboard/staff/accounts/account.service";
+import { useUserStore } from "@/stores/userStore";
+import AutoBreadcrumb from "@/components/AutoBreadcrumb";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { UserPen, Users } from "lucide-react";
 
 const userFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -62,32 +69,33 @@ const staffFormSchema = z.object({
 });
 
 const updateUserData = async (
+  token: string,
   id: string,
   data: Partial<BaseAccount>,
 ): Promise<void> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  console.log("Updating user data:", data);
+  await patchAccount(token, id, data);
 };
 
 const updateMerchantData = async (
+  token: string,
   id: string,
   data: Partial<Merchant["merchant"]>,
 ): Promise<void> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  console.log("Updating merchant data:", data);
+  await patchMerchant(token, id, data);
 };
 
 const updateStaffData = async (
+  token: string,
   id: string,
   data: Partial<Staff["staff"]>,
 ): Promise<void> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  console.log("Updating staff data:", data);
+  await patchStaff(token, id, data);
 };
 
 export default function UserDetailPage() {
   const { toast } = useToast();
   const params = useParams();
+  const { token } = useUserStore();
   const router = useRouter();
   const [account, setAccount] = useState<Merchant | Staff | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -167,7 +175,7 @@ export default function UserDetailPage() {
     try {
       if (!account) return;
 
-      await updateUserData(account.id, {
+      await updateUserData(token!, account.id, {
         name: data.name,
         phone: data.phone,
         email: data.email,
@@ -192,7 +200,7 @@ export default function UserDetailPage() {
     try {
       if (!account || !("merchant" in account)) return;
 
-      await updateMerchantData(account.id, {
+      await updateMerchantData(token!, account.id, {
         company_name: data.company_name,
         merchant_description: data.merchant_description,
       });
@@ -215,7 +223,7 @@ export default function UserDetailPage() {
     try {
       if (!account || !("staff" in account)) return;
 
-      await updateStaffData(account.id, {
+      await updateStaffData(token!, account.id, {
         position: data.position,
         department: data.department,
         access_level: data.access_level,
@@ -250,7 +258,24 @@ export default function UserDetailPage() {
   const accountType = getAccountType(account);
 
   return (
-    <div className="container py-10">
+    <div className="container">
+      <AutoBreadcrumb
+        breadcrumbLink={["/dashboard/staff", "/dashboard/staff/accounts"]}
+        breadcrumbPage={["Dashboard", "Accounts"]}
+        currentPage={params.id as string}
+      />
+
+      <div className="flex items-center justify-between mb-6">
+        <span className="flex items-center gap-2">
+          <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
+          <h1>Update Account</h1>
+        </span>
+        <span className="grow" />
+        <div className="hidden md:block">
+          <UserPen size={64} />
+        </div>
+      </div>
+
       <div className="mb-6">
         <Button variant="outline" onClick={() => router.back()}>
           Back to Users
@@ -431,45 +456,6 @@ export default function UserDetailPage() {
                         )}
                       />
                     </div>
-                    <FormField
-                      control={staffForm.control}
-                      name="access_level"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Access Level</FormLabel>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select access level" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="1">Level 1 - Basic</SelectItem>
-                              <SelectItem value="2">
-                                Level 2 - Standard
-                              </SelectItem>
-                              <SelectItem value="3">
-                                Level 3 - Advanced
-                              </SelectItem>
-                              <SelectItem value="4">
-                                Level 4 - Manager
-                              </SelectItem>
-                              <SelectItem value="5">
-                                Level 5 - Administrator
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormDescription>
-                            Determines what actions this staff member can
-                            perform in the system
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                     <div>
                       <FormLabel>Hire Date</FormLabel>
                       <FormDescription>

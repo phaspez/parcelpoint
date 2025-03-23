@@ -20,12 +20,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { deleteOrder, fetchAllOrders } from "@/app/dashboard/staff/orders/data";
-import { EllipsisVertical, Filter, Search, Trash } from "lucide-react";
+import { Clipboard, Check, Receipt, Search, Trash } from "lucide-react";
 import { useCookies } from "next-client-cookies";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -37,6 +36,7 @@ import { Order } from "@/types/order";
 import { formatTimestamp } from "@/lib/regionFormat";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 import { useToast } from "@/hooks/use-toast";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 export default function OrdersPage() {
   const { toast } = useToast();
@@ -60,12 +60,20 @@ export default function OrdersPage() {
   const queryLimit = parseInt(searchParams.get("limit") || "30", 10);
   const [currentPage, setCurrentPage] = useState(queryPage);
   const [itemsPerPage, setItemsPerPage] = useState(queryLimit);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Update URL when pagination changes
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;
     setCurrentPage(newPage);
     updateQuery(newPage, itemsPerPage);
+  };
+
+  const handleCopy = (id: string) => {
+    setCopiedId(id);
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 2000);
   };
 
   // Update URL function
@@ -171,7 +179,7 @@ export default function OrdersPage() {
           <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
           <h1>Orders</h1>
         </span>
-
+        <span className="grow" />
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <span>Show:</span>
@@ -191,6 +199,9 @@ export default function OrdersPage() {
             </Select>
           </div>
         </div>
+        <div className="hidden md:block">
+          <Receipt size={64} />
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-4 mb-6 items-center">
@@ -209,56 +220,71 @@ export default function OrdersPage() {
         <div className="flex justify-center py-8">Loading orders...</div>
       ) : (
         <>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>No.</TableHead>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Order Details</TableHead>
-                <TableHead>Order Date</TableHead>
-                <TableHead className="w-[100px]">Packages Count</TableHead>
-                <TableHead className="w-[80px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.length === 0 ? (
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-6">
-                    No orders found
-                  </TableCell>
+                  <TableHead>No.</TableHead>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>Order Details</TableHead>
+                  <TableHead>Order Date</TableHead>
+                  <TableHead className="w-[100px]">Packages Count</TableHead>
+                  <TableHead className="w-[80px]">Actions</TableHead>
                 </TableRow>
-              ) : (
-                orders.map((ord, idx) => (
-                  <TableRow key={ord.id} className="h-12">
-                    <TableCell>
-                      {(currentPage - 1) * itemsPerPage + idx + 1}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {ord.id.substring(0, 8)}...
-                    </TableCell>
-                    <TableCell>{ord.details}</TableCell>
-                    <TableCell>{formatTimestamp(ord.date)}</TableCell>
-                    <TableCell>{ord.count}</TableCell>
-                    <TableCell className="flex items-center gap-2">
-                      <Link href={`/dashboard/staff/orders/${ord.id}`}>
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete(ord.id)}
-                      >
-                        <Trash />
-                      </Button>
+              </TableHeader>
+              <TableBody>
+                {orders.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-6">
+                      No orders found
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-
+                ) : (
+                  orders.map((ord, idx) => (
+                    <TableRow key={ord.id} className="h-12">
+                      <TableCell>
+                        {(currentPage - 1) * itemsPerPage + idx + 1}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">
+                        {ord.id.substring(0, 8)}...
+                        <CopyToClipboard
+                          text={ord.id}
+                          onCopy={() => handleCopy(ord.id)}
+                        >
+                          <Button variant="outline" className="ml-2">
+                            {copiedId === ord.id ? (
+                              <Check size={16} className="text-green-500" />
+                            ) : (
+                              <Clipboard size={16} />
+                            )}
+                          </Button>
+                        </CopyToClipboard>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {ord.details}
+                      </TableCell>
+                      <TableCell>{formatTimestamp(ord.date)}</TableCell>
+                      <TableCell>{ord.count}</TableCell>
+                      <TableCell className="flex items-center gap-2">
+                        <Link href={`/dashboard/staff/orders/${ord.id}`}>
+                          <Button variant="outline" size="sm">
+                            View Details
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(ord.id)}
+                        >
+                          <Trash />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
           {totalPages > 1 && (
             <div className="mt-6 flex items-center justify-between">
               <div className="text-sm text-muted-foreground">

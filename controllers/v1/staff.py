@@ -104,6 +104,19 @@ async def update_staff(
         raise HTTPException(status_code=500, detail=e)
 
 
+@router.patch("/separate/{id}")
+async def update_staff_separate(
+    id: UUID,
+    staff_updated: StaffUpdate,
+    staff_repo: StaffRepoDep,
+):
+    _staff = staff_updated.model_dump()
+    if _staff is None:
+        raise HTTPException(status_code=404, detail="Merchant not found")
+
+    return staff_repo.update(id, staff_updated)
+
+
 @router.delete("/{id}")
 async def delete_staff(
     id: UUID,

@@ -20,7 +20,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchPackages } from "@/lib/data";
-import { Check, Cross, Filter, Plus, Search, X } from "lucide-react";
+import {
+  Check,
+  Filter,
+  Package2,
+  Package2Icon,
+  Plus,
+  Search,
+  X,
+} from "lucide-react";
 import { useCookies } from "next-client-cookies";
 import {
   Pagination,
@@ -34,12 +42,12 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import PackageBadge from "@/components/PackageBadge";
-import { Package } from "@/types/packages";
 import { formatTimestamp } from "@/lib/regionFormat";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 import ExcelOrderDownload from "@/components/ExcelOrderDownload";
 import { Pagination as PaginationType } from "@/types/pagination";
 import React from "react";
+import { Package } from "@/types/packages";
 
 export default function PackagesPage() {
   const router = useRouter();
@@ -163,7 +171,6 @@ export default function PackagesPage() {
         <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
         <h1>Packages</h1>
         <span className="grow" />
-
         <Link href="/dashboard/merchant/new">
           <Button>
             {" "}
@@ -171,6 +178,9 @@ export default function PackagesPage() {
           </Button>
         </Link>
         <ExcelOrderDownload />
+        <div className="hidden md:block">
+          <Package2 size={64} />
+        </div>
       </span>
 
       <div className="flex flex-wrap gap-4 mb-4 items-center">

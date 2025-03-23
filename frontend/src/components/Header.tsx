@@ -60,6 +60,7 @@ export default function Header() {
             <Package className="h-6 w-6" />
             <span className="font-bold font-mono sm:inline-block">
               ParcelPoint
+              {user?.type == "STAFF" ? " Administrator" : ""}
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">

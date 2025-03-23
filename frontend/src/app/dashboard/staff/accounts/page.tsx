@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -30,6 +30,8 @@ import {
 } from "@/app/dashboard/staff/accounts/account.service";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Users } from "lucide-react";
+import AddStaffDialog from "@/app/dashboard/staff/accounts/AddStaffDialog";
 
 const deleteUser = async (id: string): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -44,7 +46,8 @@ export default function UsersManagementPage() {
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  useEffect(() => {
+  const fetchAccounts = () => {
+    setIsLoading(true);
     fetchAllAccounts()
       .then((response) => {
         const allAccounts = [...response.merchants, ...response.staff];
@@ -60,6 +63,10 @@ export default function UsersManagementPage() {
         });
         setIsLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchAccounts();
   }, [searchParams, toast]);
 
   const handleDelete = async (id: string) => {
@@ -98,49 +105,58 @@ export default function UsersManagementPage() {
         currentPage="Accounts"
       />
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between flex-wrap mb-6">
         <span className="flex items-center gap-2">
           <SidebarTrigger size="lg" className="aspect-square text-2xl p-5" />
           <h1>Accounts</h1>
         </span>
+        <span className="grow" />
+        <div className="mr-4">
+          <AddStaffDialog onStaffAddedAction={fetchAccounts} />
+        </div>
+        <div className="hidden md:block">
+          <Users size={64} />
+        </div>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
-            <TableHead>Street ID</TableHead>
-            <TableHead>Street Name</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {accounts.map((account) => (
-            <TableRow key={account.id}>
-              <TableCell>{account.name}</TableCell>
-              <TableCell>{account.email}</TableCell>
-              <TableCell>{account.phone}</TableCell>
-              <TableCell className="text-xs">
-                {`${account.address.province}, ${account.address.district}, ${account.address.commune}`}
-              </TableCell>
-              <TableCell>{account.street}</TableCell>
-              <TableCell>{getUserType(account)}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/staff/accounts/${account.id}`}>
-                      View or Edit
-                    </Link>
-                  </Button>
-                </div>
-              </TableCell>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Street ID</TableHead>
+              <TableHead>Street Name</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {accounts.map((account) => (
+              <TableRow key={account.id}>
+                <TableCell className="font-medium">{account.name}</TableCell>
+                <TableCell>{account.email}</TableCell>
+                <TableCell>{account.phone}</TableCell>
+                <TableCell className="text-xs">
+                  {`${account.address.province}, ${account.address.district}, ${account.address.commune}`}
+                </TableCell>
+                <TableCell>{account.street}</TableCell>
+                <TableCell>{getUserType(account)}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/dashboard/staff/accounts/${account.id}`}>
+                        View or Edit
+                      </Link>
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <AlertDialog
         open={isDeleteDialogOpen}

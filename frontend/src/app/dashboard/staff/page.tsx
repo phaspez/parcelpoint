@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { PieChart, Pie, Cell, Legend } from "recharts";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { ArrowUpRight, CalendarIcon } from "lucide-react";
 import fetchStaffDashboard from "@/lib/dataStaff";
 import { Package } from "@/types/packages";
 import { formatTimestamp, VNDong } from "@/lib/regionFormat";
@@ -32,6 +32,7 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Order } from "@/types/order";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
+import Link from "next/link";
 
 interface DasboardInfo {
   orders: {
@@ -280,22 +281,27 @@ export default function StaffDashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 mt-4">
-        <Card>
+      <div className="grid gap-4 md:grid-cols-3 mt-4">
+        <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Order Status Distribution</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="flex items-center flex-wrap gap-4">
+              {dashboardData.summary.statusCount.map((entry, index) => (
+                <span
+                  key={index}
+                >{`${entry.name.toWellFormed()}: ${entry.value}`}</span>
+              ))}
+            </div>
             <ChartContainer config={chartConfig}>
               <PieChart>
                 <Pie
                   data={dashboardData.summary.statusCount}
-                  //labelLine={false}
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
-                  innerRadius={40}
-                  // fill="#8884d8"
+                  outerRadius={100}
+                  innerRadius={50}
                   dataKey="value"
                   label
                 >
@@ -314,26 +320,37 @@ export default function StaffDashboard() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Storage Blocks</CardTitle>
+            <CardTitle>Quick links</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {dashboardData.storageBlocks.map((block) => (
-                <div key={block.id} className="flex items-center">
-                  <div className="w-40">{block.name}</div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                    <div
-                      className="bg-blue-600 h-2.5 rounded-full"
-                      style={{
-                        width: `${(block.currentCapacity / block.maxCapacity) * 100}%`,
-                      }}
-                    ></div>
-                  </div>
-                  <div className="w-40 text-right">
-                    {block.currentCapacity}/{block.maxCapacity}
-                  </div>
-                </div>
-              ))}
+              <div className="grid justify-items-stretch grid-cols-1 gap-4 w-full">
+                <Link href="/dashboard/staff/packages">
+                  <Button className="w-full" variant="outline">
+                    View Packages <ArrowUpRight />
+                  </Button>
+                </Link>
+                <Link href="/dashboard/staff/orders">
+                  <Button className="w-full" variant="outline">
+                    View Orders <ArrowUpRight />
+                  </Button>
+                </Link>
+                <Link href="/dashboard/staff/storage">
+                  <Button className="w-full" variant="outline">
+                    View Storage <ArrowUpRight />
+                  </Button>
+                </Link>
+                <Link href="/dashboard/staff/shipping">
+                  <Button className="w-full" variant="outline">
+                    View Shipping options <ArrowUpRight />
+                  </Button>
+                </Link>
+                <Link href="/dashboard/staff/accounts">
+                  <Button className="w-full" variant="outline">
+                    View Accounts <ArrowUpRight />
+                  </Button>
+                </Link>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -87,6 +87,22 @@ async def patch_account(
     return Account(**updated.__dict__)
 
 
+@router.patch("/admin/{id}")
+async def patch_account_admin(
+    id: UUID,
+    account: Annotated[AccountUpdate, Body()],
+    account_repo: AccountRepoDep,
+    user: LoggedInDep,
+) -> Account:
+    if user.type != "STAFF":
+        raise HTTPException(
+            status_code=400, detail="You are not authorized to modify this resource"
+        )
+
+    updated = account_repo.update(id, account)
+    return Account(**updated.__dict__)
+
+
 @router.delete("/{id}")
 async def delete_account(
     id: UUID, account_repo: AccountRepoDep, user: LoggedInDep

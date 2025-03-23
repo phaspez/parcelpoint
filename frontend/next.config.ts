@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["giaohangtietkiem.vn"],
   },
+  experimental: {
+    reactCompiler: true,
+  },
 };
 
 export default nextConfig;

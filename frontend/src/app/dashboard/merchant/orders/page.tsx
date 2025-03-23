@@ -20,7 +20,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchOrders } from "@/lib/data";
-import { EllipsisVertical, Filter, Search } from "lucide-react";
+import {
+  EllipsisVertical,
+  Filter,
+  Package2,
+  Receipt,
+  Search,
+} from "lucide-react";
 import { useCookies } from "next-client-cookies";
 import {
   Pagination,
@@ -189,6 +195,9 @@ export default function OrdersPage() {
                 <SelectItem value="100">100</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="hidden md:block">
+            <Receipt size={64} />
           </div>
         </div>
       </div>
