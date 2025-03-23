@@ -109,3 +109,8 @@ async def get_account_by_id(id: UUID, account_repo: AccountRepoDep) -> AccountWi
 
     at = AccountWithType(**account.__dict__, type=account_type)
     return at
+
+
+@router.get("/detail/{id}")
+async def get_accounts_detail(id: UUID, account_repo: AccountRepoDep):
+    return account_repo.get_by_id_detail(id)

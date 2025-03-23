@@ -1,23 +1,35 @@
-import { Account } from "@/types/account";
+import { Address } from "@/app/dashboard/staff/packages/data";
 
-export async function deleteAccount(id: string, access_token: string) {
-  try {
-    const response = await fetch(
-      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/account/${id}`,
-      {
-        method: "delete",
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      },
-    );
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-  } catch (error) {
-    console.error("Error fetching accounts:", error);
-    throw error;
-  }
+export interface BaseAccount {
+  phone: string;
+  id: string;
+  google_id?: string;
+  email: string;
+  name: string;
+  street: string;
+  address: Address; // contains: province: string, district: string, commune: string
+}
+
+export interface Merchant extends BaseAccount {
+  merchant: {
+    registration_date: string;
+    company_name: string;
+    merchant_description: string;
+  };
+}
+
+export interface Staff extends BaseAccount {
+  staff: {
+    department: string;
+    access_level: string;
+    hire_date: string;
+    position: string;
+  };
+}
+
+interface AllAccountsResponse {
+  merchants: Merchant[];
+  staff: Staff[];
 }
 
 export async function fetchAllAccounts() {
@@ -32,7 +44,7 @@ export async function fetchAllAccounts() {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return (await response.json()) as Account[];
+    return (await response.json()) as AllAccountsResponse;
   } catch (error) {
     console.error("Error fetching accounts:", error);
     throw error;
@@ -42,7 +54,7 @@ export async function fetchAllAccounts() {
 export async function fetchAccountById(id: string) {
   try {
     const response = await fetch(
-      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/account/${id}`,
+      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/v1/account/detail/${id}`,
       {
         method: "get",
         headers: {},
@@ -51,7 +63,7 @@ export async function fetchAccountById(id: string) {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return (await response.json()) as Account;
+    return (await response.json()) as Merchant | Staff;
   } catch (error) {
     console.error("Error fetching accounts:", error);
     throw error;

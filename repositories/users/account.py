@@ -9,8 +9,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_400_BAD_REQUEST
 
+from models.address import Address
 from models.users.account import AccountCreate, AccountUpdate, Account
 from repositories.base import BaseRepository
+from schemas.address import AddressSchema
 from schemas.users import StaffSchema
 from schemas.users.account import AccountSchema
 from schemas.users.merchant import MerchantSchema
@@ -46,6 +48,88 @@ def verify_password(password: str, hashed_password: str) -> bool:
 class AccountRepository(BaseRepository[AccountSchema, AccountCreate, AccountUpdate]):
     def __init__(self, db: Session):
         super().__init__(db, AccountSchema)
+
+    def get_all(self):
+        merchant_accounts = (
+            self.db.query(AccountSchema, MerchantSchema, AddressSchema)
+            .join(MerchantSchema, AccountSchema.id == MerchantSchema.account_id)
+            .outerjoin(AddressSchema, AccountSchema.address_id == AddressSchema.id)
+            .all()
+        )
+
+        staff_accounts = (
+            self.db.query(AccountSchema, StaffSchema, AddressSchema)
+            .join(StaffSchema, AccountSchema.id == StaffSchema.account_id)
+            .outerjoin(AddressSchema, AccountSchema.address_id == AddressSchema.id)
+            .all()
+        )
+
+        merchant_results = []
+
+        for account, merchant, address in merchant_accounts:
+            result = account.__dict__.copy()
+            result.pop("_sa_instance_state", None)
+            result["merchant"] = {
+                k: v for k, v in merchant.__dict__.items() if not k.startswith("_")
+            }
+            result["address"] = {
+                k: v for k, v in address.__dict__.items() if not k.startswith("_")
+            }
+            merchant_results.append(result)
+
+        staff_results = []
+        for account, staff, address in staff_accounts:
+            result = account.__dict__.copy()
+            result.pop("_sa_instance_state", None)
+            result["staff"] = {
+                k: v for k, v in staff.__dict__.items() if not k.startswith("_")
+            }
+            result["address"] = {
+                k: v for k, v in address.__dict__.items() if not k.startswith("_")
+            }
+            staff_results.append(result)
+
+        return {"merchants": merchant_results, "staff": staff_results}
+
+    def get_by_id_detail(self, account_id: UUID):
+        result = (
+            self.db.query(AccountSchema, MerchantSchema, StaffSchema, AddressSchema)
+            .filter(AccountSchema.id == account_id)
+            .outerjoin(MerchantSchema, AccountSchema.id == MerchantSchema.account_id)
+            .outerjoin(StaffSchema, AccountSchema.id == StaffSchema.account_id)
+            .outerjoin(AddressSchema, AccountSchema.address_id == AddressSchema.id)
+            .first()
+        )
+
+        if not result:
+            return None
+
+        account, merchant, staff, address = result
+        print(result)
+
+        account_data = account.__dict__.copy()
+        account_data.pop("_sa_instance_state", None)
+        account_data.pop("hashed_password", None)
+        account_data.pop("address_id", None)
+
+        if merchant:
+            merchant_data = merchant.__dict__.copy()
+            merchant_data.pop("_sa_instance_state", None)
+            account_data["merchant"] = merchant_data
+
+        if staff:
+            staff_data = staff.__dict__.copy()
+            staff_data.pop("_sa_instance_state", None)
+            staff_data.pop("account_id", None)
+            account_data["staff"] = staff_data
+
+        if address:
+            address_data = address.__dict__.copy()
+            address_data.pop("_sa_instance_state", None)
+            address_data.pop("id", None)
+            account_data["address"] = address_data
+
+        return account_data
 
     def create(self, schema: AccountCreate) -> AccountSchema:
         try:

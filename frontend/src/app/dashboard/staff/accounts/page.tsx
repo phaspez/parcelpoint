@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -13,14 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,19 +23,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { fetchAllAccounts } from "@/app/dashboard/staff/accounts/account.service";
-import { Account } from "@/types/account";
+import {
+  fetchAllAccounts,
+  Merchant,
+  Staff,
+} from "@/app/dashboard/staff/accounts/account.service";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  type: "merchant" | "staff" | "customer";
-  createdAt: string;
-}
 
 const deleteUser = async (id: string): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -53,41 +38,34 @@ const deleteUser = async (id: string): Promise<void> => {
 
 export default function UsersManagementPage() {
   const { toast } = useToast();
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const [users, setUsers] = useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<(Merchant | Staff)[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [userType, setUserType] = useState("all");
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
-    const page = Number.parseInt(searchParams.get("page") || "1", 10);
-    const search = searchParams.get("search") || "";
-    const type = searchParams.get("type") || "all";
-
-    setCurrentPage(page);
-    setSearchTerm(search);
-    setUserType(type);
-
-    fetchAllAccounts().then((accounts) => {
-      console.log(accounts);
-      setUsers(accounts);
-      setIsLoading(false);
-    });
-  }, [searchParams]);
-
-  const handleSearch = () => {
-    router.push(`/staff/users?page=1&search=${searchTerm}&type=${userType}`);
-  };
+    fetchAllAccounts()
+      .then((response) => {
+        const allAccounts = [...response.merchants, ...response.staff];
+        setAccounts(allAccounts);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch accounts:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load accounts. Please try again.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+      });
+  }, [searchParams, toast]);
 
   const handleDelete = async (id: string) => {
     try {
       await deleteUser(id);
-      setUsers((prev) => prev.filter((user) => user.id !== id));
+      setAccounts((prev) => prev.filter((account) => account.id !== id));
       toast({
         title: "User deleted",
         description: "The user has been successfully removed from the system.",
@@ -104,13 +82,8 @@ export default function UsersManagementPage() {
     }
   };
 
-  const confirmDelete = (id: string) => {
-    setUserToDelete(id);
-    setIsDeleteDialogOpen(true);
-  };
-
-  function clampText(text: string, maxLength: number = 8): string {
-    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  function getUserType(account: Merchant | Staff): string {
+    return "merchant" in account ? "Merchant" : "Staff";
   }
 
   if (isLoading) {
@@ -135,30 +108,30 @@ export default function UsersManagementPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Street ID</TableHead>
             <TableHead>Street Name</TableHead>
+            <TableHead>Type</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell className="font-mono text-xs">{user.id}</TableCell>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{user.phone}</TableCell>
-              <TableCell className="font-mono text-xs">
-                {clampText(user.address_id)}
+          {accounts.map((account) => (
+            <TableRow key={account.id}>
+              <TableCell>{account.name}</TableCell>
+              <TableCell>{account.email}</TableCell>
+              <TableCell>{account.phone}</TableCell>
+              <TableCell className="text-xs">
+                {`${account.address.province}, ${account.address.district}, ${account.address.commune}`}
               </TableCell>
-              <TableCell>{user.street}</TableCell>
+              <TableCell>{account.street}</TableCell>
+              <TableCell>{getUserType(account)}</TableCell>
               <TableCell>
                 <div className="flex space-x-2">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/staff/accounts/${user.id}`}>
+                    <Link href={`/dashboard/staff/accounts/${account.id}`}>
                       View or Edit
                     </Link>
                   </Button>
@@ -168,6 +141,29 @@ export default function UsersManagementPage() {
           ))}
         </TableBody>
       </Table>
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              user account and remove their data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => userToDelete && handleDelete(userToDelete)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

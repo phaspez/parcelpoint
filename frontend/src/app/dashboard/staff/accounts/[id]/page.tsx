@@ -32,49 +32,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getAccountInfo } from "@/app/dashboard/merchant/you/data";
 import { useToast } from "@/hooks/use-toast";
-import { getAccountByID } from "@/app/dashboard/staff/packages/data";
-
-interface UserData {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  address_id: string;
-  street: string;
-  type: "merchant" | "staff" | "customer";
-  active: boolean;
-}
-
-interface AddressData {
-  id: string;
-  province: string;
-  district: string;
-  commune: string;
-}
-
-interface MerchantData {
-  account_id: string;
-  company_name: string;
-  merchant_description: string;
-  registration_date: string;
-}
-
-interface StaffData {
-  account_id: string;
-  position: string;
-  department: string;
-  hire_date: string;
-  access_level: number;
-}
+import {
+  fetchAccountById,
+  Merchant,
+  Staff,
+  BaseAccount,
+} from "@/app/dashboard/staff/accounts/account.service";
 
 const userFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   phone: z.string().min(10, "Phone number must be at least 10 characters"),
   email: z.string().email("Invalid email address"),
   street: z.string().min(5, "Street must be at least 5 characters"),
-  active: z.boolean(),
+  active: z.boolean().optional(),
 });
 
 const merchantFormSchema = z.object({
@@ -87,22 +58,12 @@ const merchantFormSchema = z.object({
 const staffFormSchema = z.object({
   position: z.string().min(2, "Position must be at least 2 characters"),
   department: z.string().min(2, "Department must be at least 2 characters"),
-  access_level: z.number().min(1).max(5),
+  access_level: z.string(),
 });
-
-const fetchAddressData = async (id: string): Promise<AddressData> => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  return {
-    id,
-    province: "Example Province",
-    district: "Example District",
-    commune: "Example Commune",
-  };
-};
 
 const updateUserData = async (
   id: string,
-  data: Partial<UserData>,
+  data: Partial<BaseAccount>,
 ): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   console.log("Updating user data:", data);
@@ -110,7 +71,7 @@ const updateUserData = async (
 
 const updateMerchantData = async (
   id: string,
-  data: Partial<MerchantData>,
+  data: Partial<Merchant["merchant"]>,
 ): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   console.log("Updating merchant data:", data);
@@ -118,7 +79,7 @@ const updateMerchantData = async (
 
 const updateStaffData = async (
   id: string,
-  data: Partial<StaffData>,
+  data: Partial<Staff["staff"]>,
 ): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   console.log("Updating staff data:", data);
@@ -128,8 +89,7 @@ export default function UserDetailPage() {
   const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [addressData, setAddressData] = useState<AddressData | null>(null);
+  const [account, setAccount] = useState<Merchant | Staff | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("basic");
 
@@ -144,37 +104,47 @@ export default function UserDetailPage() {
     },
   });
 
+  const merchantForm = useForm<z.infer<typeof merchantFormSchema>>({
+    resolver: zodResolver(merchantFormSchema),
+    defaultValues: {
+      company_name: "",
+      merchant_description: "",
+    },
+  });
+
+  const staffForm = useForm<z.infer<typeof staffFormSchema>>({
+    resolver: zodResolver(staffFormSchema),
+    defaultValues: {
+      position: "",
+      department: "",
+      access_level: "1",
+    },
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const userId = params.id as string;
-        const user = await getAccountByID(userId);
-        const address = await fetchAd(user.address_id);
-        setUserData(user);
-        setAddressData(address);
+        const accountData = await fetchAccountById(userId);
+        setAccount(accountData);
 
         userForm.reset({
-          name: user.name,
-          phone: user.phone,
-          email: user.email,
-          street: user.street,
-          active: user.active,
+          name: accountData.name,
+          phone: accountData.phone,
+          email: accountData.email,
+          street: accountData.street,
         });
 
-        if (user.type === "merchant") {
-          const merchant = await fetchUserData(userId);
-          setMerchantData(merchant);
+        if ("merchant" in accountData) {
           merchantForm.reset({
-            company_name: merchant.company_name,
-            merchant_description: merchant.merchant_description,
+            company_name: accountData.merchant.company_name,
+            merchant_description: accountData.merchant.merchant_description,
           });
-        } else if (user.type === "staff") {
-          const staff = await fetchStaffData(userId);
-          setStaffData(staff);
+        } else if ("staff" in accountData) {
           staffForm.reset({
-            position: staff.position,
-            department: staff.department,
-            access_level: staff.access_level,
+            position: accountData.staff.position,
+            department: accountData.staff.department,
+            access_level: accountData.staff.access_level,
           });
         }
 
@@ -186,22 +156,22 @@ export default function UserDetailPage() {
           description: "Failed to load user information. Please try again.",
           variant: "destructive",
         });
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [params.id, userForm, merchantForm, staffForm]);
+  }, [params.id, userForm, merchantForm, staffForm, toast]);
 
   const onUserSubmit = async (data: z.infer<typeof userFormSchema>) => {
     try {
-      if (!userData) return;
+      if (!account) return;
 
-      await updateUserData(userData.id, {
+      await updateUserData(account.id, {
         name: data.name,
         phone: data.phone,
         email: data.email,
         street: data.street,
-        active: data.active,
       });
 
       toast({
@@ -220,9 +190,9 @@ export default function UserDetailPage() {
 
   const onMerchantSubmit = async (data: z.infer<typeof merchantFormSchema>) => {
     try {
-      if (!merchantData) return;
+      if (!account || !("merchant" in account)) return;
 
-      await updateMerchantData(merchantData.account_id, {
+      await updateMerchantData(account.id, {
         company_name: data.company_name,
         merchant_description: data.merchant_description,
       });
@@ -243,9 +213,9 @@ export default function UserDetailPage() {
 
   const onStaffSubmit = async (data: z.infer<typeof staffFormSchema>) => {
     try {
-      if (!staffData) return;
+      if (!account || !("staff" in account)) return;
 
-      await updateStaffData(staffData.account_id, {
+      await updateStaffData(account.id, {
         position: data.position,
         department: data.department,
         access_level: data.access_level,
@@ -265,13 +235,19 @@ export default function UserDetailPage() {
     }
   };
 
+  function getAccountType(account: Merchant | Staff): string {
+    return "merchant" in account ? "merchant" : "staff";
+  }
+
   if (isLoading) {
     return <div className="container py-10">Loading...</div>;
   }
 
-  if (!userData) {
+  if (!account) {
     return <div className="container py-10">User not found</div>;
   }
+
+  const accountType = getAccountType(account);
 
   return (
     <div className="container py-10">
@@ -283,20 +259,20 @@ export default function UserDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Edit User: {userData.name}</CardTitle>
+          <CardTitle>Edit User: {account.name}</CardTitle>
           <CardDescription>
-            User ID: <span className="font-mono">{userData.id}</span> • Type:{" "}
-            <span className="capitalize">{userData.type}</span>
+            User ID: <span className="font-mono">{account.id}</span> • Type:{" "}
+            <span className="capitalize">{accountType}</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-4">
               <TabsTrigger value="basic">Basic Information</TabsTrigger>
-              {userData.type === "merchant" && (
+              {accountType === "merchant" && (
                 <TabsTrigger value="merchant">Merchant Details</TabsTrigger>
               )}
-              {userData.type === "staff" && (
+              {accountType === "staff" && (
                 <TabsTrigger value="staff">Staff Details</TabsTrigger>
               )}
             </TabsList>
@@ -365,8 +341,8 @@ export default function UserDetailPage() {
                   <div>
                     <FormLabel>Full Address</FormLabel>
                     <FormDescription>
-                      {addressData?.commune}, {addressData?.district},{" "}
-                      {addressData?.province}
+                      {account.address?.commune}, {account.address?.district},{" "}
+                      {account.address?.province}
                     </FormDescription>
                   </div>
                   <Button type="submit">Update User Information</Button>
@@ -374,7 +350,7 @@ export default function UserDetailPage() {
               </Form>
             </TabsContent>
 
-            {userData.type === "merchant" && merchantData && (
+            {accountType === "merchant" && (
               <TabsContent value="merchant">
                 <Form {...merchantForm}>
                   <form
@@ -410,7 +386,8 @@ export default function UserDetailPage() {
                     <div>
                       <FormLabel>Registration Date</FormLabel>
                       <FormDescription>
-                        {merchantData.registration_date}
+                        {"merchant" in account &&
+                          account.merchant.registration_date}
                       </FormDescription>
                     </div>
                     <Button type="submit">Update Merchant Information</Button>
@@ -419,7 +396,7 @@ export default function UserDetailPage() {
               </TabsContent>
             )}
 
-            {userData.type === "staff" && staffData && (
+            {accountType === "staff" && (
               <TabsContent value="staff">
                 <Form {...staffForm}>
                   <form
@@ -461,10 +438,8 @@ export default function UserDetailPage() {
                         <FormItem>
                           <FormLabel>Access Level</FormLabel>
                           <Select
-                            value={field.value.toString()}
-                            onValueChange={(value) =>
-                              field.onChange(Number.parseInt(value))
-                            }
+                            value={field.value}
+                            onValueChange={field.onChange}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -497,7 +472,9 @@ export default function UserDetailPage() {
                     />
                     <div>
                       <FormLabel>Hire Date</FormLabel>
-                      <FormDescription>{staffData.hire_date}</FormDescription>
+                      <FormDescription>
+                        {"staff" in account && account.staff.hire_date}
+                      </FormDescription>
                     </div>
                     <Button type="submit">Update Staff Information</Button>
                   </form>

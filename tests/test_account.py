@@ -19,11 +19,6 @@ def random_address_id(client):
     return choice["id"]
 
 
-# def test_get_accounts_not_logged_in(client):
-#     response = client.get("/api/v1/account")
-#     assert response.status_code == 401
-
-
 def test_create_account(client, random_address_id):
     account = AccountCreate(
         address_id=random_address_id,
