@@ -1,0 +1,11 @@
+merchant_id,block_id,order_id,name,phone,street,description,address_id,is_urgent,is_fragile,status,width,length,height,weight,package_rate_id,shipping_cost,cod_cost
+,,,Receiver name 0,1234567890,Street name 0,Electronics 0,4d669fa7-51df-484a-8f3c-856ebdd1b552,False,True,ORDERED,14.6,15.3,6.5,18.3,d8665a87-bad0-4818-a9ba-2357e6b2b8f8,,
+,,,Receiver name 1,1234567891,Street name 1,Books 1,4d669fa7-51df-484a-8f3c-856ebdd1b552,True,False,CANCELLED,19.5,18.2,18.7,11.0,d5148aa8-105f-4fc4-a501-5a5e7d7d9ba8,,
+,,,Receiver name 2,1234567892,Street name 2,Electronics 2,c668be4e-ad50-483f-a93a-1e342aa0b35c,False,False,ORDERED,9.6,7.8,6.2,10.4,d8665a87-bad0-4818-a9ba-2357e6b2b8f8,,
+,,,Receiver name 3,1234567893,Street name 3,Electronics 3,4d669fa7-51df-484a-8f3c-856ebdd1b552,True,False,ORDERED,10.9,20.0,18.1,8.4,d8665a87-bad0-4818-a9ba-2357e6b2b8f8,,
+,,,Receiver name 4,1234567894,Street name 4,Clothing 4,87e92104-b94e-4a50-9019-c60f06347d83,True,True,MISSING,10.5,13.8,19.2,17.8,d5148aa8-105f-4fc4-a501-5a5e7d7d9ba8,,
+,,,Receiver name 5,1234567895,Street name 5,Books 5,4d669fa7-51df-484a-8f3c-856ebdd1b552,True,True,ORDERED,10.8,11.8,7.8,16.9,d5148aa8-105f-4fc4-a501-5a5e7d7d9ba8,,
+,,,Receiver name 6,1234567896,Street name 6,Electronics 6,36687664-9b79-49f8-92ea-6b27bf9fa5b4,False,True,ORDERED,17.4,17.4,19.5,18.4,d8665a87-bad0-4818-a9ba-2357e6b2b8f8,,
+,,,Receiver name 7,1234567897,Street name 7,Books 7,f712706e-9d1b-4ee5-86c6-c1abf09fd78a,True,True,DELIVERING,6.6,12.6,7.5,12.0,5616afab-7a80-44aa-a4f3-3bae3e8ee21f,,
+,,,Receiver name 8,1234567898,Street name 8,Electronics 8,4d669fa7-51df-484a-8f3c-856ebdd1b552,False,True,ORDERED,9.1,15.9,18.3,8.2,d8665a87-bad0-4818-a9ba-2357e6b2b8f8,,
+,,,Receiver name 9,1234567899,Street name 9,Books 9,7f71d8f3-7dd6-4897-80c0-e125540bbf00,True,False,MISSING,11.7,18.2,9.2,9.2,d5148aa8-105f-4fc4-a501-5a5e7d7d9ba8,,

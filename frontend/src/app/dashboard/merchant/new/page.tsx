@@ -40,7 +40,7 @@ import {
 import { fetchPricingOptions } from "@/lib/data";
 import { PricingOption } from "@/types/pricingOptions";
 import { VNDong } from "@/lib/regionFormat";
-import { fetchCreatePackage } from "@/lib/dataCreate";
+import { fetchBulkCreatePackage, fetchCreatePackage } from "@/lib/dataCreate";
 import AutoBreadcrumb from "@/components/AutoBreadcrumb";
 import { Info, MapPin, Receipt, Truck } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -179,9 +179,7 @@ export default function CreatePackagePage() {
     if (file) {
       try {
         setIsSubmitting(true);
-        // Here you would typically send the file to your API for processing
-        console.log("Uploading file:", file.name);
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulating API call
+        await fetchBulkCreatePackage(file);
         toast({
           title: "Bulk upload completed",
           description: "Your packages have been successfully created.",
@@ -195,6 +193,12 @@ export default function CreatePackagePage() {
       } finally {
         setIsSubmitting(false);
       }
+    } else {
+      toast({
+        title: "Error",
+        description: "No file selected.",
+        variant: "destructive",
+      });
     }
   }
 

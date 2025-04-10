@@ -103,14 +103,14 @@ export default function OrderDetailsCard({
                       <Button variant="secondary">View Details</Button>
                     </Link>
 
-                    {handleDeletePackage && (
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleDeletePackage(pkg.id)}
-                      >
-                        <Trash />
-                      </Button>
-                    )}
+                    {/*{handleDeletePackage && (*/}
+                    {/*  <Button*/}
+                    {/*    variant="destructive"*/}
+                    {/*    onClick={() => handleDeletePackage(pkg.id)}*/}
+                    {/*  >*/}
+                    {/*    <Trash />*/}
+                    {/*  </Button>*/}
+                    {/*)}*/}
                   </div>
                 </TableCell>
               </TableRow>

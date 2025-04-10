@@ -1,5 +1,6 @@
 from seedings.account import seed_account
 from seedings.address import seed_address
+from seedings.create_csv import create_csv_bulk_data
 from seedings.merchant import seed_merchant
 from seedings.order import seed_order
 from seedings.package_rate import seed_package_rate
@@ -21,6 +22,7 @@ def global_setup():
     seed_order(num_order=100)
     seed_package(num_packages=1000)
     seed_package_history()
+    create_csv_bulk_data(15)
 
 
 def global_teardown():

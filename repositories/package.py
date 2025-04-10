@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 from turtledemo.penrose import start
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import and_, desc, cast, Date, func, Integer, text, select, String
 from sqlalchemy.dialects import postgresql
@@ -275,6 +275,52 @@ class PackageRepository(BaseRepository[PackageSchema, PackageCreate, PackageUpda
                 )
 
         return super().create(package)
+
+    def bulk_create(self, packages: list[PackageCreate]) -> list[PackageSchema]:
+        created_packages = []
+
+        try:
+            # Begin transaction explicitly (though SQLAlchemy sessions are already transactional)
+            for package in packages:
+                # Calculate shipping cost
+                package.shipping_cost = self.calculate_package_pricing(package)
+
+                # Validate storage block constraints if block_id is provided
+                if package.block_id:
+                    volume = package.width * package.height * package.length
+                    weight = package.weight
+
+                    try:
+                        satisfy_metric(volume, weight)
+                    except ValueError as e:
+                        raise ValueError(f"Invalid package metrics: {str(e)}")
+
+                    is_exceed_limit = self.storage_block.check_if_exceed_limit(
+                        volume, weight, package.block_id
+                    )
+                    if is_exceed_limit:
+                        raise ValueError(
+                            f"Package with dimensions {package.width}x{package.height}x{package.length} "
+                            f"and weight {package.weight} exceeds the limit of the block {package.block_id}"
+                        )
+
+                # Create the package
+                package_dict = package.model_dump()
+                package_dict["id"] = uuid4()
+                db_obj = PackageSchema(**package_dict)
+                self.db.add(db_obj)
+                self.db.flush()
+
+                created_packages.append(db_obj)
+
+            # If we get here, all packages were created successfully
+            self.db.commit()
+            return created_packages
+
+        except Exception as e:
+            # Any exception will trigger a rollback
+            self.db.rollback()
+            raise ValueError(f"Bulk package creation failed: {str(e)}")
 
     def update(self, id: UUID, package_updated: PackageUpdate) -> PackageSchema | None:
         package = self.get_by_id(id)

@@ -37,7 +37,9 @@ def get_orders():
 
 
 def get_random_address_id():
-    return random.choice(_feed_table("address"))[0]
+    cur.execute(f"SELECT * FROM parcelpoint.public.address")
+    results = cur.fetchall()
+    return random.choice(results)[0]
 
 
 def get_random_merchant_id():
@@ -53,7 +55,9 @@ def get_random_order_id():
 
 
 def get_random_package_rate_id():
-    return random.choice(_feed_table("packagerate"))[0]
+    cur.execute(f"SELECT * FROM parcelpoint.public.packagerate")
+    results = cur.fetchall()
+    return random.choice(results)[0]
 
 
 def get_storage_block_within_limits(vol=1, weight=1, num_package=1):

@@ -8,7 +8,7 @@ export async function fetchCreatePackage(packageData: PackageCreate) {
   const token = cookieStore.get("token");
   if (!token) throw Error("You need to log in to perform this action");
   const accessToken = token.value;
-  
+
   try {
     const response = await fetch(
       process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/package/my_packages",
@@ -32,6 +32,41 @@ export async function fetchCreatePackage(packageData: PackageCreate) {
     return data;
   } catch (error) {
     console.error("Error fetching packages:", error);
+    throw error;
+  }
+}
+
+export async function fetchBulkCreatePackage(file: File) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token");
+  if (!token) throw Error("You need to log in to perform this action");
+  const accessToken = token.value;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_BACKEND_URL + "/api/v1/package/my_packages/bulk",
+      {
+        method: "post",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      },
+    );
+
+    const data = await response.json();
+    console.log(data);
+
+    if (response.status == 422) {
+      throw new Error("Unprocessable entity");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error uploading bulk packages:", error);
     throw error;
   }
 }

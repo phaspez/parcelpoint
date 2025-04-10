@@ -1,8 +1,10 @@
+import csv
+import io
 from datetime import datetime
 from uuid import UUID
 from io import BytesIO
 import pandas as pd
-from fastapi import APIRouter, HTTPException, Query, Body
+from fastapi import APIRouter, HTTPException, Query, Body, UploadFile, File
 from fastapi.responses import StreamingResponse
 from dependencies import (
     PackageRepoDep,
@@ -71,6 +73,71 @@ async def create_single_merchant_packages(
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/my_packages/bulk")
+async def create_bulk_merchant_packages(
+    user: LoggedInDep,
+    package_repo: PackageRepoDep,
+    order_repo: OrderRepoDep,
+    merchant_repo: MerchantRepoDep,
+    file: UploadFile = File(...),
+):
+    try:
+        merchant = merchant_repo.get_by_id(user.id)
+        if not merchant:
+            raise HTTPException(status_code=400, detail="You must be a merchant")
+
+        # Read and decode CSV file
+        content = await file.read()
+        decoded_content = content.decode("utf-8")
+        csv_reader = csv.DictReader(io.StringIO(decoded_content))
+
+        packages = []
+        order_create = OrderCreate(
+            merchant_id=merchant.account_id,
+            date=datetime.now(),
+            details=f"Bulk order auto-created at {datetime.now()}",
+        )
+        order = order_repo.create(order_create)
+
+        for row in csv_reader:
+            try:
+                package_data = PackageCreate(
+                    merchant_id=user.id,
+                    order_id=order.id,
+                    description=row["description"],
+                    address_id=row["address_id"],
+                    name=row["name"],
+                    phone=row["phone"],
+                    street=row["street"],
+                    width=float(row["width"]),
+                    height=float(row["height"]),
+                    length=float(row["length"]),
+                    weight=float(row["weight"]),
+                    is_fragile=bool(row["is_fragile"]),
+                    is_urgent=bool(row["is_urgent"]),
+                    status=row.get("status", "ORDERED"),
+                    package_rate_id=row["package_rate_id"],
+                )
+                packages.append(package_data)
+            except KeyError as e:
+                print(e)
+                raise HTTPException(status_code=400, detail=f"Missing column: {str(e)}")
+            except ValueError as e:
+                print(e)
+                raise HTTPException(status_code=400, detail=f"Invalid value: {str(e)}")
+
+        created_packages = package_repo.bulk_create(packages)
+
+        return {
+            "message": "Bulk upload successful",
+            "created_packages": len(created_packages),
+        }
+
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/my_packages")

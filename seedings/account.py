@@ -21,6 +21,18 @@ def create_user_data(user_id: int) -> tuple:
     return name, hashed_password, phone, email, address_id, street, None
 
 
+def create_me() -> tuple:
+    return (
+        "mintram",
+        hash_password("mintram"),
+        "7777777777",
+        "tramtrimin@gmail.com",
+        get_random_address_id(),
+        "My street name",
+        None,
+    )
+
+
 def insert_user(user_data: tuple) -> bool:
     try:
         with connection.cursor() as local_cur:
@@ -41,8 +53,8 @@ def insert_user(user_data: tuple) -> bool:
 
 def seed_account(num_users=10):
     try:
-
         user_data_list = [create_user_data(i) for i in range(num_users)]
+        user_data_list.append(create_me())
         with ThreadPoolExecutor(max_workers=4) as executor:
             results = list(executor.map(insert_user, user_data_list))
 
